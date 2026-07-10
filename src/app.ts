@@ -10,15 +10,19 @@ import type { Config } from "./config.js";
 import type { Repo } from "./repository.js";
 import type { LlmClient } from "./llm.js";
 import type { Renderer } from "./heygen.js";
+import type { VoiceSynth } from "./voice.js";
+import type { PostProcessor } from "./postprocess.js";
 import { JobQueue } from "./queue.js";
 import { buildRoutes } from "./routes.js";
-import { runGenerationPipeline, finalizeManualEdit, type PipelineDeps } from "./pipeline.js";
+import { runGenerationPipeline, finalizeManualEdit, runPostProcess, type PipelineDeps } from "./pipeline.js";
 
 export interface AppDeps {
   config: Config;
   repo: Repo;
   llm: LlmClient;
   renderer: Renderer;
+  voice: VoiceSynth;
+  post: PostProcessor;
 }
 
 export interface App {
@@ -27,10 +31,10 @@ export interface App {
 }
 
 export function createApp(deps: AppDeps): App {
-  const { config, repo, llm, renderer } = deps;
+  const { config, repo, llm, renderer, voice, post } = deps;
 
   const pipelineDeps: PipelineDeps = {
-    repo, llm, renderer,
+    repo, llm, renderer, voice, post,
     avatarId: config.heygen.avatarId,
     voiceId: config.heygen.voiceId,
   };
@@ -38,6 +42,11 @@ export function createApp(deps: AppDeps): App {
   const queue = new JobQueue({
     generate: ({ videoId }) => runGenerationPipeline(pipelineDeps, videoId).then(() => undefined),
     finalize_edit: ({ videoId }) => finalizeManualEdit(pipelineDeps, videoId).then(() => undefined),
+    postprocess: async ({ videoId }) => {
+      const video = await repo.getVideo(videoId);
+      if (!video) throw new Error(`video not found: ${videoId}`);
+      await runPostProcess(pipelineDeps, video);
+    },
   });
 
   const app = express();
@@ -45,7 +54,11 @@ export function createApp(deps: AppDeps): App {
   app.use(express.json({ limit: "1mb" }));
 
   app.get("/healthz", (_req, res) => {
-    res.json({ ok: true, ts: Date.now(), renderer: renderer.provider, model: llm.model });
+    res.json({
+      ok: true, ts: Date.now(),
+      renderer: renderer.provider, model: llm.model,
+      voice: voice.provider, post: post.provider,
+    });
   });
 
   // Bearer auth on all mutations when ADMIN_TOKEN is set; reads stay open so
@@ -57,7 +70,7 @@ export function createApp(deps: AppDeps): App {
     res.status(401).json({ error: "missing or invalid admin token" });
   });
 
-  app.use("/api", buildRoutes({ repo, llm, renderer, queue }));
+  app.use("/api", buildRoutes({ repo, llm, renderer, voice, post, queue }));
 
   // Review dashboard (static single page hitting the API above).
   const publicDir = join(dirname(fileURLToPath(import.meta.url)), "..", "public");

@@ -4,6 +4,8 @@ import { createApp } from "../src/app.js";
 import { InMemoryRepo } from "../src/repository.js";
 import { MockLlmClient } from "../src/llm.js";
 import { MockRenderer } from "../src/heygen.js";
+import { MockVoice } from "../src/voice.js";
+import { MockPostProcessor } from "../src/postprocess.js";
 import { ensureSeedRules } from "../src/learning.js";
 import type { Config } from "../src/config.js";
 
@@ -12,6 +14,8 @@ function testConfig(adminToken: string | null = null): Config {
     port: 0, adminToken, dataDir: "./data",
     openai: { apiKey: null, model: "mock-llm" },
     heygen: { apiKey: null, avatarId: "av", voiceId: "vo" },
+    elevenlabs: { apiKey: null, voiceId: "", modelId: "eleven_multilingual_v2" },
+    captions: { apiKey: null, apiBase: undefined },
   };
 }
 
@@ -20,6 +24,7 @@ async function makeApp(adminToken: string | null = null) {
   await ensureSeedRules(repo);
   const { app, queue } = createApp({
     config: testConfig(adminToken), repo, llm: new MockLlmClient(), renderer: new MockRenderer(),
+    voice: new MockVoice(), post: new MockPostProcessor(),
   });
   return { app, queue, repo };
 }
@@ -49,6 +54,12 @@ describe("api flow", () => {
     expect(vid.body.package.caption_lines.length).toBeGreaterThanOrEqual(3);
     expect(vid.body.judge.pass).toBe(true);
     expect(vid.body.render.video_url).toContain("mock.heygen.local");
+    // narration + post-process surfaced on the wire, final url points at the
+    // captioned/cleaned deliverable
+    expect(vid.body.audio.status).toBe("completed");
+    expect(vid.body.post.status).toBe("completed");
+    expect(vid.body.post.operations).toEqual({ captions: true, cutFillers: true, cutSilences: true });
+    expect(vid.body.final_video_url).toContain(".captioned.mp4");
 
     // shows up in the review queue
     const rq = await request(app).get("/api/review-queue");

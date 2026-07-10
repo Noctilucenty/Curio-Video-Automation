@@ -6,19 +6,23 @@ import { Router } from "express";
 import type { Repo } from "./repository.js";
 import type { LlmClient } from "./llm.js";
 import type { Renderer } from "./heygen.js";
+import type { VoiceSynth } from "./voice.js";
+import type { PostProcessor } from "./postprocess.js";
 import type { JobQueue } from "./queue.js";
 import type { Platform, Topic, Video, VideoStatus } from "./types.js";
 import { assertTransition, TransitionError } from "./types.js";
 import { makeId } from "./config.js";
 import { createDraftVideo } from "./pipeline.js";
 import { normalizeCaptions, captionsToSrt, CAPTION_STYLE } from "./captions.js";
-import { judgePackage, PUBLISH_THRESHOLDS } from "./judge.js";
+import { PUBLISH_THRESHOLDS } from "./judge.js";
 import { runLearning, LearningDataError, MIN_VIDEOS_FOR_LEARNING } from "./learning.js";
 
 export interface RouteDeps {
   repo: Repo;
   llm: LlmClient;
   renderer: Renderer;
+  voice: VoiceSynth;
+  post: PostProcessor;
   queue: JobQueue;
 }
 
@@ -184,6 +188,19 @@ export function buildRoutes(deps: RouteDeps): Router {
   r.post("/videos/:id/reject", (req, res) => reviewAction(repo, req, res, "rejected"));
   r.post("/videos/:id/publish", (req, res) => reviewAction(repo, req, res, "published"));
 
+  // Retry just the Captions.ai step (burn captions, cut fillers/silences)
+  // against the existing HeyGen render — no regeneration, no re-render.
+  r.post("/videos/:id/postprocess", async (req, res) => {
+    const video = await repo.getVideo(req.params.id);
+    if (!video) { res.status(404).json({ error: "video not found" }); return; }
+    if (!video.render.videoUrl) {
+      res.status(409).json({ error: "no completed render to post-process" });
+      return;
+    }
+    const job = queue.enqueue("postprocess", { videoId: video.id });
+    res.status(202).json({ video_id: video.id, job_id: job.id });
+  });
+
   // --- Performance + learning ------------------------------------------------
 
   r.post("/videos/:id/performance", async (req, res) => {
@@ -264,6 +281,8 @@ export function buildRoutes(deps: RouteDeps): Router {
     res.json({
       llm_model: llm.model,
       renderer: deps.renderer.provider,
+      voice: deps.voice.provider,
+      post: deps.post.provider,
       thresholds: PUBLISH_THRESHOLDS,
       caption_style: CAPTION_STYLE,
     });
@@ -334,6 +353,25 @@ function videoWire(v: Video) {
       video_url: v.render.videoUrl ?? null,
       error: v.render.error ?? null,
     },
+    audio: v.audio
+      ? {
+          provider: v.audio.provider,
+          status: v.audio.status,
+          voice_id: v.audio.voiceId ?? null,
+          error: v.audio.error ?? null,
+        }
+      : null,
+    post: v.post
+      ? {
+          provider: v.post.provider,
+          status: v.post.status,
+          video_url: v.post.videoUrl ?? null,
+          operations: v.post.operations ?? null,
+          error: v.post.error ?? null,
+        }
+      : null,
+    // The URL to actually publish: captioned+cleaned if available, else raw render.
+    final_video_url: v.post?.videoUrl ?? v.render.videoUrl ?? null,
     judge: v.judge
       ? {
           hook_score: v.judge.hookScore,

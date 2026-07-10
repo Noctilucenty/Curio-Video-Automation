@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import { InMemoryRepo } from "../src/repository.js";
 import { MockLlmClient } from "../src/llm.js";
 import { MockRenderer } from "../src/heygen.js";
+import { MockVoice } from "../src/voice.js";
+import { MockPostProcessor } from "../src/postprocess.js";
 import { createDraftVideo, runGenerationPipeline } from "../src/pipeline.js";
 import { runLearning, engagementScore, ensureSeedRules, LearningDataError } from "../src/learning.js";
 import { makeId } from "../src/config.js";
@@ -18,7 +20,10 @@ function metrics(videoId: string, over: Partial<PerformanceMetrics> = {}): Perfo
 
 async function seedVideos(repo: InMemoryRepo, n: number): Promise<string[]> {
   const llm = new MockLlmClient();
-  const deps = { repo, llm, renderer: new MockRenderer(), avatarId: "a", voiceId: "v" };
+  const deps = {
+    repo, llm, renderer: new MockRenderer(), voice: new MockVoice(),
+    post: new MockPostProcessor(), avatarId: "a", voiceId: "v",
+  };
   const ids: string[] = [];
   for (let i = 0; i < n; i++) {
     const topic: Topic = {
@@ -110,7 +115,10 @@ describe("learning run", () => {
     };
     await repo.createTopic(topic);
     const v = await createDraftVideo(repo, topic.id);
-    await runGenerationPipeline({ repo, llm, renderer: new MockRenderer(), avatarId: "a", voiceId: "v" }, v.id);
+    await runGenerationPipeline({
+      repo, llm, renderer: new MockRenderer(), voice: new MockVoice(),
+      post: new MockPostProcessor(), avatarId: "a", voiceId: "v",
+    }, v.id);
 
     const gens = await repo.listGenerations(v.id);
     const pkgGen = gens.find((g) => g.kind === "package")!;

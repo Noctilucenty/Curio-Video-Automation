@@ -132,10 +132,17 @@ function mockJudge(user: string): unknown {
   let retention = 8;
   if (scriptWords > 140) { retention = 6; problems.push("script too long; middle will sag"); }
 
+  // Fillers get cut in post anyway — a script that needs cutting loses clarity.
+  let clarity = 8;
+  const fillers = String(pkg.script ?? "").match(/\b(basically|actually|you know|kind of|sort of|literally)\b/gi);
+  if (fillers && fillers.length > 0) {
+    clarity = 6;
+    problems.push(`filler words in script: ${[...new Set(fillers.map((f: string) => f.toLowerCase()))].join(", ")}`);
+  }
+
   const factualSafety = /\d{2,}%|studies show|scientists proved/.test(text) ? 6 : 9;
   if (factualSafety < 8) problems.push("unverifiable stat/claim phrasing");
 
-  const clarity = 8;
   const viral = Math.min(9, Math.round((hookScore + retention) / 2));
   const overall = Math.round(
     (hookScore + retention + clarity + captionReadability + brandFit + viral + factualSafety) / 7,

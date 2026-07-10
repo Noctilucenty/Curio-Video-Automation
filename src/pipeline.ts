@@ -1,12 +1,15 @@
 // The full automation loop for one video:
 //   generate package -> judge -> (fail? rewrite with judge feedback, max 2 regens)
-//   -> render on HeyGen -> ready_for_review.
+//   -> ElevenLabs narration -> HeyGen render (lip-sync to that audio)
+//   -> Captions.ai (burn captions, cut fillers + silences) -> ready_for_review.
 // Every LLM call is recorded (prompt version, model, input, output) for A/B
 // analysis and future fine-tune data. Humans approve/publish; nothing auto-posts.
 
 import type { Repo } from "./repository.js";
 import type { LlmClient } from "./llm.js";
 import type { Renderer } from "./heygen.js";
+import type { VoiceSynth } from "./voice.js";
+import type { PostProcessor } from "./postprocess.js";
 import type { JudgeScores, Topic, Video } from "./types.js";
 import { assertTransition } from "./types.js";
 import { generatePackage } from "./generator.js";
@@ -19,8 +22,11 @@ export interface PipelineDeps {
   repo: Repo;
   llm: LlmClient;
   renderer: Renderer;
+  voice: VoiceSynth;
+  post: PostProcessor;
   avatarId: string;
   voiceId: string;
+  language?: string;
 }
 
 export async function createDraftVideo(repo: Repo, topicId?: string): Promise<Video> {
@@ -106,37 +112,90 @@ export async function finalizeManualEdit(deps: PipelineDeps, videoId: string): P
   return renderVideo(deps, video);
 }
 
-/** Render the approved-quality package on HeyGen (or the mock renderer). */
+/**
+ * Voice -> render -> post-process. ElevenLabs speaks the script (Zack-style
+ * narration voice), HeyGen lip-syncs to that audio, Captions.ai burns the
+ * curio_premium captions and cuts filler words + silences.
+ */
 async function renderVideo(deps: PipelineDeps, video: Video): Promise<Video> {
-  const { repo, renderer } = deps;
+  const { repo, renderer, voice } = deps;
   video.render = { provider: renderer.provider, status: "rendering" };
+  video.audio = { provider: voice.provider, status: "not_started" };
   await repo.updateVideo(video);
   try {
+    // 1. Narration. A voice failure falls back to HeyGen TTS (visible on the
+    //    video row) rather than killing the render — reviewer decides.
+    let audioAssetId: string | undefined;
+    try {
+      const synth = await voice.synthesize(video.pkg!.script);
+      const { assetId } = await renderer.uploadAudio(synth.audio, synth.mimeType);
+      video.audio = { provider: voice.provider, status: "completed", voiceId: synth.voiceId, assetId };
+      audioAssetId = assetId;
+    } catch (e) {
+      video.audio = {
+        provider: voice.provider,
+        status: "failed",
+        error: e instanceof Error ? e.message : String(e),
+      };
+    }
+    await repo.updateVideo(video);
+
+    // 2. Avatar render.
     const { providerVideoId } = await renderer.createVideo({
       pkg: video.pkg!,
       avatarId: deps.avatarId,
       voiceId: deps.voiceId,
+      audioAssetId,
     });
     video.render.providerVideoId = providerVideoId;
     await repo.updateVideo(video);
 
     const done = await renderer.pollUntilDone(providerVideoId);
-    if (done.status === "completed") {
-      video.render.status = "completed";
-      video.render.videoUrl = done.videoUrl;
-      setStatus(video, "ready_for_review");
-    } else {
+    if (done.status !== "completed") {
       video.render.status = "failed";
       video.render.error = done.error;
       video.error = `render failed: ${done.error}`;
       setStatus(video, "failed");
+      return repo.updateVideo(video);
     }
+    video.render.status = "completed";
+    video.render.videoUrl = done.videoUrl;
+    await repo.updateVideo(video);
+
+    // 3. Captions + cleanup. A post failure leaves the raw render reviewable
+    //    (status still ready_for_review) with the error visible; retry via
+    //    POST /videos/:id/postprocess.
+    await runPostProcess(deps, video);
+    setStatus(video, "ready_for_review");
   } catch (e) {
     video.render.status = "failed";
     video.render.error = e instanceof Error ? e.message : String(e);
     video.error = `render failed: ${video.render.error}`;
     setStatus(video, "failed");
   }
+  return repo.updateVideo(video);
+}
+
+/** Run (or re-run) the Captions.ai step against the completed render. */
+export async function runPostProcess(deps: PipelineDeps, video: Video): Promise<Video> {
+  const { repo, post } = deps;
+  if (!video.pkg || !video.render.videoUrl) {
+    throw new Error(`video ${video.id} has no completed render to post-process`);
+  }
+  video.post = { provider: post.provider, status: "processing" };
+  await repo.updateVideo(video);
+  const result = await post.process({
+    videoUrl: video.render.videoUrl,
+    captionLines: video.pkg.captionLines,
+    language: deps.language ?? "en",
+  });
+  video.post = {
+    provider: post.provider,
+    status: result.status,
+    videoUrl: result.videoUrl,
+    operations: result.operations,
+    error: result.error,
+  };
   return repo.updateVideo(video);
 }
 

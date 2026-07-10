@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { InMemoryRepo } from "../src/repository.js";
 import { MockRenderer } from "../src/heygen.js";
+import { MockVoice, type VoiceSynth } from "../src/voice.js";
+import { MockPostProcessor } from "../src/postprocess.js";
 import { mockGenerate } from "../src/mockLlm.js";
 import type { JsonRequest, LlmClient } from "../src/llm.js";
 import { createDraftVideo, runGenerationPipeline, MAX_AUTO_REGENS } from "../src/pipeline.js";
@@ -26,7 +28,7 @@ class PoisonedLlm implements LlmClient {
   }
 }
 
-async function setup(llm: LlmClient) {
+async function setup(llm: LlmClient, voice: VoiceSynth = new MockVoice()) {
   const repo = new InMemoryRepo();
   const topic: Topic = {
     id: makeId("top"), topic: "Why your brain remembers embarrassing moments more than compliments",
@@ -35,13 +37,17 @@ async function setup(llm: LlmClient) {
   };
   await repo.createTopic(topic);
   const video = await createDraftVideo(repo, topic.id);
-  const deps = { repo, llm, renderer: new MockRenderer(), avatarId: "av1", voiceId: "vo1" };
-  return { repo, topic, video, deps };
+  const renderer = new MockRenderer();
+  const deps = {
+    repo, llm, renderer, voice, post: new MockPostProcessor(),
+    avatarId: "av1", voiceId: "vo1",
+  };
+  return { repo, topic, video, deps, renderer };
 }
 
 describe("generation pipeline", () => {
   it("clean generation goes straight to ready_for_review with a rendered url", async () => {
-    const { repo, topic, video, deps } = await setup(new PoisonedLlm(0));
+    const { repo, topic, video, deps, renderer } = await setup(new PoisonedLlm(0));
     const done = await runGenerationPipeline(deps, video.id);
 
     expect(done.status).toBe("ready_for_review");
@@ -49,12 +55,36 @@ describe("generation pipeline", () => {
     expect(done.judge?.pass).toBe(true);
     expect(done.render.status).toBe("completed");
     expect(done.render.videoUrl).toMatch(/^https:\/\/mock\.heygen\.local\//);
+    // ElevenLabs narration was synthesized, uploaded, and drove the avatar
+    expect(done.audio?.status).toBe("completed");
+    expect(done.audio?.assetId).toBeTruthy();
+    expect(renderer.lastRequest?.audioAssetId).toBe(done.audio?.assetId);
+    // Captions.ai step produced the final deliverable (captions + cuts)
+    expect(done.post?.status).toBe("completed");
+    expect(done.post?.videoUrl).toContain(".captioned.mp4");
+    expect(done.post?.operations).toEqual({ captions: true, cutFillers: true, cutSilences: true });
     // package + judge recorded with prompt versions
     const gens = await repo.listGenerations(done.id);
     expect(gens.map((g) => g.kind).sort()).toEqual(["judge", "package"]);
     expect(gens.every((g) => g.promptVersion && g.model === "stub-llm")).toBe(true);
     // topic consumed
     expect((await repo.getTopic(topic.id))?.status).toBe("used");
+  });
+
+  it("voice failure falls back to HeyGen TTS but still renders and reviews", async () => {
+    const brokenVoice: VoiceSynth = {
+      provider: "elevenlabs",
+      async synthesize() { throw new Error("elevenlabs 401"); },
+    };
+    const { video, deps, renderer } = await setup(new PoisonedLlm(0), brokenVoice);
+    const done = await runGenerationPipeline(deps, video.id);
+
+    expect(done.status).toBe("ready_for_review");
+    expect(done.audio?.status).toBe("failed");
+    expect(done.audio?.error).toContain("elevenlabs 401");
+    // render proceeded WITHOUT the audio asset (HeyGen TTS fallback)
+    expect(renderer.lastRequest?.audioAssetId).toBeUndefined();
+    expect(done.render.status).toBe("completed");
   });
 
   it("failed judge triggers a rewrite with feedback, then passes", async () => {

@@ -2,11 +2,14 @@
 
 Automated short-form video factory for Curio.
 
-**OpenAI = brain · HeyGen = renderer · this DB = memory + learning loop · platform analytics = feedback signal.**
+**OpenAI = brain · ElevenLabs = voice · HeyGen = renderer · Captions.ai = editor ·
+this DB = memory + learning loop · platform analytics = feedback signal.**
 
-HeyGen never decides content quality. OpenAI controls the hook, script, caption rhythm,
-pre-publish scoring, and the weekly learning analysis; HeyGen only turns an approved
-script into an avatar MP4.
+HeyGen never decides content quality and never speaks. OpenAI controls the hook,
+script, caption rhythm, pre-publish scoring, and the weekly learning analysis;
+ElevenLabs narrates (documentary-narrator voice, settings pinned in `src/voice.ts`);
+HeyGen only lip-syncs the avatar to that audio; Captions.ai burns the curio_premium
+captions and cuts filler words + silences.
 
 ## The loop
 
@@ -17,7 +20,9 @@ topic ──► OpenAI: full video package        (hooks ×5, script, timed capt
         OpenAI judge: score 0–10            hook ≥8 · captions ≥8 · brand ≥8
               │  fail → rewrite w/ feedback (max 2 auto-regens)   viral ≥7 · safety ≥8
               ▼  pass
-        HeyGen render (1080×1920 mp4)
+        ElevenLabs narration (mp3) ──► HeyGen render, avatar lip-syncs (1080×1920)
+              ▼
+        Captions.ai: burn captions · cut fillers · cut silences   ← publish THIS file
               ▼
         review queue  ── you approve / reject / edit / regenerate
               ▼
@@ -27,6 +32,19 @@ topic ──► OpenAI: full video package        (hooks ×5, script, timed capt
 ```
 
 Nothing auto-posts. Humans approve; the judge only gates the automated loop.
+A voice failure falls back to HeyGen TTS (flagged on the card); a Captions.ai
+failure leaves the raw render reviewable with a one-click retry
+(`POST /api/videos/:id/postprocess`).
+
+## The narration voice
+
+Create/pick the `ELEVENLABS_VOICE_ID` in ElevenLabs using the brief in
+`src/voice.ts` (`VOICE_DIRECTION`): young male short-form documentary narrator,
+deep/clear/slightly compressed, fast + sharply articulated, urgency into build,
+pause before twists, heavier final reveal — not a copy of any identifiable creator.
+Delivery settings are pinned (`VOICE_SETTINGS`): stability 0.45, similarity 0.70,
+style 0.20, speaker boost on, speed 1.08×. The script generator writes for this
+delivery (ellipsis before twists, shortest-heaviest final line, key word last).
 
 ## Run it
 
@@ -48,8 +66,13 @@ pipeline — including the fail→rewrite loop — works end-to-end offline.
 | --- | --- |
 | `OPENAI_API_KEY` | real script/judge/learning generation (empty = mock) |
 | `OPENAI_MODEL` | default `gpt-5-mini` (hard rule: never downgrade to 4o-mini) |
+| `ELEVENLABS_API_KEY` | real narration (empty = mock voice) |
+| `ELEVENLABS_VOICE_ID` | the documentary-narrator voice (see `VOICE_DIRECTION`) |
+| `ELEVENLABS_MODEL` | default `eleven_multilingual_v2` |
 | `HEYGEN_API_KEY` | real avatar rendering (empty = mock) |
-| `HEYGEN_AVATAR_ID` / `HEYGEN_VOICE_ID` | which avatar speaks |
+| `HEYGEN_AVATAR_ID` / `HEYGEN_VOICE_ID` | avatar id; voice id is only the TTS fallback |
+| `CAPTIONS_API_KEY` | Captions.ai post-processing (empty = mock passthrough) |
+| `CAPTIONS_API_BASE` | only if your account docs show a different API base |
 | `ADMIN_TOKEN` | when set, all POSTs need `Authorization: Bearer <token>` |
 | `PORT` / `DATA_DIR` | server port, JSON snapshot location |
 
@@ -66,6 +89,7 @@ POST /api/videos/:id/edit         manual hook/script/caption_lines — re-judged
 POST /api/videos/:id/approve      ready_for_review → approved
 POST /api/videos/:id/reject       … → rejected ({reason})
 POST /api/videos/:id/publish      approved → published (you post manually, then mark)
+POST /api/videos/:id/postprocess  retry the Captions.ai step against the existing render
 POST /api/videos/:id/performance  ingest analytics (views, completion_rate, saves, …)
 POST /api/learning/run            analyze top/bottom 20% → new prompt rules
 GET  /api/learning/rules          GET /api/learning/runs
@@ -104,7 +128,13 @@ driven into a nonsense state.
 ## Going live
 
 1. Put `OPENAI_API_KEY` in `.env` → real scripts immediately.
-2. Create a HeyGen API key + pick avatar/voice ids → real MP4s in the review queue.
-3. Post approved videos manually, hit *Mark published*, paste analytics weekly.
-4. After each analytics batch, hit *Run learning analysis* — the next batch obeys
+2. Design the narrator voice in ElevenLabs from `VOICE_DIRECTION`, set
+   `ELEVENLABS_API_KEY` + `ELEVENLABS_VOICE_ID`.
+3. Create a HeyGen API key + pick the avatar id → avatar lip-syncs the narration.
+4. Set `CAPTIONS_API_KEY` → captions burned in `curio_premium`, fillers and
+   silences cut automatically. (Endpoint paths are centralized at the top of
+   `src/postprocess.ts` — align them with your account's API docs if they differ.)
+5. Post approved videos manually (publish `final_video_url`), hit *Mark published*,
+   paste analytics weekly.
+6. After each analytics batch, hit *Run learning analysis* — the next batch obeys
    the new rules.

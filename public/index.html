@@ -135,6 +135,21 @@ function scoreRow(j) {
   return `<div class="scores">${cells}</div>${probs}`;
 }
 
+function pipeChips(v) {
+  const chip = (label, status, extra) => {
+    const color = status === 'completed' ? 'var(--green)' : status === 'failed' ? 'var(--red)' : 'var(--dim)';
+    return `<span class="badge" style="color:${color};border-color:${color}" title="${esc(extra || '')}">${label}: ${esc(status || '—')}</span>`;
+  };
+  const ops = v.post?.operations;
+  const postLabel = ops ? `captions${ops.cutFillers ? '+fillers cut' : ''}${ops.cutSilences ? '+silences cut' : ''}` : 'post';
+  return `<div class="row" style="margin-top:6px">
+    ${v.audio ? chip('voice ' + v.audio.provider, v.audio.status, v.audio.error) : ''}
+    ${chip('render ' + v.render.provider, v.render.status, v.render.error)}
+    ${v.post ? chip(postLabel + ' ' + v.post.provider, v.post.status, v.post.error) : ''}
+    ${v.post?.status === 'failed' ? `<button onclick="act('${v.id}','postprocess')">Retry captions</button>` : ''}
+  </div>`;
+}
+
 function videoCard(v, withActions) {
   const p = v.package;
   const caps = p ? p.caption_lines.map((l) => {
@@ -142,10 +157,11 @@ function videoCard(v, withActions) {
     const em = l.emphasis ? t.replace(new RegExp(esc(l.emphasis).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), (m) => `<b>${m}</b>`) : t;
     return `<span class="cap">${em}</span>`;
   }).join('') : '';
-  const vid = v.render.video_url
-    ? (v.render.provider === 'mock'
-        ? `<div class="script">mock render: <a href="${esc(v.render.video_url)}">${esc(v.render.video_url)}</a></div>`
-        : `<video src="${esc(v.render.video_url)}" controls></video>`)
+  const finalUrl = v.final_video_url;
+  const vid = finalUrl
+    ? (finalUrl.includes('mock')
+        ? `<div class="script">mock output: <a href="${esc(finalUrl)}">${esc(finalUrl)}</a></div>`
+        : `<video src="${esc(finalUrl)}" controls></video>`)
     : '';
   const actions = withActions ? `<div class="row" style="margin-top:10px">
       ${v.status === 'ready_for_review' ? `<button class="approve" onclick="act('${v.id}','approve')">Approve</button>
@@ -161,7 +177,7 @@ function videoCard(v, withActions) {
     ${p ? `<div class="hook">${esc(p.selected_hook)}</div>
       <div class="script">${esc(p.script)}</div>
       <div class="caps">${caps}</div>` : '<div class="empty">generating…</div>'}
-    ${scoreRow(v.judge)}${vid}${actions}
+    ${scoreRow(v.judge)}${pipeChips(v)}${vid}${actions}
   </div>`;
 }
 
@@ -170,7 +186,7 @@ async function refresh() {
     const [meta, queue, all, rules] = await Promise.all([
       api('/meta'), api('/review-queue'), api('/videos'), api('/learning/rules'),
     ]);
-    $('meta').textContent = `model ${meta.llm_model} · renderer ${meta.renderer}`;
+    $('meta').textContent = `brain ${meta.llm_model} · voice ${meta.voice} · render ${meta.renderer} · post ${meta.post}`;
     $('queue').innerHTML = queue.videos.length
       ? queue.videos.map((v) => videoCard(v, true)).join('')
       : '<div class="empty">Nothing waiting on you.</div>';

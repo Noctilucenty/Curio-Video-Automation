@@ -79,6 +79,26 @@ export interface RenderInfo {
   error?: string;
 }
 
+/** ElevenLabs narration step (HeyGen only lip-syncs to this audio). */
+export interface AudioInfo {
+  provider: "elevenlabs" | "mock";
+  status: "not_started" | "completed" | "failed";
+  voiceId?: string;
+  /** HeyGen asset id the narration was uploaded as. */
+  assetId?: string;
+  error?: string;
+}
+
+/** Captions.ai step: burned captions + filler-word and silence cuts. */
+export interface PostInfo {
+  provider: "captions_ai" | "mock";
+  status: "not_started" | "processing" | "completed" | "failed";
+  /** Final deliverable URL (captioned + cleaned). Publish THIS, not render.videoUrl. */
+  videoUrl?: string;
+  operations?: { captions: boolean; cutFillers: boolean; cutSilences: boolean };
+  error?: string;
+}
+
 export interface Video {
   id: string;
   topicId?: string;
@@ -89,6 +109,8 @@ export interface Video {
   attempts: number;
   generationIds: string[];
   render: RenderInfo;
+  audio?: AudioInfo;
+  post?: PostInfo;
   error?: string;
   /** Human reviewer note (reject reason, edit note). */
   reviewNote?: string;

@@ -7,6 +7,8 @@ export interface Config {
   dataDir: string;
   openai: { apiKey: string | null; model: string };
   heygen: { apiKey: string | null; avatarId: string; voiceId: string };
+  elevenlabs: { apiKey: string | null; voiceId: string; modelId: string };
+  captions: { apiKey: string | null; apiBase: string | undefined };
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
@@ -24,6 +26,16 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       apiKey: env.HEYGEN_API_KEY?.trim() || null,
       avatarId: env.HEYGEN_AVATAR_ID?.trim() || "",
       voiceId: env.HEYGEN_VOICE_ID?.trim() || "",
+    },
+    elevenlabs: {
+      apiKey: env.ELEVENLABS_API_KEY?.trim() || null,
+      // The Zack D Films-style narration voice cloned/selected in the account.
+      voiceId: env.ELEVENLABS_VOICE_ID?.trim() || "",
+      modelId: env.ELEVENLABS_MODEL?.trim() || "eleven_multilingual_v2",
+    },
+    captions: {
+      apiKey: env.CAPTIONS_API_KEY?.trim() || null,
+      apiBase: env.CAPTIONS_API_BASE?.trim() || undefined,
     },
   };
 }
