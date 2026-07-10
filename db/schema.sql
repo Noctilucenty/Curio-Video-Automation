@@ -35,12 +35,13 @@ create table if not exists videos (
   published_at timestamptz
 );
 create index if not exists videos_status_idx on videos(status);
+alter table videos add column if not exists applied_rule_ids jsonb;
 
 -- Every LLM call: prompt A/B trail + future fine-tuning dataset.
 create table if not exists prompt_versions (
   id text primary key,
   video_id text not null,   -- video id, or learning run id for kind='learning'
-  kind text not null check (kind in ('package','judge','learning')),
+  kind text not null check (kind in ('package','judge','learning','ingest')),
   prompt_version text not null,
   model text not null,
   input jsonb not null,
@@ -48,6 +49,9 @@ create table if not exists prompt_versions (
   created_at timestamptz not null default now()
 );
 create index if not exists prompt_versions_video_idx on prompt_versions(video_id);
+alter table prompt_versions drop constraint if exists prompt_versions_kind_check;
+alter table prompt_versions add constraint prompt_versions_kind_check
+  check (kind in ('package','judge','learning','ingest'));
 
 create table if not exists performance_metrics (
   id text primary key,
@@ -68,6 +72,7 @@ create table if not exists performance_metrics (
   ingested_at timestamptz not null default now()
 );
 create index if not exists performance_metrics_video_idx on performance_metrics(video_id);
+alter table performance_metrics add column if not exists skip_rate real check (skip_rate between 0 and 1);
 
 -- Content rules the generator obeys; learning runs supersede their predecessors.
 -- category 'calibration' rules tune the JUDGE (predicted vs actual), not the generator.
@@ -81,6 +86,9 @@ create table if not exists learning_rules (
   created_at timestamptz not null default now()
 );
 create index if not exists learning_rules_active_idx on learning_rules(active);
+alter table learning_rules drop constraint if exists learning_rules_category_check;
+alter table learning_rules add constraint learning_rules_category_check
+  check (category in ('hook','caption','topic','structure','tone','length','calibration'));
 
 create table if not exists learning_runs (
   id text primary key,
@@ -102,3 +110,7 @@ create table if not exists learning_runs (
   model text not null,
   created_at timestamptz not null default now()
 );
+alter table learning_runs add column if not exists platform_notes jsonb not null default '[]';
+alter table learning_runs add column if not exists judge_calibration_notes jsonb not null default '[]';
+alter table learning_runs add column if not exists improvement_delta real;
+alter table learning_runs add column if not exists previous_run_id text;

@@ -176,6 +176,7 @@ export function buildRoutes(deps: RouteDeps): Router {
         })),
       );
     }
+    video.appliedRuleIds = undefined;
     video.reviewNote = b.note ? String(b.note) : "manual edit";
     // Route through the machine: (ready_for_review|rejected) -> needs_revision -> generated.
     if (video.status !== "needs_revision") transition(video, "needs_revision");
@@ -213,10 +214,14 @@ export function buildRoutes(deps: RouteDeps): Router {
     }
     const b = req.body ?? {};
     for (const k of ["views", "avg_watch_time", "completion_rate"]) {
-      if (typeof b[k] !== "number") {
+      if (typeof b[k] !== "number" || !Number.isFinite(b[k])) {
         res.status(400).json({ error: `${k} (number) is required` });
         return;
       }
+    }
+    if (b.skip_rate != null && (typeof b.skip_rate !== "number" || !Number.isFinite(b.skip_rate))) {
+      res.status(400).json({ error: "skip_rate must be a number when provided" });
+      return;
     }
     const platform = String(b.platform ?? video.pkg?.targetPlatform ?? "tiktok").toLowerCase() as Platform;
     await repo.addMetrics({

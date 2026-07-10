@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { InMemoryRepo } from "../src/repository.js";
 import { MockLlmClient } from "../src/llm.js";
+import type { LlmClient } from "../src/llm.js";
 import { MockRenderer } from "../src/heygen.js";
 import { MockVoice } from "../src/voice.js";
 import { MockPostProcessor } from "../src/postprocess.js";
@@ -34,6 +35,7 @@ describe("similarity", () => {
     expect(similarity("They found the ship intact", "They found the ship intact")).toBe(1);
     expect(similarity("found the ship", "They found the ship intact. Every person gone.")).toBeGreaterThanOrEqual(0.9);
     expect(similarity("sleep types quiz", "The Mary Celeste drifted alone")).toBeLessThan(0.2);
+    expect(similarity("he", "They found the ship intact.")).toBe(0);
   });
 });
 
@@ -54,6 +56,9 @@ describe("ingestRawAnalytics (mock parser)", () => {
     expect(m.skipRate).toBeCloseTo(0.589);        // "58.9" normalized to 0-1
     expect(m.platform).toBe("reels");             // instagram -> reels alias
     expect(m.saves).toBe(144);
+    const record = (await repo.listGenerations()).find((g) => g.kind === "ingest")!;
+    expect(record.kind).toBe("ingest");
+    expect(JSON.stringify(record.input)).toContain("RAW ANALYTICS");
   });
 
   it("fuzzy-matches by hook text against the published catalogue", async () => {
@@ -64,6 +69,22 @@ describe("ingestRawAnalytics (mock parser)", () => {
 
     const raw = `hook="${hook}" platform=tiktok views=5000 completion_rate=0.5 likes=100 comments=5 shares=20 saves=30`;
     const report = await ingestRawAnalytics(repo, new MockLlmClient(), raw);
+
+    expect(report.matched).toHaveLength(1);
+    expect(report.matched[0].video_id).toBe(video.id);
+    expect(report.matched[0].match).toBe("hook");
+  });
+
+  it("falls back from external platform ids to hook matching", async () => {
+    const repo = new InMemoryRepo();
+    const video = await publishedVideo(repo, "Why abandoned ships become legends");
+    const hook = video.pkg!.selectedHook;
+
+    const report = await ingestRawAnalytics(
+      repo,
+      new MockLlmClient(),
+      `video_id=tiktok_736182736 hook="${hook}" platform=tiktok views=5000 completion_rate=0.5 likes=100 comments=5 shares=20 saves=30`,
+    );
 
     expect(report.matched).toHaveLength(1);
     expect(report.matched[0].video_id).toBe(video.id);
@@ -116,6 +137,69 @@ describe("ingestRawAnalytics (mock parser)", () => {
     expect(report.unmatched[2].reason).toContain("no published video matches");
     // nothing leaked into the store — published video has no metrics
     expect(await repo.listMetrics(published.id)).toHaveLength(0);
+  });
+
+  it("does not attach analytics from tiny hook fragments", async () => {
+    const repo = new InMemoryRepo();
+    const video = await publishedVideo(repo, "Why the Mary Celeste drifted with nobody aboard");
+
+    const report = await ingestRawAnalytics(
+      repo,
+      new MockLlmClient(),
+      'hook="he" views=10 completion_rate=0.1 likes=1 comments=0 shares=0 saves=0',
+    );
+
+    expect(report.matched).toHaveLength(0);
+    expect(report.unmatched).toHaveLength(1);
+    expect(await repo.listMetrics(video.id)).toHaveLength(0);
+  });
+
+  it("reports empty parser output as an unmatched reason", async () => {
+    const repo = new InMemoryRepo();
+    const llm: LlmClient = {
+      model: "empty-parser",
+      async generateJson() { return { entries: [] }; },
+    };
+
+    const report = await ingestRawAnalytics(repo, llm, "totally unrelated pasted text");
+
+    expect(report.matched).toHaveLength(0);
+    expect(report.unmatched[0].reason).toBe("no analytics entries parsed");
+    expect((await repo.listGenerations())[0].kind).toBe("ingest");
+  });
+
+  it("canonicalizes phrase platform labels from pasted analytics", async () => {
+    const repo = new InMemoryRepo();
+    const video = await publishedVideo(repo, "Why old ships become legends");
+
+    await ingestRawAnalytics(
+      repo,
+      new MockLlmClient(),
+      `video_id=${video.id} platform="YouTube Shorts" views=1000 completion_rate=0.4 likes=30 comments=1 shares=4 saves=5`,
+    );
+
+    const [m] = await repo.listMetrics(video.id);
+    expect(m.platform).toBe("shorts");
+  });
+
+  it("reports ambiguous fuzzy matches as ambiguous", async () => {
+    const repo = new InMemoryRepo();
+    const v1 = await publishedVideo(repo, "First ambiguous topic");
+    const v2 = await publishedVideo(repo, "Second ambiguous topic");
+    v1.pkg!.selectedHook = "Same ambiguous hook.";
+    v2.pkg!.selectedHook = "Same ambiguous hook.";
+    await repo.updateVideo(v1);
+    await repo.updateVideo(v2);
+
+    const report = await ingestRawAnalytics(
+      repo,
+      new MockLlmClient(),
+      'hook="Same ambiguous hook" views=10 completion_rate=0.1 likes=1 comments=0 shares=0 saves=0',
+    );
+
+    expect(report.matched).toHaveLength(0);
+    expect(report.unmatched[0].reason).toContain("ambiguous hook match");
+    expect(await repo.listMetrics()).toHaveLength(0);
   });
 
   it("re-ingesting the same video updates the latest picture (no dedupe needed)", async () => {

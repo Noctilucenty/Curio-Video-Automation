@@ -82,17 +82,23 @@ export interface IngestReport {
   promptVersion: string;
 }
 
-const PLATFORMS = new Set<Platform>(["tiktok", "reels", "shorts"]);
 // Platform names as they appear in pasted analytics -> our canonical ids.
 const PLATFORM_ALIASES: Record<string, Platform> = {
   tiktok: "tiktok", instagram: "reels", ig: "reels", reels: "reels", facebook: "reels",
-  youtube: "shorts", yt: "shorts", shorts: "shorts",
+  fb: "reels", meta: "reels", youtube: "shorts", yt: "shorts", shorts: "shorts",
 };
+const STOPWORDS = new Set([
+  "a", "an", "and", "are", "as", "at", "be", "been", "but", "by", "for", "from",
+  "he", "her", "his", "in", "is", "it", "its", "of", "on", "or", "she", "that",
+  "the", "they", "this", "to", "was", "we", "were", "with", "you", "your",
+]);
 
 export async function ingestRawAnalytics(repo: Repo, llm: LlmClient, raw: string): Promise<IngestReport> {
+  const system = ingestSystemPrompt();
+  const user = `RAW ANALYTICS:\n${raw}`;
   const parsed: any = await llm.generateJson({
-    system: ingestSystemPrompt(),
-    user: `RAW ANALYTICS:\n${raw}`,
+    system,
+    user,
     schemaName: "curio_analytics_entries",
     schema: INGEST_SCHEMA as unknown as Record<string, unknown>,
     purpose: "ingest",
@@ -102,6 +108,22 @@ export async function ingestRawAnalytics(repo: Repo, llm: LlmClient, raw: string
   const videos = await repo.listVideos();
   const published = videos.filter((v) => v.status === "published" && v.pkg);
   const report: IngestReport = { matched: [], unmatched: [], promptVersion: PROMPT_VERSIONS.ingest };
+  const ingestRunId = makeId("ing");
+  await repo.addGeneration({
+    id: makeId("gen"),
+    videoId: ingestRunId,
+    kind: "ingest",
+    promptVersion: PROMPT_VERSIONS.ingest,
+    model: llm.model,
+    input: { system, user },
+    output: parsed,
+    createdAt: Date.now(),
+  });
+
+  if (entries.length === 0) {
+    report.unmatched.push({ entry: { match_hint: {} }, reason: "no analytics entries parsed" });
+    return report;
+  }
 
   for (const entry of entries) {
     const found = matchVideo(entry, videos, published);
@@ -128,11 +150,13 @@ function matchVideo(
   published: Video[],
 ): { video: Video; how: "id" | "hook" | "title" } | { reason: string } {
   const hint = entry.match_hint ?? {};
+  let idMissReason: string | null = null;
   if (hint.video_id) {
     const v = all.find((x) => x.id === hint.video_id);
-    if (!v) return { reason: `no video with id ${hint.video_id}` };
-    if (v.status !== "published") return { reason: `video ${v.id} is ${v.status}, not published` };
-    return { video: v, how: "id" };
+    if (v?.status === "published" && v.pkg) return { video: v, how: "id" };
+    idMissReason = v
+      ? v.status === "published" ? `video ${v.id} has no package to match` : `video ${v.id} is ${v.status}, not published`
+      : `no video with id ${hint.video_id}`;
   }
   for (const [key, how] of [["hook", "hook"], ["title", "title"]] as const) {
     const text = hint[key];
@@ -144,14 +168,19 @@ function matchVideo(
       }))
       .sort((a, b) => b.score - a.score);
     const best = scored[0];
+    const runnerUp = scored[1];
     // Require a clear winner: good absolute score AND a margin over #2, so one
     // pasted hook can't silently attach metrics to the wrong video.
-    if (best && best.score >= 0.5 && (scored.length < 2 || best.score - scored[1].score >= 0.15 || scored[1].score < 0.5)) {
+    if (best && best.score >= 0.5 && (!runnerUp || best.score - runnerUp.score >= 0.15 || runnerUp.score < 0.5)) {
       return { video: best.v, how };
+    }
+    if (best && runnerUp && best.score >= 0.5 && runnerUp.score >= 0.5) {
+      return { reason: ambiguousReason(how, text, scored.slice(0, 3)) };
     }
   }
   const desc = hint.hook ?? hint.title ?? JSON.stringify(hint);
-  return { reason: `no published video matches "${String(desc).slice(0, 80)}"` };
+  const fallbackReason = `no published video matches "${String(desc).slice(0, 80)}"`;
+  return { reason: idMissReason ? `${idMissReason}; ${fallbackReason}` : fallbackReason };
 }
 
 /** Token-set similarity with containment shortcut; input already messy, so cheap+robust. */
@@ -160,23 +189,44 @@ export function similarity(a: string, b: string): number {
   const nb = normalize(b);
   if (!na || !nb) return 0;
   if (na === nb) return 1;
-  if (na.includes(nb) || nb.includes(na)) return 0.9;
-  const ta = new Set(na.split(" "));
-  const tb = new Set(nb.split(" "));
+  const ta = meaningfulTokens(na);
+  const tb = meaningfulTokens(nb);
+  if (ta.length < 2 || tb.length < 2) return 0;
+  if (containsTokenSet(ta, tb) || containsTokenSet(tb, ta)) return 0.9;
+  const tsa = new Set(ta);
+  const tsb = new Set(tb);
   let inter = 0;
-  for (const t of ta) if (tb.has(t)) inter++;
-  return inter / (ta.size + tb.size - inter);
+  for (const t of tsa) if (tsb.has(t)) inter++;
+  return inter / (tsa.size + tsb.size - inter);
 }
 
 function normalize(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
 }
 
+function meaningfulTokens(normalized: string): string[] {
+  return normalized.split(" ").filter((t) => t.length > 2 && !STOPWORDS.has(t));
+}
+
+function containsTokenSet(a: string[], b: string[]): boolean {
+  const small = a.length <= b.length ? a : b;
+  const large = new Set(a.length <= b.length ? b : a);
+  return small.length >= 2 && small.every((t) => large.has(t));
+}
+
+function ambiguousReason(
+  how: "hook" | "title",
+  text: string,
+  scored: Array<{ v: Video; score: number }>,
+): string {
+  const candidates = scored
+    .map(({ v, score }) => `${v.id} "${how === "hook" ? v.pkg?.selectedHook : v.pkg?.title}" (${score.toFixed(2)})`)
+    .join("; ");
+  return `ambiguous ${how} match for "${String(text).slice(0, 80)}": ${candidates}`;
+}
+
 function toMetrics(entry: ParsedEntry, video: Video): PerformanceMetrics {
-  const alias = entry.platform ? PLATFORM_ALIASES[entry.platform.toLowerCase().trim()] : undefined;
-  const platform: Platform =
-    alias ?? (PLATFORMS.has(entry.platform as Platform) ? (entry.platform as Platform)
-      : video.pkg?.targetPlatform ?? "tiktok");
+  const platform = canonicalPlatform(entry.platform, video.pkg?.targetPlatform ?? "tiktok");
   return {
     id: makeId("met"),
     videoId: video.id,
@@ -195,6 +245,20 @@ function toMetrics(entry: ParsedEntry, video: Video): PerformanceMetrics {
     postedAt: entry.posted_at && Number.isFinite(entry.posted_at) ? entry.posted_at : video.publishedAt ?? Date.now(),
     ingestedAt: Date.now(),
   };
+}
+
+function canonicalPlatform(label: string | null | undefined, fallback: Platform): Platform {
+  const normalized = label ? normalize(label) : "";
+  if (!normalized) return fallback;
+  const direct = PLATFORM_ALIASES[normalized];
+  if (direct) return direct;
+  const tokens = new Set(normalized.split(" "));
+  if (tokens.has("tiktok") || tokens.has("tik") || tokens.has("tok")) return "tiktok";
+  if (tokens.has("instagram") || tokens.has("ig") || tokens.has("reels") || tokens.has("facebook") || tokens.has("fb") || tokens.has("meta")) {
+    return "reels";
+  }
+  if (tokens.has("youtube") || tokens.has("yt") || tokens.has("shorts")) return "shorts";
+  return fallback;
 }
 
 function num(v: unknown): number {

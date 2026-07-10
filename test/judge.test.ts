@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { meetsThresholds, judgePackage, PUBLISH_THRESHOLDS } from "../src/judge.js";
 import { MockLlmClient } from "../src/llm.js";
-import type { VideoPackage } from "../src/types.js";
+import { judgeSystemPrompt } from "../src/prompts.js";
+import type { LearningRule, VideoPackage } from "../src/types.js";
 
 const base = {
   hookScore: 9, retentionScore: 8, clarityScore: 9, captionReadability: 9,
@@ -53,6 +54,18 @@ const pkg = (over: Partial<VideoPackage> = {}): VideoPackage => ({
 
 describe("mock judge rubric (offline judge behaves like the real one)", () => {
   const llm = new MockLlmClient();
+
+  it("only injects calibration rules into the judge prompt", () => {
+    const rules: LearningRule[] = [
+      { id: "rule_hook", category: "hook", rule: "Use concrete tension.", source: "learning_run", active: true, createdAt: 0 },
+      { id: "rule_cal", category: "calibration", rule: "Judge viral potential colder.", source: "learning_run", active: true, createdAt: 0 },
+    ];
+
+    const prompt = judgeSystemPrompt(rules);
+
+    expect(prompt).toContain("Judge viral potential colder.");
+    expect(prompt).not.toContain("Use concrete tension.");
+  });
 
   it("passes a clean Curio-voice package", async () => {
     const { scores } = await judgePackage(llm, pkg());

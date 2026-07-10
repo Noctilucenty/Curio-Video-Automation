@@ -256,15 +256,17 @@ async function ingest() {
     const report = await api('/performance/ingest', {
       method: 'POST', headers: headers(true), body: JSON.stringify({ raw }),
     });
-    const un = report.unmatched.length
-      ? ` · ${report.unmatched.length} unmatched: ${report.unmatched.map((u) => u.reason).join(' | ')}`
-      : '';
+    const unmatched = report.unmatched || [];
+    const un = unmatched.length
+      ? ` · ${unmatched.length} unmatched: ${unmatched.map((u) => u.reason).join(' | ')}`
+      : report.matched.length === 0 ? ' · no analytics entries parsed' : '';
+    const zeroReason = unmatched.length ? 'check the unmatched reasons.' : 'no analytics entries were parsed.';
     $('ingest-result').textContent = `matched ${report.matched.length}${un}`;
     if (report.matched.length) {
       $('analytics').value = '';
       toast(`Ingested ${report.matched.length} video(s) — run learning to convert it into rules.`);
     } else {
-      toast('Nothing matched — check the unmatched reasons.', false);
+      toast(`Nothing matched — ${zeroReason}`, false);
     }
     refresh();
   } catch (e) { toast('Ingest failed: ' + e.message, false); }

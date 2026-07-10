@@ -7,7 +7,8 @@ import { MockPostProcessor } from "../src/postprocess.js";
 import { createDraftVideo, runGenerationPipeline } from "../src/pipeline.js";
 import { runLearning, engagementScore, ensureSeedRules, LearningDataError } from "../src/learning.js";
 import { makeId } from "../src/config.js";
-import type { PerformanceMetrics, Topic } from "../src/types.js";
+import type { LearningRule, PerformanceMetrics, Topic } from "../src/types.js";
+import type { LlmClient } from "../src/llm.js";
 
 function metrics(videoId: string, over: Partial<PerformanceMetrics> = {}): PerformanceMetrics {
   return {
@@ -140,6 +141,86 @@ describe("learning run", () => {
     expect(run2.improvementDelta).toBeGreaterThan(0);
     const run2Input = JSON.stringify((await repo.listGenerations(run2.id))[0].input);
     expect(run2Input).toContain("cohort_avg_engagement");
+  });
+
+  it("does not credit old backlog videos to the previous learning run", async () => {
+    const repo = new InMemoryRepo();
+    await ensureSeedRules(repo);
+    const ids = await seedVideos(repo, 5);
+    for (let i = 0; i < ids.length; i++) {
+      await repo.addMetrics(metrics(ids[i], { completionRate: 0.5 - i * 0.05, views: 5000 }));
+    }
+    const llm = new MockLlmClient();
+    const run1 = await runLearning(repo, llm);
+
+    // A pre-run video gets a stronger later analytics row, but it still was not
+    // generated under run1's rules and must not become the "after" cohort.
+    await repo.addMetrics(metrics(ids[0], { completionRate: 0.95, saves: 400, views: 5000, ingestedAt: Date.now() + 1 }));
+    const oldVideo = (await repo.getVideo(ids[0]))!;
+    for (const id of run1.newRuleIds) expect(oldVideo.appliedRuleIds ?? []).not.toContain(id);
+
+    const run2 = await runLearning(repo, llm);
+
+    expect(run2.improvementDelta).toBeUndefined();
+  });
+
+  it("drops unchanged rules that validation showed below baseline", async () => {
+    const repo = new InMemoryRepo();
+    await ensureSeedRules(repo);
+    const ids = await seedVideos(repo, 5);
+    const badRule: LearningRule = {
+      id: "rule_bad", category: "hook", rule: "Open with a slow vague context line.",
+      source: "learning_run", active: true, runId: "learn_old", createdAt: Date.now(),
+    };
+    await repo.addRule(badRule);
+    for (let i = 0; i < ids.length; i++) {
+      const video = (await repo.getVideo(ids[i]))!;
+      video.appliedRuleIds = i === ids.length - 1 ? [badRule.id] : [];
+      await repo.updateVideo(video);
+      await repo.addMetrics(metrics(ids[i], {
+        completionRate: i === ids.length - 1 ? 0.1 : 0.7,
+        saves: i === ids.length - 1 ? 1 : 100,
+        views: 5000,
+      }));
+    }
+    const llm: LlmClient = {
+      model: "stub",
+      async generateJson() {
+        return {
+          top_patterns: ["fast concrete hooks won"],
+          weak_patterns: ["slow context failed"],
+          hook_formulas: ["x", "x", "x", "x", "x"],
+          recommended_topics: ["x", "x", "x", "x", "x"],
+          caption_recommendations: [],
+          platform_notes: [],
+          judge_calibration_notes: [],
+          best_length_seconds: 15,
+          best_categories: ["psychology"],
+          best_tone: "calm",
+          new_rules: [{ category: "hook", rule: badRule.rule }],
+        };
+      },
+    };
+
+    const run = await runLearning(repo, llm);
+    const activeLearned = (await repo.listRules(true)).filter((r) => r.source === "learning_run");
+
+    expect(run.newRuleIds).toHaveLength(0);
+    expect(activeLearned.some((r) => r.rule === badRule.rule)).toBe(false);
+  });
+
+  it("serializes concurrent learning runs so only one learned rule cohort stays active", async () => {
+    const repo = new InMemoryRepo();
+    await ensureSeedRules(repo);
+    const ids = await seedVideos(repo, 5);
+    for (let i = 0; i < ids.length; i++) {
+      await repo.addMetrics(metrics(ids[i], { completionRate: 0.7 - i * 0.05, views: 5000 }));
+    }
+
+    await Promise.all([runLearning(repo, new MockLlmClient()), runLearning(repo, new MockLlmClient())]);
+
+    const activeLearned = (await repo.listRules(true)).filter((r) => r.source === "learning_run");
+    expect(new Set(activeLearned.map((r) => r.runId)).size).toBe(1);
   });
 
   it("calibration rules are injected into the judge prompt, not the generator prompt", async () => {

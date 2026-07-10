@@ -8,6 +8,7 @@ import { MockVoice } from "../src/voice.js";
 import { MockPostProcessor } from "../src/postprocess.js";
 import { ensureSeedRules } from "../src/learning.js";
 import type { Config } from "../src/config.js";
+import type { LearningRule } from "../src/types.js";
 
 function testConfig(adminToken: string | null = null): Config {
   return {
@@ -79,6 +80,12 @@ describe("api flow", () => {
       likes: 830, comments: 31, shares: 97, saves: 144, follows: 12, profile_clicks: 40,
     });
     expect(perf.status).toBe(201);
+
+    const badSkip = await request(app).post(`/api/videos/${videoId}/performance`).send({
+      platform: "tiktok", views: 12000, avg_watch_time: 18.4, completion_rate: 0.42,
+      skip_rate: "not-a-number",
+    });
+    expect(badSkip.status).toBe(400);
   });
 
   it("rejects invalid status transitions with 409", async () => {
@@ -114,10 +121,16 @@ describe("api flow", () => {
   });
 
   it("manual edit re-judges, re-renders, and returns to review", async () => {
-    const { app, queue } = await makeApp();
+    const { app, queue, repo } = await makeApp();
+    const rule: LearningRule = {
+      id: "rule_test", category: "hook", rule: "Use a test rule.",
+      source: "learning_run", active: true, runId: "learn_test", createdAt: Date.now(),
+    };
+    await repo.addRule(rule);
     const gen = await request(app).post("/api/videos/generate").send({ topic: "editable topic" });
     const videoId = gen.body.video_id;
     await queue.drain();
+    expect((await repo.getVideo(videoId))!.appliedRuleIds).toContain(rule.id);
 
     const edit = await request(app).post(`/api/videos/${videoId}/edit`).send({
       hook: "A hand-written hook about memory.",
@@ -130,6 +143,7 @@ describe("api flow", () => {
     expect(vid.body.status).toBe("ready_for_review");
     expect(vid.body.package.selected_hook).toBe("A hand-written hook about memory.");
     expect(vid.body.judge).not.toBeNull();
+    expect((await repo.getVideo(videoId))!.appliedRuleIds).toBeUndefined();
   });
 
   it("validates topic input", async () => {

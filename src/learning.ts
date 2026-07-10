@@ -21,6 +21,7 @@ export const MIN_VIDEOS_FOR_LEARNING = 5;
 export class LearningDataError extends Error {}
 
 const RULE_CATEGORIES = ["hook", "caption", "topic", "structure", "tone", "length", "calibration"] as const;
+const learningLocks = new WeakMap<Repo, Promise<unknown>>();
 
 export const LEARNING_SCHEMA = {
   type: "object",
@@ -87,6 +88,15 @@ interface ScoredVideo {
   score: number;
 }
 
+interface RuleValidationResult {
+  rule: string;
+  category: LearningRule["category"];
+  active: boolean;
+  cohort_n: number;
+  cohort_avg_engagement: number;
+  baseline_avg_engagement: number;
+}
+
 /** Latest metrics row per video wins (re-sending analytics updates the picture). */
 export async function latestMetricsByVideo(repo: Repo): Promise<Map<string, PerformanceMetrics>> {
   const metrics = await repo.listMetrics();
@@ -96,6 +106,15 @@ export async function latestMetricsByVideo(repo: Repo): Promise<Map<string, Perf
 }
 
 export async function runLearning(repo: Repo, llm: LlmClient): Promise<LearningRun> {
+  const previous = learningLocks.get(repo) ?? Promise.resolve();
+  const current = previous
+    .catch(() => undefined)
+    .then(() => runLearningUnlocked(repo, llm));
+  learningLocks.set(repo, current.catch(() => undefined));
+  return current;
+}
+
+async function runLearningUnlocked(repo: Repo, llm: LlmClient): Promise<LearningRun> {
   const latest = await latestMetricsByVideo(repo);
   const videos = await repo.listVideos();
   const scored: ScoredVideo[] = videos
@@ -117,6 +136,7 @@ export async function runLearning(repo: Repo, llm: LlmClient): Promise<LearningR
   const priorRuns = await repo.listLearningRuns(); // newest first
   const previousRun = priorRuns[0];
   const allRules = await repo.listRules();
+  const validations = ruleValidation(allRules, scored, baselineAvg);
 
   const payload = {
     current: {
@@ -135,9 +155,9 @@ export async function runLearning(repo: Repo, llm: LlmClient): Promise<LearningR
         .filter((rule) => rule.runId === r.id)
         .map((rule) => ({ category: rule.category, rule: rule.rule })),
     })),
-    rule_validation: ruleValidation(allRules, scored, baselineAvg),
+    rule_validation: validations,
     judge_vs_actual: judgeVsActual(scored),
-    improvement_delta: improvementDelta(scored, previousRun),
+    improvement_delta: improvementDelta(scored, previousRun, allRules),
   };
 
   const system = learningSystemPrompt();
@@ -162,11 +182,15 @@ export async function runLearning(repo: Repo, llm: LlmClient): Promise<LearningR
   }
   const newRuleIds: string[] = [];
   for (const nr of raw.new_rules ?? []) {
-    if (!RULE_CATEGORIES.includes(nr?.category)) continue;
+    const category = nr?.category as LearningRule["category"];
+    if (!RULE_CATEGORIES.includes(category)) continue;
+    const ruleText = String(nr.rule ?? "").trim();
+    if (!ruleText) continue;
+    if (isRefutedRule(category, ruleText, validations)) continue;
     const rule: LearningRule = {
       id: makeId("rule"),
-      category: nr.category,
-      rule: String(nr.rule),
+      category,
+      rule: ruleText,
       source: "learning_run",
       active: true,
       runId,
@@ -251,7 +275,11 @@ function platformAggregates(scored: ScoredVideo[]) {
 }
 
 /** Cohort check: did videos generated under each issued rule beat the baseline? */
-function ruleValidation(allRules: LearningRule[], scored: ScoredVideo[], baselineAvg: number) {
+function ruleValidation(
+  allRules: LearningRule[],
+  scored: ScoredVideo[],
+  baselineAvg: number,
+): RuleValidationResult[] {
   return allRules
     .filter((r) => r.source === "learning_run" && r.category !== "calibration")
     .map((r) => {
@@ -266,7 +294,7 @@ function ruleValidation(allRules: LearningRule[], scored: ScoredVideo[], baselin
         baseline_avg_engagement: round1(baselineAvg),
       };
     })
-    .filter(Boolean);
+    .filter((r): r is RuleValidationResult => Boolean(r));
 }
 
 /** Predicted vs actual: judge scores against real engagement percentile. */
@@ -288,11 +316,18 @@ function judgeVsActual(scored: ScoredVideo[]) {
     .filter(Boolean);
 }
 
-/** Are videos published after the previous run beating the ones before it? */
-function improvementDelta(scored: ScoredVideo[], previousRun?: LearningRun) {
+/** Are videos generated under the previous run's rules beating the rest? */
+function improvementDelta(scored: ScoredVideo[], previousRun: LearningRun | undefined, allRules: LearningRule[]) {
   if (!previousRun) return null;
-  const before = scored.filter((s) => (s.video.publishedAt ?? s.video.createdAt) <= previousRun.createdAt);
-  const after = scored.filter((s) => (s.video.publishedAt ?? s.video.createdAt) > previousRun.createdAt);
+  const rulesById = new Map(allRules.map((r) => [r.id, r]));
+  const previousGeneratorRuleIds = new Set(
+    (previousRun.newRuleIds ?? []).filter((id) => rulesById.get(id)?.category !== "calibration"),
+  );
+  if (previousGeneratorRuleIds.size === 0) return null;
+  const usedPreviousRules = (s: ScoredVideo) =>
+    s.video.appliedRuleIds?.some((id) => previousGeneratorRuleIds.has(id)) ?? false;
+  const before = scored.filter((s) => !usedPreviousRules(s));
+  const after = scored.filter(usedPreviousRules);
   if (!before.length || !after.length) return null;
   const beforeAvg = avg(before.map((s) => s.score));
   const afterAvg = avg(after.map((s) => s.score));
@@ -304,6 +339,23 @@ function improvementDelta(scored: ScoredVideo[], previousRun?: LearningRun) {
     after_avg_engagement: round1(afterAvg),
     delta: round1(afterAvg - beforeAvg),
   };
+}
+
+function isRefutedRule(
+  category: LearningRule["category"],
+  ruleText: string,
+  validations: RuleValidationResult[],
+): boolean {
+  const proposed = normalizeRule(ruleText);
+  return validations.some((v) =>
+    v.category === category &&
+    v.cohort_avg_engagement < v.baseline_avg_engagement &&
+    normalizeRule(v.rule) === proposed,
+  );
+}
+
+function normalizeRule(ruleText: string): string {
+  return ruleText.toLowerCase().replace(/\s+/g, " ").trim();
 }
 
 function avg(nums: number[]): number {

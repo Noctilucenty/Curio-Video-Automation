@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { validateRawPackage, generatePackage, PackageValidationError } from "../src/generator.js";
-import { PROMPT_VERSIONS } from "../src/prompts.js";
+import { packageSystemPrompt, PROMPT_VERSIONS } from "../src/prompts.js";
 import { MockLlmClient } from "../src/llm.js";
 import { mockGenerate } from "../src/mockLlm.js";
 import type { LlmClient } from "../src/llm.js";
-import type { Topic } from "../src/types.js";
+import type { LearningRule, Topic } from "../src/types.js";
 import { validateCaptions } from "../src/captions.js";
 
 const topic: Topic = {
@@ -29,6 +29,18 @@ describe("package schema validation", () => {
 });
 
 describe("generatePackage", () => {
+  it("does not inject judge calibration rules into the generator prompt", () => {
+    const rules: LearningRule[] = [
+      { id: "rule_hook", category: "hook", rule: "Use concrete tension.", source: "learning_run", active: true, createdAt: 0 },
+      { id: "rule_cal", category: "calibration", rule: "Judge viral potential colder.", source: "learning_run", active: true, createdAt: 0 },
+    ];
+
+    const prompt = packageSystemPrompt(rules);
+
+    expect(prompt).toContain("Use concrete tension.");
+    expect(prompt).not.toContain("Judge viral potential colder.");
+  });
+
   it("returns a domain package with normalized, valid captions", async () => {
     const { pkg, promptVersion } = await generatePackage(new MockLlmClient(), topic, []);
     expect(promptVersion).toBe(PROMPT_VERSIONS.package);

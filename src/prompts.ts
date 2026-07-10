@@ -103,8 +103,9 @@ near-dead silence right before the final line, one deep clean boom on the Curio
 signature. Mute the voiceover during any staring/tension hold.`;
 
 export function packageSystemPrompt(rules: LearningRule[]): string {
-  const learned = rules.length
-    ? `\nLearned rules from performance data (obey these — they come from real analytics):\n${rules
+  const generatorRules = rules.filter((r) => r.category !== "calibration");
+  const learned = generatorRules.length
+    ? `\nLearned rules from performance data (obey these — they come from real analytics):\n${generatorRules
         .map((r) => `- [${r.category}] ${r.rule}`)
         .join("\n")}`
     : "";
@@ -131,9 +132,10 @@ Language: ${topic.language}${topic.sourceRef ? `\nSource reference: ${topic.sour
 }
 
 export function judgeSystemPrompt(calibration: LearningRule[] = []): string {
-  const cal = calibration.length
+  const calibrationRules = calibration.filter((r) => r.category === "calibration");
+  const cal = calibrationRules.length
     ? `\n\nCALIBRATION from real published performance (your past predictions vs actual
-analytics — apply these corrections when scoring):\n${calibration
+analytics — apply these corrections when scoring):\n${calibrationRules
         .map((r) => `- ${r.rule}`)
         .join("\n")}`
     : "";

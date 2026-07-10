@@ -126,7 +126,7 @@ export interface Video {
 export interface GenerationRecord {
   id: string;
   videoId: string;
-  kind: "package" | "judge" | "learning";
+  kind: "package" | "judge" | "learning" | "ingest";
   promptVersion: string;
   model: string;
   input: unknown;
