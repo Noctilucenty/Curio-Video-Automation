@@ -55,15 +55,20 @@ export async function runGenerationPipeline(deps: PipelineDeps, videoId: string)
   const topic = video.topicId ? await repo.getTopic(video.topicId) : null;
   if (!topic) throw new Error(`video ${videoId} has no topic attached`);
 
+  // Generator rules steer content; calibration rules correct the judge.
   const activeRules = await repo.listRules(true);
+  const generatorRules = activeRules.filter((r) => r.category !== "calibration");
+  const calibrationRules = activeRules.filter((r) => r.category === "calibration");
   let feedback: JudgeScores | undefined = video.judge?.pass === false ? video.judge : undefined;
 
   // 1 fresh attempt + up to MAX_AUTO_REGENS rewrites fed with judge feedback.
   for (let attempt = 0; attempt <= MAX_AUTO_REGENS; attempt++) {
     video.attempts += 1;
     try {
-      const gen = await generatePackage(llm, topic, activeRules, feedback);
+      const gen = await generatePackage(llm, topic, generatorRules, feedback);
       video.pkg = gen.pkg;
+      // Cohort key for later rule validation: which rules shaped this package.
+      video.appliedRuleIds = generatorRules.map((r) => r.id);
       await recordGeneration(repo, video, "package", gen.promptVersion, llm.model, gen.input, gen.rawOutput);
       setStatus(video, "generated");
       await repo.updateVideo(video);
@@ -74,7 +79,7 @@ export async function runGenerationPipeline(deps: PipelineDeps, videoId: string)
       return repo.updateVideo(video);
     }
 
-    const judged = await judgePackage(llm, video.pkg!);
+    const judged = await judgePackage(llm, video.pkg!, calibrationRules);
     video.judge = judged.scores;
     await recordGeneration(repo, video, "judge", judged.promptVersion, llm.model, judged.input, judged.rawOutput);
 
@@ -105,7 +110,8 @@ export async function finalizeManualEdit(deps: PipelineDeps, videoId: string): P
   const { repo, llm } = deps;
   const video = await repo.getVideo(videoId);
   if (!video?.pkg) throw new Error(`video ${videoId} has no package to finalize`);
-  const judged = await judgePackage(llm, video.pkg);
+  const calibrationRules = (await repo.listRules(true)).filter((r) => r.category === "calibration");
+  const judged = await judgePackage(llm, video.pkg, calibrationRules);
   video.judge = judged.scores;
   await recordGeneration(repo, video, "judge", judged.promptVersion, llm.model, judged.input, judged.rawOutput);
   await repo.updateVideo(video);

@@ -77,24 +77,91 @@ describe("learning run", () => {
     expect(run1.hookFormulas.length).toBeGreaterThanOrEqual(5);
     expect(run1.recommendedTopics.length).toBeGreaterThanOrEqual(5);
     expect(run1.newRuleIds.length).toBeGreaterThan(0);
+    // v2 fields: per-platform lessons + judge calibration notes
+    expect(run1.platformNotes.length).toBeGreaterThan(0);
+    expect(run1.judgeCalibrationNotes.length).toBeGreaterThan(0);
 
     const rulesAfter1 = await repo.listRules(true);
     const learned1 = rulesAfter1.filter((r) => r.source === "learning_run");
     expect(learned1.length).toBe(run1.newRuleIds.length);
+    // the mock judge said viral>=8 on videos that landed bottom-half, so the
+    // run must emit a judge-calibration rule
+    expect(learned1.some((r) => r.category === "calibration")).toBe(true);
     // seeds stay active alongside learned rules
     expect(rulesAfter1.some((r) => r.source === "seed")).toBe(true);
 
-    // second run supersedes the first run's rules
+    // second run supersedes the first run's rules and links back to it
     const run2 = await runLearning(repo, llm);
+    expect(run2.previousRunId).toBe(run1.id);
     const activeLearned = (await repo.listRules(true)).filter((r) => r.source === "learning_run");
     expect(activeLearned.every((r) => r.runId === run2.id)).toBe(true);
     const all = await repo.listRules();
     expect(all.some((r) => r.runId === run1.id && !r.active)).toBe(true);
 
+    // run2's prompt carries the compounding context: history + judge_vs_actual
+    const run2Gen = (await repo.listGenerations(run2.id))[0];
+    const run2Input = JSON.stringify(run2Gen.input);
+    expect(run2Input).toContain(run1.id);              // history references run1
+    expect(run2Input).toContain("judge_vs_actual");
+    expect(run2Input).toContain("rule_validation");
+
     // the analysis itself is recorded for prompt A/B history
     const gens = await repo.listGenerations(run1.id);
     expect(gens).toHaveLength(1);
     expect(gens[0].kind).toBe("learning");
+  });
+
+  it("validates prior rules via appliedRuleIds cohorts and computes the improvement delta", async () => {
+    const repo = new InMemoryRepo();
+    await ensureSeedRules(repo);
+    const ids = await seedVideos(repo, 5);
+    for (let i = 0; i < ids.length; i++) {
+      await repo.addMetrics(metrics(ids[i], { completionRate: 0.5 - i * 0.05, views: 5000 }));
+    }
+    const llm = new MockLlmClient();
+    const run1 = await runLearning(repo, llm);
+
+    // ensure the next video lands in a later millisecond than run1.createdAt —
+    // the before/after cohort split is timestamp-based
+    await new Promise((r) => setTimeout(r, 5));
+
+    // videos generated AFTER run1 carry the new rules as their cohort key…
+    const [newId] = await seedVideos(repo, 1);
+    const newVideo = (await repo.getVideo(newId))!;
+    const run1Rules = (await repo.listRules()).filter((r) => r.runId === run1.id && r.category !== "calibration");
+    for (const r of run1Rules) expect(newVideo.appliedRuleIds).toContain(r.id);
+    // …and calibration rules are NOT part of the generator cohort
+    const calRule = (await repo.listRules()).find((r) => r.runId === run1.id && r.category === "calibration")!;
+    expect(newVideo.appliedRuleIds).not.toContain(calRule.id);
+
+    // the new video outperforms → run2 sees the cohort + a positive delta
+    await repo.addMetrics(metrics(newId, { completionRate: 0.9, saves: 300, views: 5000 }));
+    const run2 = await runLearning(repo, llm);
+    expect(run2.improvementDelta).toBeGreaterThan(0);
+    const run2Input = JSON.stringify((await repo.listGenerations(run2.id))[0].input);
+    expect(run2Input).toContain("cohort_avg_engagement");
+  });
+
+  it("calibration rules are injected into the judge prompt, not the generator prompt", async () => {
+    const repo = new InMemoryRepo();
+    await ensureSeedRules(repo);
+    const ids = await seedVideos(repo, 5);
+    for (let i = 0; i < ids.length; i++) {
+      await repo.addMetrics(metrics(ids[i], { completionRate: 0.6 - i * 0.08, views: 8000 }));
+    }
+    const llm = new MockLlmClient();
+    const run = await runLearning(repo, llm);
+    const calRule = (await repo.listRules(true)).find((r) => r.category === "calibration");
+    expect(calRule).toBeTruthy();
+    expect(run.newRuleIds).toContain(calRule!.id);
+
+    const [vidId] = await seedVideos(repo, 1);
+    const gens = await repo.listGenerations(vidId);
+    const pkgGen = gens.find((g) => g.kind === "package")!;
+    const judgeGen = gens.find((g) => g.kind === "judge")!;
+    expect(JSON.stringify(judgeGen.input)).toContain("CALIBRATION");
+    expect(JSON.stringify(judgeGen.input)).toContain(calRule!.rule.slice(0, 30));
+    expect(JSON.stringify(pkgGen.input)).not.toContain(calRule!.rule.slice(0, 30));
   });
 
   it("newly learned rules are injected into the next generation prompt", async () => {

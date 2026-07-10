@@ -10,8 +10,9 @@ import type { JudgeScores, LearningRule, Topic } from "./types.js";
 
 export const PROMPT_VERSIONS = {
   package: "pkg_v4_retention_engineer",
-  judge: "judge_v3_retention_engineer",
-  learning: "learn_v1",
+  judge: "judge_v4_calibrated",
+  learning: "learn_v2_compounding",
+  ingest: "ingest_v1",
 } as const;
 
 // The non-negotiable operating frame for every content decision: platforms
@@ -129,7 +130,13 @@ Target length: ${topic.targetLengthSeconds}s
 Language: ${topic.language}${topic.sourceRef ? `\nSource reference: ${topic.sourceRef}` : ""}${fb}`;
 }
 
-export function judgeSystemPrompt(): string {
+export function judgeSystemPrompt(calibration: LearningRule[] = []): string {
+  const cal = calibration.length
+    ? `\n\nCALIBRATION from real published performance (your past predictions vs actual
+analytics — apply these corrections when scoring):\n${calibration
+        .map((r) => `- ${r.rule}`)
+        .join("\n")}`
+    : "";
   return `You are Curio's ruthless pre-publish quality judge for short-form video packages.
 Score 0-10 (integers) on: hook_score, retention_score, clarity_score,
 caption_readability, brand_fit, viral_potential, factual_safety, overall_score.
@@ -152,19 +159,48 @@ Scoring guidance — score the way the platform's retention model would:
   save-worthiness, loop-back ending for rewatch. No trigger = <=6.
 - factual_safety: claims defensible, no invented stats, no medical/financial advice,
   no fake mystery presented as verified fact.
-List concrete problems and ONE prioritized fix instruction for the rewrite loop.`;
+List concrete problems and ONE prioritized fix instruction for the rewrite loop.${cal}`;
 }
 
 export function learningSystemPrompt(): string {
-  return `You analyze short-form video performance for Curio. Given top-20% and
-bottom-20% videos (hooks, categories, lengths, caption stats, metrics), find what
-separates winners from losers. Output: top_patterns, weak_patterns, 10 improved
-hook_formulas, 20 recommended_topics, caption_recommendations, best_length_seconds,
-best_categories, best_tone, and new_rules (each {category, rule}) — rules must be
-specific, testable instructions a script generator can obey, not vague advice.
-Categories for rules: hook | caption | topic | structure | tone | length.
-Weigh completion, shares/sends and saves above likes; interpret retention relative
-to video length; treat small samples as noisy (say so in weak_patterns if n is small).`;
+  return `You analyze short-form video performance for Curio so the system improves
+with EVERY analytics drop. The payload contains:
+- current: top-20% and bottom-20% videos (hooks, categories, lengths, caption
+  stats, metrics) plus per-platform aggregates.
+- history: summaries of previous learning runs and the rules they issued.
+- rule_validation: for each previously-issued rule, the avg engagement of videos
+  generated UNDER that rule vs the overall baseline. Re-issue (strengthened) the
+  rules that worked; explicitly drop or invert what didn't. Never re-issue a
+  refuted rule unchanged.
+- judge_vs_actual: the pre-publish judge's predicted scores vs each video's real
+  engagement percentile. Where the judge systematically over/under-predicts,
+  output a "calibration" rule telling the judge how to correct (calibration rules
+  are injected into the judge's prompt, not the generator's).
+- improvement_delta: whether videos made after the last run beat the ones before.
+
+Output: top_patterns, weak_patterns, 10 improved hook_formulas, 20
+recommended_topics, caption_recommendations, platform_notes (one per platform
+present — platforms punish differently: IG punishes cognitive load, YouTube
+tolerates slower narrative), judge_calibration_notes, best_length_seconds,
+best_categories, best_tone, and new_rules (each {category, rule}).
+Rule categories: hook | caption | topic | structure | tone | length | calibration.
+Rules must be specific, testable instructions, not vague advice. Weigh completion,
+shares/sends and saves above likes; interpret retention relative to video length;
+treat small samples as noisy (say so in weak_patterns if n is small).`;
+}
+
+export function ingestSystemPrompt(): string {
+  return `You parse raw, messy short-form video analytics into structured JSON.
+The input may be pasted platform UI text (TikTok/Instagram/YouTube Studio),
+CSV, screenshots transcribed to text, or free-form notes — in any order, any
+units. Extract one entry per video. Rules:
+- Percentages may appear as "42%", "0.42", or "42" — always output rates as 0-1.
+- Watch time may be "18.4s", "0:18", or "18.4" — output seconds as a number.
+- Counts may be "12K", "1.2M", "12,000" — output plain numbers.
+- Copy any hook/title/id text you can find into match_hint verbatim; the server
+  uses it to match the entry to a stored video. Never invent values: omit fields
+  that are not present (except views/likes/comments/shares/saves — default 0).
+- posted_at: epoch milliseconds if a date is present, else omit.`;
 }
 
 // Seed rules active before any analytics exist — the starting "content rules",

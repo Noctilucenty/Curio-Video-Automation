@@ -15,7 +15,8 @@ import { makeId } from "./config.js";
 import { createDraftVideo } from "./pipeline.js";
 import { normalizeCaptions, captionsToSrt, CAPTION_STYLE } from "./captions.js";
 import { PUBLISH_THRESHOLDS } from "./judge.js";
-import { runLearning, LearningDataError, MIN_VIDEOS_FOR_LEARNING } from "./learning.js";
+import { runLearning, LearningDataError, MIN_VIDEOS_FOR_LEARNING, latestMetricsByVideo, engagementScore } from "./learning.js";
+import { ingestRawAnalytics } from "./ingest.js";
 
 export interface RouteDeps {
   repo: Repo;
@@ -225,6 +226,7 @@ export function buildRoutes(deps: RouteDeps): Router {
       views: num(b.views),
       avgWatchTime: num(b.avg_watch_time),
       completionRate: Math.max(0, Math.min(1, num(b.completion_rate))),
+      skipRate: b.skip_rate != null ? Math.max(0, Math.min(1, num(b.skip_rate))) : undefined,
       likes: num(b.likes),
       comments: num(b.comments),
       shares: num(b.shares),
@@ -236,6 +238,49 @@ export function buildRoutes(deps: RouteDeps): Router {
       ingestedAt: Date.now(),
     });
     res.status(201).json({ ok: true });
+  });
+
+  // THE improvement entry point: paste raw analytics in any shape (platform UI
+  // text, CSV, transcribed screenshots). The LLM parses it, entries are matched
+  // to published videos (id > hook > title similarity) and stored. Follow with
+  // POST /learning/run to convert the new data into better generation rules.
+  r.post("/performance/ingest", async (req, res) => {
+    const raw = req.body?.raw;
+    if (typeof raw !== "string" || !raw.trim()) {
+      res.status(400).json({ error: "raw (string) is required — paste the analytics text" });
+      return;
+    }
+    // Always 200: the report itself says what matched — a zero-match paste is
+    // feedback for the operator (reasons per entry), not a server error.
+    const report = await ingestRawAnalytics(repo, llm, raw.trim());
+    res.json(report);
+  });
+
+  // Latest metrics + engagement per video (dashboard performance view).
+  r.get("/performance/summary", async (_req, res) => {
+    const latest = await latestMetricsByVideo(repo);
+    const videos = await repo.listVideos();
+    const rows = videos
+      .filter((v) => latest.has(v.id))
+      .map((v) => {
+        const m = latest.get(v.id)!;
+        return {
+          video_id: v.id,
+          hook: v.pkg?.selectedHook ?? null,
+          platform: m.platform,
+          views: m.views,
+          completion_rate: m.completionRate,
+          skip_rate: m.skipRate ?? null,
+          avg_watch_time: m.avgWatchTime,
+          likes: m.likes,
+          shares: m.shares,
+          saves: m.saves,
+          engagement_score: Math.round(engagementScore(m) * 10) / 10,
+          ingested_at: m.ingestedAt,
+        };
+      })
+      .sort((a, b) => b.engagement_score - a.engagement_score);
+    res.json({ videos: rows });
   });
 
   r.post("/learning/run", async (_req, res) => {

@@ -16,7 +16,59 @@ export function mockGenerate(req: JsonRequest): unknown {
     case "package": return mockPackage(req.user);
     case "judge": return mockJudge(req.user);
     case "learning": return mockLearning(req.user);
+    case "ingest": return mockIngest(req.user);
   }
+}
+
+/**
+ * Offline analytics parser: handles `key=value` token lines and simple CSV with
+ * a header row — enough for dev/tests. The real LLM handles arbitrary pasted
+ * platform text; this keeps the ingest endpoint fully functional without a key.
+ */
+function mockIngest(user: string): unknown {
+  const raw = user.slice(user.indexOf("RAW ANALYTICS:") + "RAW ANALYTICS:".length).trim();
+  const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
+  const entries: any[] = [];
+
+  const NUMERIC = new Set([
+    "views", "avg_watch_time", "completion_rate", "skip_rate", "likes", "comments",
+    "shares", "saves", "follows", "profile_clicks", "app_downloads", "posted_at",
+  ]);
+  const finish = (fields: Record<string, string>) => {
+    if (Object.keys(fields).length === 0) return;
+    const entry: any = {
+      match_hint: {},
+      views: 0, likes: 0, comments: 0, shares: 0, saves: 0,
+    };
+    for (const [k, v] of Object.entries(fields)) {
+      if (k === "video_id" || k === "hook" || k === "title") entry.match_hint[k] = v;
+      else if (k === "platform") entry.platform = v;
+      else if (NUMERIC.has(k)) entry[k] = Number(v.replace(/[%,]/g, ""));
+    }
+    entries.push(entry);
+  };
+
+  // CSV mode: first line looks like a header containing "views".
+  const header = lines[0]?.toLowerCase().split(",").map((h) => h.trim());
+  if (header && header.includes("views") && lines.length > 1) {
+    for (const line of lines.slice(1)) {
+      const cells = line.split(",").map((c) => c.trim());
+      const fields: Record<string, string> = {};
+      header.forEach((h, i) => { if (cells[i] !== undefined && cells[i] !== "") fields[h] = cells[i]; });
+      finish(fields);
+    }
+    return { entries };
+  }
+
+  // key=value token mode, one video per line (values may be "quoted").
+  for (const line of lines) {
+    const fields: Record<string, string> = {};
+    const re = /(\w+)=("([^"]*)"|\S+)/g;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(line))) fields[m[1].toLowerCase()] = m[3] ?? m[2];
+    finish(fields);
+  }
+  return { entries };
 }
 
 function field(user: string, name: string): string {
@@ -168,8 +220,13 @@ function mockLearning(user: string): unknown {
   let payload: any = {};
   const jsonStart = user.indexOf("{");
   try { payload = JSON.parse(user.slice(jsonStart)); } catch { /* empty */ }
-  const winners: any[] = payload.top_videos ?? [];
-  const losers: any[] = payload.bottom_videos ?? [];
+  // v2 payload nests current-batch data under `current`; tolerate the old flat shape.
+  const current = payload.current ?? payload;
+  const winners: any[] = current.top_videos ?? [];
+  const losers: any[] = current.bottom_videos ?? [];
+  const platforms: Record<string, any> = current.platforms ?? {};
+  const judgeVsActual: any[] = payload.judge_vs_actual ?? [];
+  const ruleValidation: any[] = payload.rule_validation ?? [];
 
   const avgHookLen = (vs: any[]) =>
     vs.length ? vs.reduce((s, v) => s + String(v.hook ?? "").split(/\s+/).length, 0) / vs.length : 0;
@@ -178,16 +235,37 @@ function mockLearning(user: string): unknown {
     ? Math.round(winners.reduce((s, v) => s + (v.length_seconds ?? 28), 0) / winners.length)
     : 28;
 
+  // Deterministic mock of the judge-vs-actual analysis: flag overpredictions
+  // (judge said >=8 viral but the video landed in the bottom half).
+  const overpredicted = judgeVsActual.filter(
+    (j) => (j.judged_viral_potential ?? 0) >= 8 && (j.actual_percentile ?? 100) < 50,
+  );
+  const validatedRules = ruleValidation.filter(
+    (r) => (r.cohort_avg_engagement ?? 0) >= (r.baseline_avg_engagement ?? 0),
+  );
+
   return {
     top_patterns: [
       `Winning hooks average ${Math.round(avgHookLen(winners))} words and state a tension, not a question`,
       `Winning categories: ${winnerCats.join(", ") || "psychology"}`,
       "Winners place an emotional reframe in the final third",
+      ...(validatedRules.length
+        ? [`Validated rules from prior runs: ${validatedRules.length} of ${ruleValidation.length} beat baseline`]
+        : []),
     ],
     weak_patterns: [
       `Losing hooks average ${Math.round(avgHookLen(losers))} words or open with context instead of tension`,
       "Losers explain past the 18s mark without a second curiosity turn",
     ],
+    platform_notes: Object.keys(platforms).length
+      ? Object.entries(platforms).map(
+          ([p, agg]: [string, any]) =>
+            `${p}: n=${agg.n}, avg completion ${agg.avg_completion} — ${p === "shorts" ? "tolerates slower narrative" : "cut cognitive load, reveal faster"}`,
+        )
+      : ["tiktok: reveal the mystery in line one, keep under 16s"],
+    judge_calibration_notes: overpredicted.length
+      ? [`viral_potential overpredicted on ${overpredicted.length} video(s) that landed in the bottom half`]
+      : ["judge predictions roughly tracked actual engagement this batch"],
     hook_formulas: [
       "[Familiar thing] is actually [hidden mechanism].",
       "Your brain treats [modern thing] like [ancient threat].",
@@ -214,6 +292,12 @@ function mockLearning(user: string): unknown {
       { category: "hook", rule: `Keep hooks under ${Math.max(8, Math.round(avgHookLen(winners)) + 2)} words; state a tension, never open with context.` },
       { category: "length", rule: `Target ${winLen}s total; winners cluster there.` },
       { category: "structure", rule: "Place an emotional reframe in the final third before the CTA." },
+      ...(overpredicted.length
+        ? [{
+            category: "calibration",
+            rule: `Your viral_potential ran hot on ${overpredicted.length} video(s): hooks that restate the topic without new tension must score <=6.`,
+          }]
+        : []),
     ],
   };
 }

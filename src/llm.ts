@@ -9,7 +9,7 @@ export interface JsonRequest {
   schemaName: string;
   schema: Record<string, unknown>;
   /** Judge/learning calls want stricter, lower-temperature behavior. */
-  purpose: "package" | "judge" | "learning";
+  purpose: "package" | "judge" | "learning" | "ingest";
 }
 
 export interface LlmClient {

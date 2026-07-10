@@ -140,6 +140,41 @@ describe("api flow", () => {
     expect((await request(app).post("/api/videos/generate").send({ topic_id: "nope" })).status).toBe(404);
   });
 
+  it("paste-analytics ingest matches published videos and feeds the summary", async () => {
+    const { app, queue } = await makeApp();
+    const gen = await request(app).post("/api/videos/generate").send({ topic: "Analytics flow topic about tides" });
+    const videoId = gen.body.video_id;
+    await queue.drain();
+    await request(app).post(`/api/videos/${videoId}/approve`);
+    await request(app).post(`/api/videos/${videoId}/publish`);
+
+    const vid = await request(app).get(`/api/videos/${videoId}`);
+    const hook = vid.body.package.selected_hook;
+
+    const ingest = await request(app).post("/api/performance/ingest").send({
+      raw: `hook="${hook}" platform=instagram views=15000 completion_rate=48% likes=900 comments=40 shares=120 saves=200 avg_watch_time=12.2`,
+    });
+    expect(ingest.status).toBe(200);
+    expect(ingest.body.matched).toHaveLength(1);
+    expect(ingest.body.matched[0].video_id).toBe(videoId);
+
+    const summary = await request(app).get("/api/performance/summary");
+    expect(summary.body.videos).toHaveLength(1);
+    expect(summary.body.videos[0].views).toBe(15000);
+    expect(summary.body.videos[0].completion_rate).toBeCloseTo(0.48);
+    expect(summary.body.videos[0].engagement_score).toBeGreaterThan(0);
+
+    // garbage in → 200 with per-entry reasons (a report, not an error), nothing stored
+    const bad = await request(app).post("/api/performance/ingest").send({
+      raw: 'hook="completely unrelated cooking video about pasta sauce" views=1 completion_rate=0.1 likes=0 comments=0 shares=0 saves=0',
+    });
+    expect(bad.status).toBe(200);
+    expect(bad.body.matched).toHaveLength(0);
+    expect(bad.body.unmatched).toHaveLength(1);
+    expect(bad.body.unmatched[0].reason).toContain("no published video matches");
+    expect((await request(app).post("/api/performance/ingest").send({})).status).toBe(400);
+  });
+
   it("enforces the admin token on mutations but keeps reads open", async () => {
     const { app } = await makeApp("secret-token");
     expect((await request(app).get("/api/videos")).status).toBe(200);

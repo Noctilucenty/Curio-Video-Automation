@@ -23,6 +23,7 @@ create table if not exists videos (
   attempts int not null default 0,
   package jsonb,            -- full OpenAI video package (hooks, script, caption_lines, copy)
   judge jsonb,              -- latest judge scores + problems + fix + pass
+  applied_rule_ids jsonb,   -- generator rules active at generation time (rule-cohort validation)
   render_provider text,     -- 'heygen' | 'mock'
   render_status text,       -- 'not_started' | 'rendering' | 'completed' | 'failed'
   provider_video_id text,
@@ -61,6 +62,7 @@ create table if not exists performance_metrics (
   saves bigint not null default 0,
   follows bigint not null default 0,
   profile_clicks bigint not null default 0,
+  skip_rate real check (skip_rate between 0 and 1),
   app_downloads bigint,
   posted_at timestamptz not null,
   ingested_at timestamptz not null default now()
@@ -68,9 +70,10 @@ create table if not exists performance_metrics (
 create index if not exists performance_metrics_video_idx on performance_metrics(video_id);
 
 -- Content rules the generator obeys; learning runs supersede their predecessors.
+-- category 'calibration' rules tune the JUDGE (predicted vs actual), not the generator.
 create table if not exists learning_rules (
   id text primary key,
-  category text not null check (category in ('hook','caption','topic','structure','tone','length')),
+  category text not null check (category in ('hook','caption','topic','structure','tone','length','calibration')),
   rule text not null,
   source text not null check (source in ('seed','learning_run','manual')),
   active boolean not null default true,
@@ -87,10 +90,14 @@ create table if not exists learning_runs (
   hook_formulas jsonb not null default '[]',
   recommended_topics jsonb not null default '[]',
   caption_recommendations jsonb not null default '[]',
+  platform_notes jsonb not null default '[]',
+  judge_calibration_notes jsonb not null default '[]',
   best_length_seconds int,
   best_categories jsonb not null default '[]',
   best_tone text,
   new_rule_ids jsonb not null default '[]',
+  improvement_delta real,          -- avg engagement after prev run minus before
+  previous_run_id text,
   prompt_version text not null,
   model text not null,
   created_at timestamptz not null default now()

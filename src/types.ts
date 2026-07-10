@@ -108,6 +108,9 @@ export interface Video {
   /** Generation attempts consumed (1 initial + up to 2 auto-regens). */
   attempts: number;
   generationIds: string[];
+  /** Active generator rule ids at package-generation time — the cohort key for
+   * "did this rule actually improve performance?" in later learning runs. */
+  appliedRuleIds?: string[];
   render: RenderInfo;
   audio?: AudioInfo;
   post?: PostInfo;
@@ -144,14 +147,20 @@ export interface PerformanceMetrics {
   saves: number;
   follows: number;
   profileClicks: number;
+  /** First-seconds skip rate 0-1 when the platform reports it. */
+  skipRate?: number;
   appDownloads?: number;
   postedAt: number;
   ingestedAt: number;
 }
 
+/**
+ * "calibration" rules are special: they tune the JUDGE (predicted vs actual
+ * performance), not the generator. All other categories steer generation.
+ */
 export interface LearningRule {
   id: string;
-  category: "hook" | "caption" | "topic" | "structure" | "tone" | "length";
+  category: "hook" | "caption" | "topic" | "structure" | "tone" | "length" | "calibration";
   rule: string;
   source: "seed" | "learning_run" | "manual";
   active: boolean;
@@ -167,10 +176,17 @@ export interface LearningRun {
   hookFormulas: string[];
   recommendedTopics: string[];
   captionRecommendations: string[];
+  /** Per-platform lessons, e.g. "instagram: cut to 12s, IG punishes cognitive load". */
+  platformNotes: string[];
+  /** Where the pre-publish judge over/under-predicted real performance. */
+  judgeCalibrationNotes: string[];
   bestLengthSeconds?: number;
   bestCategories: string[];
   bestTone?: string;
   newRuleIds: string[];
+  /** Avg engagement of videos posted after the previous run minus before — is the loop working? */
+  improvementDelta?: number;
+  previousRunId?: string;
   promptVersion: string;
   model: string;
   createdAt: number;

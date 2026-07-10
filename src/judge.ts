@@ -1,7 +1,9 @@
 // Pre-publish quality gate. A package that fails the thresholds goes back into
 // the rewrite loop (max 2 auto-regens) instead of wasting a HeyGen render.
+// Calibration rules (learned from predicted-vs-actual analytics) correct the
+// judge's biases over time.
 
-import type { JudgeScores, VideoPackage } from "./types.js";
+import type { JudgeScores, LearningRule, VideoPackage } from "./types.js";
 import type { LlmClient } from "./llm.js";
 import { judgeSystemPrompt, PROMPT_VERSIONS } from "./prompts.js";
 
@@ -51,8 +53,12 @@ export interface JudgeResult {
   rawOutput: unknown;
 }
 
-export async function judgePackage(llm: LlmClient, pkg: VideoPackage): Promise<JudgeResult> {
-  const system = judgeSystemPrompt();
+export async function judgePackage(
+  llm: LlmClient,
+  pkg: VideoPackage,
+  calibration: LearningRule[] = [],
+): Promise<JudgeResult> {
+  const system = judgeSystemPrompt(calibration);
   // The judge sees the wire-format package (what a fresh reviewer would see).
   const user = `Score this Curio video package.\n\nJSON package:\n${JSON.stringify(wireFormat(pkg), null, 2)}`;
   const raw: any = await llm.generateJson({
