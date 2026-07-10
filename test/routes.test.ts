@@ -1,0 +1,141 @@
+import { describe, it, expect } from "vitest";
+import request from "supertest";
+import { createApp } from "../src/app.js";
+import { InMemoryRepo } from "../src/repository.js";
+import { MockLlmClient } from "../src/llm.js";
+import { MockRenderer } from "../src/heygen.js";
+import { ensureSeedRules } from "../src/learning.js";
+import type { Config } from "../src/config.js";
+
+function testConfig(adminToken: string | null = null): Config {
+  return {
+    port: 0, adminToken, dataDir: "./data",
+    openai: { apiKey: null, model: "mock-llm" },
+    heygen: { apiKey: null, avatarId: "av", voiceId: "vo" },
+  };
+}
+
+async function makeApp(adminToken: string | null = null) {
+  const repo = new InMemoryRepo();
+  await ensureSeedRules(repo);
+  const { app, queue } = createApp({
+    config: testConfig(adminToken), repo, llm: new MockLlmClient(), renderer: new MockRenderer(),
+  });
+  return { app, queue, repo };
+}
+
+describe("api flow", () => {
+  it("topic -> generate -> review -> approve -> publish -> performance", async () => {
+    const { app, queue } = await makeApp();
+
+    // create topic
+    const topicRes = await request(app).post("/api/video-topics").send({
+      topic: "Why your brain remembers embarrassing moments more than compliments",
+      category: "psychology", target_platform: "tiktok", target_length_seconds: 28,
+    });
+    expect(topicRes.status).toBe(201);
+    const topicId = topicRes.body.id;
+
+    // enqueue generation
+    const genRes = await request(app).post("/api/videos/generate").send({ topic_id: topicId });
+    expect(genRes.status).toBe(202);
+    const videoId = genRes.body.video_id;
+    await queue.drain();
+
+    // full package + passing judge + mock render
+    const vid = await request(app).get(`/api/videos/${videoId}`);
+    expect(vid.body.status).toBe("ready_for_review");
+    expect(vid.body.package.selected_hook.length).toBeGreaterThan(5);
+    expect(vid.body.package.caption_lines.length).toBeGreaterThanOrEqual(3);
+    expect(vid.body.judge.pass).toBe(true);
+    expect(vid.body.render.video_url).toContain("mock.heygen.local");
+
+    // shows up in the review queue
+    const rq = await request(app).get("/api/review-queue");
+    expect(rq.body.videos.map((v: any) => v.id)).toContain(videoId);
+
+    // srt export works
+    const srt = await request(app).get(`/api/videos/${videoId}/captions.srt`);
+    expect(srt.text).toContain("-->");
+
+    // approve -> publish
+    expect((await request(app).post(`/api/videos/${videoId}/approve`)).body.status).toBe("approved");
+    expect((await request(app).post(`/api/videos/${videoId}/publish`)).body.status).toBe("published");
+
+    // metrics accepted once published
+    const perf = await request(app).post(`/api/videos/${videoId}/performance`).send({
+      platform: "tiktok", views: 12000, avg_watch_time: 18.4, completion_rate: 0.42,
+      likes: 830, comments: 31, shares: 97, saves: 144, follows: 12, profile_clicks: 40,
+    });
+    expect(perf.status).toBe(201);
+  });
+
+  it("rejects invalid status transitions with 409", async () => {
+    const { app, queue } = await makeApp();
+    const gen = await request(app).post("/api/videos/generate").send({ topic: "test topic" });
+    const videoId = gen.body.video_id;
+    await queue.drain();
+
+    // publish before approve -> 409 (ready_for_review -> published not allowed)
+    expect((await request(app).post(`/api/videos/${videoId}/publish`)).status).toBe(409);
+    // metrics before published -> 409
+    expect((await request(app).post(`/api/videos/${videoId}/performance`).send({
+      views: 1, avg_watch_time: 1, completion_rate: 0.5,
+    })).status).toBe(409);
+    // approve twice -> second is 409
+    await request(app).post(`/api/videos/${videoId}/approve`);
+    expect((await request(app).post(`/api/videos/${videoId}/approve`)).status).toBe(409);
+  });
+
+  it("regenerate re-runs the pipeline from review", async () => {
+    const { app, queue } = await makeApp();
+    const gen = await request(app).post("/api/videos/generate").send({ topic: "test topic two" });
+    const videoId = gen.body.video_id;
+    await queue.drain();
+
+    const re = await request(app).post(`/api/videos/${videoId}/regenerate`).send({ note: "hook feels flat" });
+    expect(re.status).toBe(202);
+    await queue.drain();
+    const vid = await request(app).get(`/api/videos/${videoId}`);
+    expect(vid.body.status).toBe("ready_for_review");
+    expect(vid.body.attempts).toBeGreaterThanOrEqual(2);
+    expect(vid.body.review_note).toBe("hook feels flat");
+  });
+
+  it("manual edit re-judges, re-renders, and returns to review", async () => {
+    const { app, queue } = await makeApp();
+    const gen = await request(app).post("/api/videos/generate").send({ topic: "editable topic" });
+    const videoId = gen.body.video_id;
+    await queue.drain();
+
+    const edit = await request(app).post(`/api/videos/${videoId}/edit`).send({
+      hook: "A hand-written hook about memory.",
+      script: "A fully hand-written script. Short. Human. Premium.",
+    });
+    expect(edit.status).toBe(202);
+    await queue.drain();
+
+    const vid = await request(app).get(`/api/videos/${videoId}`);
+    expect(vid.body.status).toBe("ready_for_review");
+    expect(vid.body.package.selected_hook).toBe("A hand-written hook about memory.");
+    expect(vid.body.judge).not.toBeNull();
+  });
+
+  it("validates topic input", async () => {
+    const { app } = await makeApp();
+    expect((await request(app).post("/api/video-topics").send({})).status).toBe(400);
+    expect((await request(app).post("/api/video-topics").send({ topic: "x", target_platform: "youtube_longform" })).status).toBe(400);
+    expect((await request(app).post("/api/videos/generate").send({})).status).toBe(400);
+    expect((await request(app).post("/api/videos/generate").send({ topic_id: "nope" })).status).toBe(404);
+  });
+
+  it("enforces the admin token on mutations but keeps reads open", async () => {
+    const { app } = await makeApp("secret-token");
+    expect((await request(app).get("/api/videos")).status).toBe(200);
+    expect((await request(app).post("/api/video-topics").send({ topic: "x" })).status).toBe(401);
+    expect((await request(app)
+      .post("/api/video-topics")
+      .set("authorization", "Bearer secret-token")
+      .send({ topic: "x" })).status).toBe(201);
+  });
+});
