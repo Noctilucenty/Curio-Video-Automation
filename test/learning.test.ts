@@ -223,6 +223,24 @@ describe("learning run", () => {
     expect(new Set(activeLearned.map((r) => r.runId)).size).toBe(1);
   });
 
+  it("tied engagement scores share one midrank percentile instead of a fabricated spread", async () => {
+    const repo = new InMemoryRepo();
+    await ensureSeedRules(repo);
+    const ids = await seedVideos(repo, 5);
+    // identical metrics on every video — no real performance signal exists
+    for (const id of ids) {
+      await repo.addMetrics(metrics(id, { completionRate: 0.5, saves: 50, views: 5000 }));
+    }
+    const run = await runLearning(repo, new MockLlmClient());
+    const genInput = JSON.parse(
+      JSON.stringify((await repo.listGenerations(run.id))[0].input),
+    ) as { user: string };
+    const payload = JSON.parse(genInput.user.slice(genInput.user.indexOf("{")));
+    const percentiles = payload.judge_vs_actual.map((j: any) => j.actual_percentile);
+    expect(new Set(percentiles).size).toBe(1);
+    expect(percentiles[0]).toBe(50);
+  });
+
   it("calibration rules are injected into the judge prompt, not the generator prompt", async () => {
     const repo = new InMemoryRepo();
     await ensureSeedRules(repo);

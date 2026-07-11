@@ -131,6 +131,15 @@ export async function ingestRawAnalytics(repo: Repo, llm: LlmClient, raw: string
       report.unmatched.push({ entry, reason: found.reason });
       continue;
     }
+    // Views are the reliability anchor: an entry without positive views is
+    // either a hint-only line (schema/prompt default the counts to 0) or a
+    // broken paste. Storing it would write an all-zero row that latest-wins
+    // semantics let OVERRIDE real earlier metrics, and interaction rates
+    // divided by max(views,1) would explode. Refuse instead of corrupting.
+    if (!(Number(entry.views) > 0)) {
+      report.unmatched.push({ entry, reason: "no views value found — refusing to store unreliable metrics" });
+      continue;
+    }
     const { video, how } = found;
     const m = toMetrics(entry, video);
     await repo.addMetrics(m);
@@ -161,6 +170,16 @@ function matchVideo(
   for (const [key, how] of [["hook", "hook"], ["title", "title"]] as const) {
     const text = hint[key];
     if (!text) continue;
+    // Exact-equality short-circuit: a paste that is character-identical (after
+    // normalization) to exactly ONE stored hook/title is that video — the
+    // ambiguity margin below must not veto it just because a near-duplicate
+    // sibling (learning converges hooks onto shared formulas) scores 0.9.
+    const nt = normalize(text);
+    const exact = published.filter(
+      (v) => normalize(key === "hook" ? v.pkg!.selectedHook : v.pkg!.title) === nt,
+    );
+    if (exact.length === 1) return { video: exact[0], how };
+
     const scored = published
       .map((v) => ({
         v,
@@ -242,9 +261,15 @@ function toMetrics(entry: ParsedEntry, video: Video): PerformanceMetrics {
     follows: num(entry.follows),
     profileClicks: num(entry.profile_clicks),
     appDownloads: entry.app_downloads != null ? num(entry.app_downloads) : undefined,
-    postedAt: entry.posted_at && Number.isFinite(entry.posted_at) ? entry.posted_at : video.publishedAt ?? Date.now(),
+    postedAt: epochMs(entry.posted_at) ?? video.publishedAt ?? Date.now(),
     ingestedAt: Date.now(),
   };
+}
+
+/** Accept epoch seconds or milliseconds; anything before ~2001 in ms terms is seconds. */
+function epochMs(v: number | null | undefined): number | null {
+  if (!v || !Number.isFinite(v) || v <= 0) return null;
+  return v < 1e12 ? Math.round(v * 1000) : v;
 }
 
 function canonicalPlatform(label: string | null | undefined, fallback: Platform): Platform {

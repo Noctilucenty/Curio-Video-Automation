@@ -97,12 +97,24 @@ interface RuleValidationResult {
   baseline_avg_engagement: number;
 }
 
-/** Latest metrics row per video wins (re-sending analytics updates the picture). */
-export async function latestMetricsByVideo(repo: Repo): Promise<Map<string, PerformanceMetrics>> {
+/**
+ * Latest metrics row per (video, platform) — cross-posted videos are the norm
+ * for a short-form factory, and a TikTok drop must never overwrite the IG
+ * stream. Re-sending analytics for the same platform updates that stream.
+ */
+export async function latestMetricsByVideo(repo: Repo): Promise<Map<string, PerformanceMetrics[]>> {
   const metrics = await repo.listMetrics();
-  const latest = new Map<string, PerformanceMetrics>();
-  for (const m of [...metrics].sort((a, b) => a.ingestedAt - b.ingestedAt)) latest.set(m.videoId, m);
-  return latest;
+  const byKey = new Map<string, PerformanceMetrics>();
+  for (const m of [...metrics].sort((a, b) => a.ingestedAt - b.ingestedAt)) {
+    byKey.set(`${m.videoId}::${m.platform}`, m);
+  }
+  const byVideo = new Map<string, PerformanceMetrics[]>();
+  for (const m of byKey.values()) {
+    const list = byVideo.get(m.videoId) ?? [];
+    list.push(m);
+    byVideo.set(m.videoId, list);
+  }
+  return byVideo;
 }
 
 export async function runLearning(repo: Repo, llm: LlmClient): Promise<LearningRun> {
@@ -117,14 +129,20 @@ export async function runLearning(repo: Repo, llm: LlmClient): Promise<LearningR
 async function runLearningUnlocked(repo: Repo, llm: LlmClient): Promise<LearningRun> {
   const latest = await latestMetricsByVideo(repo);
   const videos = await repo.listVideos();
+  // One scored row per (video, platform) stream: the same video can win on
+  // TikTok and flop on Reels — both signals must reach the analysis intact.
   const scored: ScoredVideo[] = videos
     .filter((v): v is Video & { pkg: NonNullable<Video["pkg"]> } => !!v.pkg && latest.has(v.id))
-    .map((v) => ({ video: v, metrics: latest.get(v.id)!, score: engagementScore(latest.get(v.id)!) }))
+    .flatMap((v) =>
+      latest.get(v.id)!.map((metrics) => ({ video: v, metrics, score: engagementScore(metrics) })),
+    )
     .sort((a, b) => b.score - a.score);
 
-  if (scored.length < MIN_VIDEOS_FOR_LEARNING) {
+  // The minimum is counted in distinct VIDEOS (a cross-post is not more data).
+  const distinctVideos = new Set(scored.map((s) => s.video.id)).size;
+  if (distinctVideos < MIN_VIDEOS_FOR_LEARNING) {
     throw new LearningDataError(
-      `need >=${MIN_VIDEOS_FOR_LEARNING} videos with performance data, have ${scored.length}`,
+      `need >=${MIN_VIDEOS_FOR_LEARNING} videos with performance data, have ${distinctVideos}`,
     );
   }
 
@@ -300,17 +318,27 @@ function ruleValidation(
 /** Predicted vs actual: judge scores against real engagement percentile. */
 function judgeVsActual(scored: ScoredVideo[]) {
   const n = scored.length;
-  // scored is sorted best-first; percentile 100 = best performer.
+  const scores = scored.map((s) => s.score);
+  // Midrank percentile: ties share one percentile instead of being fanned out
+  // across 0-100 by array position (which fabricated calibration signals when
+  // several videos had identical engagement).
+  const percentile = (score: number): number => {
+    if (n <= 1) return 50;
+    const below = scores.filter((x) => x < score).length;
+    const tiedIncludingSelf = scores.filter((x) => x === score).length;
+    return Math.round(((below + (tiedIncludingSelf - 1) / 2) / (n - 1)) * 100);
+  };
   return scored
-    .map((s, i) => {
+    .map((s) => {
       if (!s.video.judge) return null;
       return {
         video_id: s.video.id,
         hook: s.video.pkg.selectedHook,
+        platform: s.metrics.platform,
         judged_viral_potential: s.video.judge.viralPotential,
         judged_overall: s.video.judge.overallScore,
         actual_engagement: round1(s.score),
-        actual_percentile: Math.round(((n - 1 - i) / Math.max(1, n - 1)) * 100),
+        actual_percentile: percentile(s.score),
       };
     })
     .filter(Boolean);

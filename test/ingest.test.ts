@@ -7,6 +7,7 @@ import { MockVoice } from "../src/voice.js";
 import { MockPostProcessor } from "../src/postprocess.js";
 import { createDraftVideo, runGenerationPipeline } from "../src/pipeline.js";
 import { ingestRawAnalytics, similarity } from "../src/ingest.js";
+import { latestMetricsByVideo } from "../src/learning.js";
 import { makeId } from "../src/config.js";
 import type { Topic, Video } from "../src/types.js";
 
@@ -212,5 +213,71 @@ describe("ingestRawAnalytics (mock parser)", () => {
     expect(rows).toHaveLength(2);
     // learning consumes latest-by-ingestedAt; both rows retained as history
     expect(Math.max(...rows.map((r) => r.views))).toBe(9000);
+  });
+
+  it("refuses hint-only entries so zero rows can never override real metrics", async () => {
+    const repo = new InMemoryRepo();
+    const video = await publishedVideo(repo, "Zero row override protection");
+    // real metrics land first
+    await ingestRawAnalytics(
+      repo, new MockLlmClient(),
+      `video_id=${video.id} views=12000 completion_rate=0.62 likes=800 comments=20 shares=90 saves=140`,
+    );
+    // a hint-only line (mock parser defaults counts to 0, like the LLM's "default 0" rule)
+    const report = await ingestRawAnalytics(repo, new MockLlmClient(), `video_id=${video.id}`);
+
+    expect(report.matched).toHaveLength(0);
+    expect(report.unmatched[0].reason).toContain("no views value");
+    const latest = await latestMetricsByVideo(repo);
+    const [m] = latest.get(video.id)!;
+    expect(m.views).toBe(12000); // real row survives as the latest picture
+    expect(m.completionRate).toBeCloseTo(0.62);
+  });
+
+  it("exact hook paste wins even when a near-duplicate sibling scores high", async () => {
+    const repo = new InMemoryRepo();
+    const v1 = await publishedVideo(repo, "Sibling hook one");
+    const v2 = await publishedVideo(repo, "Sibling hook two");
+    // Near-duplicates differing by a stopword — token-set similarity ties at 0.9+
+    v1.pkg!.selectedHook = "Your brain lies to you about memory. That's not an accident.";
+    v2.pkg!.selectedHook = "Your brain lies to you about your memory. That's not an accident.";
+    await repo.updateVideo(v1);
+    await repo.updateVideo(v2);
+
+    const report = await ingestRawAnalytics(
+      repo, new MockLlmClient(),
+      `hook="Your brain lies to you about memory. That's not an accident." views=500 completion_rate=0.5 likes=10 comments=1 shares=2 saves=3`,
+    );
+
+    expect(report.matched).toHaveLength(1);
+    expect(report.matched[0].video_id).toBe(v1.id);
+  });
+
+  it("keeps one latest stream per platform for cross-posted videos", async () => {
+    const repo = new InMemoryRepo();
+    const video = await publishedVideo(repo, "Cross posted everywhere");
+    const base = `video_id=${video.id} completion_rate=0.5 likes=10 comments=1 shares=2 saves=3`;
+    await ingestRawAnalytics(repo, new MockLlmClient(), `${base} platform=tiktok views=1000`);
+    await ingestRawAnalytics(repo, new MockLlmClient(), `${base} platform=instagram views=2000`);
+    await ingestRawAnalytics(repo, new MockLlmClient(), `${base} platform=tiktok views=5000`); // updates tiktok only
+
+    const latest = await latestMetricsByVideo(repo);
+    const streams = latest.get(video.id)!;
+    expect(streams).toHaveLength(2);
+    const byPlatform = Object.fromEntries(streams.map((m) => [m.platform, m.views]));
+    expect(byPlatform.tiktok).toBe(5000);  // updated
+    expect(byPlatform.reels).toBe(2000);   // NOT overwritten by the tiktok update
+  });
+
+  it("normalizes epoch-seconds posted_at to milliseconds", async () => {
+    const repo = new InMemoryRepo();
+    const video = await publishedVideo(repo, "Posted at units");
+    const epochSeconds = 1783600000; // ~2026 in seconds
+    await ingestRawAnalytics(
+      repo, new MockLlmClient(),
+      `video_id=${video.id} views=100 completion_rate=0.4 likes=5 comments=0 shares=1 saves=2 posted_at=${epochSeconds}`,
+    );
+    const [m] = await repo.listMetrics(video.id);
+    expect(m.postedAt).toBe(epochSeconds * 1000);
   });
 });

@@ -176,6 +176,8 @@ export function buildRoutes(deps: RouteDeps): Router {
         })),
       );
     }
+    // Human-authored content is not a rule cohort — keeping the generator-rule
+    // ids would credit/blame those rules for a package they didn't shape.
     video.appliedRuleIds = undefined;
     video.reviewNote = b.note ? String(b.note) : "manual edit";
     // Route through the machine: (ready_for_review|rejected) -> needs_revision -> generated.
@@ -265,11 +267,11 @@ export function buildRoutes(deps: RouteDeps): Router {
   r.get("/performance/summary", async (_req, res) => {
     const latest = await latestMetricsByVideo(repo);
     const videos = await repo.listVideos();
+    // One row per (video, platform) stream — cross-posts show separately.
     const rows = videos
       .filter((v) => latest.has(v.id))
-      .map((v) => {
-        const m = latest.get(v.id)!;
-        return {
+      .flatMap((v) =>
+        latest.get(v.id)!.map((m) => ({
           video_id: v.id,
           hook: v.pkg?.selectedHook ?? null,
           platform: m.platform,
@@ -282,8 +284,8 @@ export function buildRoutes(deps: RouteDeps): Router {
           saves: m.saves,
           engagement_score: Math.round(engagementScore(m) * 10) / 10,
           ingested_at: m.ingestedAt,
-        };
-      })
+        })),
+      )
       .sort((a, b) => b.engagement_score - a.engagement_score);
     res.json({ videos: rows });
   });

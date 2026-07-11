@@ -228,25 +228,35 @@ function insightsPanel(run) {
 }
 
 async function refresh() {
-  try {
-    const [meta, queue, all, rules, perf, runs] = await Promise.all([
-      api('/meta'), api('/review-queue'), api('/videos'), api('/learning/rules'),
-      api('/performance/summary'), api('/learning/runs'),
-    ]);
-    $('meta').textContent = `brain ${meta.llm_model} · voice ${meta.voice} · render ${meta.renderer} · post ${meta.post}`;
-    $('queue').innerHTML = queue.videos.length
-      ? queue.videos.map((v) => videoCard(v, true)).join('')
+  // Each section renders independently — one flaky endpoint (e.g. during a
+  // server restart) must not blank the whole dashboard.
+  const [meta, queue, all, rules, perf, runs] = await Promise.allSettled([
+    api('/meta'), api('/review-queue'), api('/videos'), api('/learning/rules'),
+    api('/performance/summary'), api('/learning/runs'),
+  ]);
+  if (meta.status === 'fulfilled') {
+    $('meta').textContent = `brain ${meta.value.llm_model} · voice ${meta.value.voice} · render ${meta.value.renderer} · post ${meta.value.post}`;
+  }
+  if (queue.status === 'fulfilled') {
+    $('queue').innerHTML = queue.value.videos.length
+      ? queue.value.videos.map((v) => videoCard(v, true)).join('')
       : '<div class="empty">Nothing waiting on you.</div>';
-    $('all').innerHTML = all.videos.length
-      ? all.videos.map((v) => videoCard(v, ['approved'].includes(v.status) || ['rejected','failed'].includes(v.status))).join('')
+  }
+  if (all.status === 'fulfilled') {
+    $('all').innerHTML = all.value.videos.length
+      ? all.value.videos.map((v) => videoCard(v, ['approved'].includes(v.status) || ['rejected','failed'].includes(v.status))).join('')
       : '<div class="empty">No videos yet — generate one above.</div>';
-    $('perf').innerHTML = perfTable(perf.videos);
-    $('insights').innerHTML = insightsPanel(runs.runs[0]);
-    $('rules').innerHTML = rules.rules.length
-      ? rules.rules.slice().reverse().map((r) =>
+  }
+  if (perf.status === 'fulfilled') $('perf').innerHTML = perfTable(perf.value.videos);
+  if (runs.status === 'fulfilled') $('insights').innerHTML = insightsPanel(runs.value.runs[0]);
+  if (rules.status === 'fulfilled') {
+    $('rules').innerHTML = rules.value.rules.length
+      ? rules.value.rules.slice().reverse().map((r) =>
           `<div class="rule ${r.active ? '' : 'inactive'}"><span class="cat">${r.category} · ${r.source}</span>${esc(r.rule)}</div>`).join('')
       : '<div class="empty">No rules yet.</div>';
-  } catch (e) { toast('Load failed: ' + e.message, false); }
+  }
+  const failed = [meta, queue, all, rules, perf, runs].filter((r) => r.status === 'rejected');
+  if (failed.length) toast(`Load failed for ${failed.length} section(s): ${failed[0].reason?.message ?? failed[0].reason}`, false);
 }
 
 async function ingest() {
@@ -263,7 +273,9 @@ async function ingest() {
     const zeroReason = unmatched.length ? 'check the unmatched reasons.' : 'no analytics entries were parsed.';
     $('ingest-result').textContent = `matched ${report.matched.length}${un}`;
     if (report.matched.length) {
-      $('analytics').value = '';
+      // Keep the paste when anything went unmatched so the operator can fix
+      // those lines and re-ingest; only a fully clean run clears the box.
+      if (!unmatched.length) $('analytics').value = '';
       toast(`Ingested ${report.matched.length} video(s) — run learning to convert it into rules.`);
     } else {
       toast(`Nothing matched — ${zeroReason}`, false);
