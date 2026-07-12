@@ -1,0 +1,103 @@
+{
+  "$schema": "../../data/viral-intelligence/schema.json",
+  "collectedAt": "2026-07-12T01:30:00-07:00",
+  "source": "vidIQ (live Claude MCP connector)",
+  "queries": [
+    "YT shorts outliers: psychology mystery brain fact, <=200K subs, this month",
+    "IG/TikTok format outliers: dark text-on-screen mystery, <=35s, >=100K views"
+  ],
+  "videos": [
+    {
+      "videoId": "tiktok:7651816167732022550",
+      "title": "CERN shuts down the Large Hadron Collider on June 29, 2026",
+      "url": "https://www.tiktok.com/@vera.bertran/video/7651816167732022550",
+      "platform": "tiktok",
+      "views": 1600000,
+      "outlierScore": 14.9,
+      "durationSeconds": 12,
+      "channelFollowers": 35900,
+      "hookType": "concrete-date conspiracy tease",
+      "retentionMechanic": "single eerie shot + slow push + loop",
+      "engagementMechanic": "speculative unresolved premise",
+      "curioAdaptation": "Renderer v2 template: eerie footage layer + one specific-fact text + ambient synth bed; 12s; loop the push-in.",
+      "status": "candidate"
+    },
+    {
+      "videoId": "ig:DaC-b9uPF3v",
+      "title": "Red sky above a train yard",
+      "url": "https://www.instagram.com/reel/DaC-b9uPF3v/",
+      "platform": "reels",
+      "views": 5600000,
+      "outlierScore": 167.0,
+      "durationSeconds": 15,
+      "channelFollowers": 83800,
+      "hookType": "arresting anomaly image + 'real reason' tease",
+      "retentionMechanic": "one strange image held; text promises explanation",
+      "engagementMechanic": "curiosity gap; send-to-someone",
+      "curioAdaptation": "One-image episodes: a single unexplained visual + Curio explains the mechanism in caption beats.",
+      "status": "candidate"
+    },
+    {
+      "videoId": "yt:pBZjyPaZLzs",
+      "title": "Last one brain test",
+      "url": "https://youtube.com/shorts/pBZjyPaZLzs",
+      "platform": "shorts",
+      "views": 10868028,
+      "outlierScore": 247.47,
+      "durationSeconds": 30,
+      "channelFollowers": 15100,
+      "hookType": "participation challenge",
+      "retentionMechanic": "viewer performs task on screen",
+      "engagementMechanic": "self-test result sharing/comments",
+      "curioAdaptation": "Confirms MIRROR/staring-test + 'which one are you' quiz formats as top priority for small-account breakout.",
+      "status": "candidate"
+    },
+    {
+      "videoId": "yt:FoqTqI5LmJ8",
+      "title": "Psychology: 4 Traits of a Genuinely Rare Man",
+      "url": "https://youtube.com/shorts/FoqTqI5LmJ8",
+      "platform": "shorts",
+      "views": 989495,
+      "outlierScore": 17.63,
+      "durationSeconds": 71,
+      "channelFollowers": 42400,
+      "engagementRate": 0.033,
+      "hookType": "identity claim",
+      "retentionMechanic": "trait list, viewer self-scores",
+      "engagementMechanic": "self-identification comments",
+      "curioAdaptation": "Identity-framed psych episodes ('your brain does X if...') with a comment-your-number trigger.",
+      "status": "candidate"
+    },
+    {
+      "videoId": "tiktok:7650460041069301005",
+      "title": "Cryptid filmed from a quarter mile away",
+      "url": "https://www.tiktok.com/@redacteddept/video/7650460041069301005",
+      "platform": "tiktok",
+      "views": 487700,
+      "outlierScore": 16.4,
+      "durationSeconds": 11,
+      "channelFollowers": 138900,
+      "hookType": "found-footage claim with distance detail",
+      "retentionMechanic": "AI voiceover narrates while footage plays",
+      "engagementMechanic": "believe-it-or-not debate",
+      "curioAdaptation": "TTS narration is platform-normal WHEN paired with footage + drone bed — validates our ElevenLabs pipeline, indicts our empty background.",
+      "status": "candidate"
+    },
+    {
+      "videoId": "yt:j3_QzJuK1c8",
+      "title": "6 Dark Psychology Facts",
+      "url": "https://youtube.com/shorts/j3_QzJuK1c8",
+      "platform": "shorts",
+      "views": 246666,
+      "outlierScore": 2.12,
+      "durationSeconds": 29,
+      "channelFollowers": 30500,
+      "engagementRate": 0.017,
+      "hookType": "listicle",
+      "retentionMechanic": "numbered list churn",
+      "engagementMechanic": "weak (ER <=1.7%)",
+      "curioAdaptation": "ANTI-PATTERN for Curio: volume without engagement; premium brand should skip listicle churn.",
+      "status": "rejected"
+    }
+  ]
+}

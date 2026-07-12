@@ -1,0 +1,54 @@
+{
+  "collectedAt": "2026-07-12T01:30:00-07:00",
+  "source": "vidIQ (live Claude MCP connector)",
+  "queries": [
+    "IG/TikTok format outliers: dark text-on-screen mystery, <=35s, >=100K views"
+  ],
+  "videos": [
+    {
+      "videoId": "tiktok:7651816167732022550",
+      "title": "CERN shuts down the Large Hadron Collider on June 29, 2026",
+      "url": "https://www.tiktok.com/@vera.bertran/video/7651816167732022550",
+      "platform": "tiktok",
+      "views": 1600000,
+      "outlierScore": 14.9,
+      "durationSeconds": 12,
+      "channelFollowers": 35900,
+      "hookType": "concrete-date conspiracy tease",
+      "retentionMechanic": "single eerie shot + slow push + loop",
+      "engagementMechanic": "speculative unresolved premise",
+      "curioAdaptation": "Renderer v2 template: eerie footage layer + one specific-fact text + ambient synth bed; 12s; loop the push-in.",
+      "status": "candidate"
+    },
+    {
+      "videoId": "ig:DaC-b9uPF3v",
+      "title": "Red sky above a train yard",
+      "url": "https://www.instagram.com/reel/DaC-b9uPF3v/",
+      "platform": "reels",
+      "views": 5600000,
+      "outlierScore": 167.0,
+      "durationSeconds": 15,
+      "channelFollowers": 83800,
+      "hookType": "arresting anomaly image + 'real reason' tease",
+      "retentionMechanic": "one strange image held; text promises explanation",
+      "engagementMechanic": "curiosity gap; send-to-someone",
+      "curioAdaptation": "One-image episodes: a single unexplained visual + Curio explains the mechanism in caption beats.",
+      "status": "candidate"
+    },
+    {
+      "videoId": "tiktok:7650460041069301005",
+      "title": "Cryptid filmed from a quarter mile away",
+      "url": "https://www.tiktok.com/@redacteddept/video/7650460041069301005",
+      "platform": "tiktok",
+      "views": 487700,
+      "outlierScore": 16.4,
+      "durationSeconds": 11,
+      "channelFollowers": 138900,
+      "hookType": "found-footage claim with distance detail",
+      "retentionMechanic": "AI voiceover narrates while footage plays",
+      "engagementMechanic": "believe-it-or-not debate",
+      "curioAdaptation": "TTS narration is platform-normal WHEN paired with footage + drone bed \u2014 validates our ElevenLabs pipeline, indicts our empty background.",
+      "status": "candidate"
+    }
+  ]
+}

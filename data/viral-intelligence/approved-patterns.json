@@ -1,0 +1,4 @@
+{
+  "_discipline": "Patterns land here ONLY after Curio's own analytics (or >=2 independent outliers + review) support them. Each needs id, pattern, guidance, evidence[], promotedAt. Loaded into every generation prompt.",
+  "patterns": []
+}

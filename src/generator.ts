@@ -5,7 +5,7 @@
 
 import type { JudgeScores, LearningRule, Topic, VideoPackage, CaptionLine, Platform } from "./types.js";
 import type { LlmClient } from "./llm.js";
-import { packageSystemPrompt, packageUserPrompt, PROMPT_VERSIONS } from "./prompts.js";
+import { packageSystemPrompt, packageUserPrompt, PROMPT_VERSIONS, type PromptPattern } from "./prompts.js";
 import { normalizeCaptions, validateCaptions } from "./captions.js";
 
 export const PACKAGE_SCHEMA = {
@@ -118,8 +118,9 @@ export async function generatePackage(
   topic: Topic,
   activeRules: LearningRule[],
   feedback?: JudgeScores,
+  patterns: PromptPattern[] = [],
 ): Promise<GeneratedPackage> {
-  const system = packageSystemPrompt(activeRules);
+  const system = packageSystemPrompt(activeRules, patterns);
   const user = packageUserPrompt(topic, feedback);
   const raw: any = await llm.generateJson({
     system,

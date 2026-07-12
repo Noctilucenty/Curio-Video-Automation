@@ -37,6 +37,7 @@ export function createApp(deps: AppDeps): App {
     repo, llm, renderer, voice, post,
     avatarId: config.heygen.avatarId,
     voiceId: config.heygen.voiceId,
+    intelligenceDir: join(config.dataDir, "viral-intelligence"),
   };
 
   const queue = new JobQueue({

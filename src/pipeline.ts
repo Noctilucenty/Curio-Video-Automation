@@ -14,6 +14,7 @@ import type { JudgeScores, Topic, Video } from "./types.js";
 import { assertTransition } from "./types.js";
 import { generatePackage } from "./generator.js";
 import { judgePackage } from "./judge.js";
+import { loadApprovedPatterns } from "./intelligence.js";
 import { makeId } from "./config.js";
 
 export const MAX_AUTO_REGENS = 2;
@@ -27,6 +28,12 @@ export interface PipelineDeps {
   avatarId: string;
   voiceId: string;
   language?: string;
+  /** data/viral-intelligence dir; approved patterns there join the gen prompt. */
+  intelligenceDir?: string;
+}
+
+function trendPatterns(deps: PipelineDeps) {
+  return deps.intelligenceDir ? loadApprovedPatterns(deps.intelligenceDir) : [];
 }
 
 export async function createDraftVideo(repo: Repo, topicId?: string): Promise<Video> {
@@ -65,7 +72,7 @@ export async function runGenerationPipeline(deps: PipelineDeps, videoId: string)
   for (let attempt = 0; attempt <= MAX_AUTO_REGENS; attempt++) {
     video.attempts += 1;
     try {
-      const gen = await generatePackage(llm, topic, generatorRules, feedback);
+      const gen = await generatePackage(llm, topic, generatorRules, feedback, trendPatterns(deps));
       video.pkg = gen.pkg;
       // Cohort key for later rule validation: which rules shaped this package.
       video.appliedRuleIds = generatorRules.map((r) => r.id);

@@ -9,7 +9,7 @@ import type { Renderer } from "./heygen.js";
 import type { VoiceSynth } from "./voice.js";
 import type { PostProcessor } from "./postprocess.js";
 import type { JobQueue } from "./queue.js";
-import type { Platform, Topic, Video, VideoStatus } from "./types.js";
+import type { LearningRule, Platform, Topic, Video, VideoStatus } from "./types.js";
 import { assertTransition, TransitionError } from "./types.js";
 import { makeId } from "./config.js";
 import { createDraftVideo } from "./pipeline.js";
@@ -306,6 +306,33 @@ export function buildRoutes(deps: RouteDeps): Router {
   r.get("/learning/rules", async (req, res) => {
     const activeOnly = req.query.active === "true";
     res.json({ rules: await repo.listRules(activeOnly) });
+  });
+
+  // Manual rule promotion — the human end of the evidence discipline: a
+  // validated pattern/lesson becomes a live generator (or judge-calibration)
+  // rule. Manual rules persist across learning runs (only learning_run rules
+  // get superseded).
+  r.post("/learning/rules", async (req, res) => {
+    const b = req.body ?? {};
+    const categories = ["hook", "caption", "topic", "structure", "tone", "length", "calibration"];
+    if (!categories.includes(b.category)) {
+      res.status(400).json({ error: `category must be one of ${categories.join(" | ")}` });
+      return;
+    }
+    if (typeof b.rule !== "string" || b.rule.trim().length < 10) {
+      res.status(400).json({ error: "rule (string, >=10 chars) is required" });
+      return;
+    }
+    const rule: LearningRule = {
+      id: makeId("rule"),
+      category: b.category as LearningRule["category"],
+      rule: b.rule.trim(),
+      source: "manual",
+      active: true,
+      createdAt: Date.now(),
+    };
+    await repo.addRule(rule);
+    res.status(201).json(rule);
   });
 
   r.get("/learning/runs", async (_req, res) => {

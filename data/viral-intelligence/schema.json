@@ -1,0 +1,92 @@
+{
+  "$id": "curio-trend-snapshot",
+  "type": "object",
+  "required": [
+    "collectedAt",
+    "source",
+    "videos"
+  ],
+  "properties": {
+    "collectedAt": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "queries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "videos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "videoId",
+          "title",
+          "url",
+          "platform",
+          "views",
+          "hookType",
+          "retentionMechanic",
+          "curioAdaptation",
+          "status"
+        ],
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "platform": {
+            "enum": [
+              "tiktok",
+              "reels",
+              "shorts"
+            ]
+          },
+          "views": {
+            "type": "number"
+          },
+          "outlierScore": {
+            "type": "number"
+          },
+          "durationSeconds": {
+            "type": "number"
+          },
+          "channelFollowers": {
+            "type": "number"
+          },
+          "engagementRate": {
+            "type": "number"
+          },
+          "hookType": {
+            "type": "string"
+          },
+          "retentionMechanic": {
+            "type": "string"
+          },
+          "engagementMechanic": {
+            "type": "string"
+          },
+          "curioAdaptation": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "candidate",
+              "approved",
+              "rejected"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

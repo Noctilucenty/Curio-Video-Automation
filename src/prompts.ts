@@ -102,14 +102,24 @@ Include audio notes in scene_direction: low sub-bass drone bed, subtle ticking,
 near-dead silence right before the final line, one deep clean boom on the Curio
 signature. Mute the voiceover during any staring/tension hold.`;
 
-export function packageSystemPrompt(rules: LearningRule[]): string {
+export interface PromptPattern {
+  pattern: string;
+  guidance: string;
+}
+
+export function packageSystemPrompt(rules: LearningRule[], patterns: PromptPattern[] = []): string {
   const generatorRules = rules.filter((r) => r.category !== "calibration");
   const learned = generatorRules.length
     ? `\nLearned rules from performance data (obey these — they come from real analytics):\n${generatorRules
         .map((r) => `- [${r.category}] ${r.rule}`)
         .join("\n")}`
     : "";
-  return `${OPERATING_MINDSET}\n\n${BRAND_VOICE}\n\n${CAPTION_RULES}\n\n${STRUCTURE}${learned}\n
+  const trends = patterns.length
+    ? `\nApproved trend patterns (evidence-backed via analytics review — apply where the topic naturally fits, never force):\n${patterns
+        .map((p) => `- ${p.pattern}: ${p.guidance}`)
+        .join("\n")}`
+    : "";
+  return `${OPERATING_MINDSET}\n\n${BRAND_VOICE}\n\n${CAPTION_RULES}\n\n${STRUCTURE}${learned}${trends}\n
 Produce the FULL video package as JSON matching the provided schema: 5 hook options,
 the selected best hook, spoken script, scene direction (visual + audio), avatar tone,
 timed caption lines, title, thumbnail text, platform post caption, hashtags, and CTA.

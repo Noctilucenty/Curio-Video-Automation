@@ -1,0 +1,24 @@
+{
+  "patterns": [
+    {
+      "id": "rej-listicle-churn",
+      "pattern": "N-facts listicle shorts",
+      "reason": "volume without engagement (<=1.7% ER); off-brand conversion profile",
+      "evidence": [
+        "yt:j3_QzJuK1c8",
+        "yt:iIuHeRESBMk",
+        "yt:9ueQvoupdfk"
+      ],
+      "rejectedAt": "2026-07-12"
+    },
+    {
+      "id": "rej-flat-gradient-subtitle-strip",
+      "pattern": "flat gradient + bottom caption strip + naked TTS",
+      "reason": "internal render v1 rejected; every external dark/mystery outlier carries an atmosphere layer + audio bed",
+      "evidence": [
+        "EXP-202607-02"
+      ],
+      "rejectedAt": "2026-07-12"
+    }
+  ]
+}

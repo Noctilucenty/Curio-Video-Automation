@@ -1,6 +1,8 @@
 node_modules/
 dist/
-data/
+# Runtime state stays local; the shared trend intelligence IS committed.
+data/*
+!data/viral-intelligence/
 .env
 .env.local
 *.log
