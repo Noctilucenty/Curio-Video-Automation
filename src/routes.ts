@@ -25,12 +25,18 @@ export interface RouteDeps {
   voice: VoiceSynth;
   post: PostProcessor;
   queue: JobQueue;
+  /** Leon 2026-07-12: static cards are frozen — no generation spend on them.
+   * Defaults to frozen; unfreeze deliberately via CARDS_FROZEN=0. */
+  cardsFrozen?: boolean;
 }
 
 const PLATFORMS = new Set<Platform>(["tiktok", "reels", "shorts"]);
+const CARDS_FROZEN_ERROR =
+  "card format is FROZEN (Leon 2026-07-12): no card generation spend until an atmospheric-mystery baseline exists. Set CARDS_FROZEN=0 to unfreeze deliberately.";
 
 export function buildRoutes(deps: RouteDeps): Router {
   const { repo, llm, queue } = deps;
+  const cardsFrozen = deps.cardsFrozen ?? true;
   const r = Router();
 
   // --- Topics ---------------------------------------------------------------
@@ -44,6 +50,10 @@ export function buildRoutes(deps: RouteDeps): Router {
     const platform = String(b.target_platform ?? "tiktok").toLowerCase() as Platform;
     if (!PLATFORMS.has(platform)) {
       res.status(400).json({ error: "target_platform must be tiktok | reels | shorts" });
+      return;
+    }
+    if (b.format === "card" && cardsFrozen) {
+      res.status(403).json({ error: CARDS_FROZEN_ERROR });
       return;
     }
     const topic: Topic = {
@@ -82,6 +92,10 @@ export function buildRoutes(deps: RouteDeps): Router {
         return;
       }
     } else if (typeof b.topic === "string" && b.topic.trim()) {
+      if (b.format === "card" && cardsFrozen) {
+        res.status(403).json({ error: CARDS_FROZEN_ERROR });
+        return;
+      }
       topic = {
         id: makeId("top"),
         topic: b.topic.trim(),
@@ -103,6 +117,11 @@ export function buildRoutes(deps: RouteDeps): Router {
       return;
     }
 
+    if (topic.format === "card" && cardsFrozen) {
+      // Also covers pre-freeze card topics resubmitted by topic_id.
+      res.status(403).json({ error: CARDS_FROZEN_ERROR });
+      return;
+    }
     const video = await createDraftVideo(repo, topic.id, topic.format ?? "narrated");
     const job = queue.enqueue("generate", { videoId: video.id });
     res.status(202).json({ video_id: video.id, job_id: job.id, status: video.status });

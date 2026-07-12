@@ -11,6 +11,7 @@ import type { JudgeScores, LearningRule, Topic } from "./types.js";
 export const PROMPT_VERSIONS = {
   package: "pkg_v4_retention_engineer",
   judge: "judge_v4_calibrated",
+  factcheck: "factcheck_v1_contested_claims",
   learning: "learn_v2_compounding",
   ingest: "ingest_v1",
 } as const;

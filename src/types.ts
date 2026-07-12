@@ -132,8 +132,10 @@ export interface Video {
 export interface GenerationRecord {
   id: string;
   videoId: string;
-  kind: "package" | "judge" | "learning" | "ingest";
+  kind: "package" | "judge" | "factcheck" | "learning" | "ingest";
   promptVersion: string;
+  /** The EXACT model id the API returned (snapshot), not the request alias —
+   * required so silent model updates never become untracked experiment variables. */
   model: string;
   input: unknown;
   output: unknown;
@@ -144,6 +146,14 @@ export interface PerformanceMetrics {
   id: string;
   videoId: string;
   platform: Platform;
+  /** Exact distribution surface. IG and FB both canonicalize to platform
+   * "reels", but combined IG+FB views are NOT a valid optimization target
+   * (2026-07-12 analysis: FB supplied most views on 3/4 posts while the
+   * engagement rates were IG signals) — surface-separated rows are mandatory
+   * for learning. */
+  surface?: "instagram" | "facebook" | "tiktok" | "youtube";
+  /** Accounts reached on this surface, when the platform reports it. */
+  reach?: number;
   views: number;
   avgWatchTime: number;
   completionRate: number;

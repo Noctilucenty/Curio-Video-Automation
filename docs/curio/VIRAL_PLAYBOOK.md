@@ -6,6 +6,23 @@ this file + the factory rules DB updated. Every rule cites its evidence.
 
 ## CONFIRMED (multiple independent results, incl. Curio's own)
 
+**From Curio's OWN posted results** (2026-07-12 four-post analysis — the
+strongest evidence tier we have; ledger EXP-202606-30-01 … EXP-202607-06-06):
+- Immediate anomaly + danger strongly outperformed abstract explanation
+  (Third Man skip 38.6% vs 59.1–73.4% everywhere else).
+- Mystery works when the opening SHOWS evidence before naming the phenomenon
+  (footprints at t=0; name at ~70–80% of runtime; residual uncertainty kept).
+- Aesthetic quality produces likes WITHOUT retention (Boat v1: like 6.3%,
+  watch ratio 25.5%). Likes are never proof of retention.
+- Slow phrase-by-phrase hooks lose viewers when the premise needs several
+  fragments (Boat v1/retry: ~half the audience gone in the first seconds).
+- Lengthening a weak format does not rescue it (retry 23.5s→28s: every metric worse).
+- Generic brain imagery underperformed concrete survival imagery
+  (Can't Forget skip 67.7% despite the best share/save rates).
+- Combined IG+FB views are NOT a valid optimization target — FB supplied most
+  views on 3/4 posts while the engagement rates are IG signals.
+  Platform-separated analytics are mandatory (enforced in the capture template).
+
 **Hooks**
 - Reveal the entire mystery/tension in line one, ≤12 words. Never open with
   context, a logo beat, a fade-in, "did you know", or a question answerable
@@ -53,15 +70,25 @@ this file + the factory rules DB updated. Every rule cites its evidence.
 
 ## PROVISIONAL (evidence exists, not yet validated by Curio's own analytics)
 
+**From the four-post analysis** (need more Curio posts before promotion):
+- Survival mystery may be Curio's strongest initial archetype (n=1 winner).
+- Named rare phenomena may outperform broad "what if" explanations.
+- Human presence — even a distant silhouette — may improve retention over
+  symbolic imagery.
+- Remaining ambiguity after the reveal may improve comments and replays.
+- Concepts with save/share pull can still fail on a generic first frame
+  (Can't Forget: 1.6% shares+saves, 23.6% Explore, 67.7% skip).
+- Target 15–20s (winner was 20.17s) — dataset too small for an exact optimum;
+  the 12–16s default stands until more data.
+
 - **Static read-a-card short (4-6s)** — full-screen title + numbered list,
   single frame, video shorter than read time → pause/screenshot/save mechanic.
-  PROMOTED to approved-patterns.json on 3 independent outliers (2026-07-12
-  reference set: 8 Hard Truths 332K/63×; Psychology Facts; 6 Sides) — this is
-  also literally Curio's native card format. Curio-own validation pending.
-  Nuance vs the rejected "listicle churn": the rejected pattern is 29s NARRATED
-  list slop; the card carries an ambient bed, is denser than its runtime, and
-  premium-typeset. PRIORITY (Leon 2026-07-12): cards are the SECONDARY,
-  save-oriented format — atmospheric mystery narrative is Curio's primary bet.
+  DEMOTED from approved-patterns.json 2026-07-12 (Codex review): promotion was
+  premature — only one reference carried documented metrics, and Curio has
+  never posted a card. Status: **FROZEN by Leon (2026-07-12) — no card
+  generation spend** (enforced: API returns 403 while CARDS_FROZEN≠0) until an
+  atmospheric-mystery baseline exists. The v2 card spec (4-5 named-mechanism
+  items, loudness-gated bed, late footer) is built and ready if unfrozen.
 
 - **Eerie-footage-plus-text is the winning no-avatar format**: static/slow
   cinematic footage with an unsettling quality (abandoned hallway, blood-red
@@ -80,10 +107,23 @@ this file + the factory rules DB updated. Every rule cites its evidence.
 
 ## REJECTED
 
-- **Silent audio tracks** (card v1, 2026-07-12): a muxed-but-empty AAC stream
-  passes naive "audio exists" checks and ships a dead post. Renders now hard-
-  fail below -55 dB mean volume (assertAudible in localRenderer). An audible
-  bed is mandatory on every format, including static cards.
+**From the four-post analysis (2026-07-12):**
+- Atmospheric sentence fragments before the premise (Boat v1: 59.1% skip).
+- Repeating one composition through most of the hook (Boat retry: 73.4% skip).
+- Generic AI brain imagery as the opening subject (Can't Forget: 67.7% skip).
+- Treating likes as proof of retention (Boat v1 disproves it).
+- Treating cross-platform total views as one metric.
+- Changing hook, duration, visuals, pacing and CTA simultaneously in a "retry" —
+  an uncontrolled experiment teaches nothing even when it fails clearly.
+- Assuming a visually beautiful video is automatically understandable.
+- Long final product cards (both Boat posts carried one; both retention losers).
+- **Unnormalized or clipping audio** (Can't Forget: −9.6 LUFS, +0.6 dBTP true
+  peak). Renders are now loudnorm'd to −16 LUFS/−1.5 dBTP and hard-fail outside
+  integrated [−20, −12] LUFS or above −0.9 dBTP (assertLoudness).
+
+- **Out-of-range audio, silent OR whisper-quiet** (card v1 shipped silent −inf;
+  card v2 passed a binary −55 dB gate at an inaudible −45.6 LUFS): binary
+  silence checks are insufficient — the gate is a loudness RANGE, in code.
 - **Unnamed mechanism paraphrases** (card v1): items that gesture at psychology
   without naming the effect sound profound but teach nothing — no trust, no
   save. Cards must NAME the mechanism or state a checkable finding.

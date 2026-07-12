@@ -1,0 +1,143 @@
+{
+  "_readme": "Ground truth for every video Curio has actually POSTED — creative metadata + platform-separated analytics, matched to Instagram insights screenshots on 2026-07-12. This file is the durable machine copy; docs/curio/EXPERIMENT_LEDGER.md is the human trail. Import into the factory repo with: npx tsx tools/import_posted_experiments.ts. RULE: combined IG+FB view totals are NOT an optimization target — engagement rates here are Instagram signals.",
+  "collectedAt": "2026-07-12",
+  "source": "Instagram Reel insights screenshots (samples/Curio Video Stats/*) + ffprobe/ebur128 measurements of the posted files",
+  "experiments": [
+    {
+      "id": "posted-third-man",
+      "title": "Third Man Factor",
+      "postedAt": "2026-06-30",
+      "platform": "instagram+facebook-crosspost",
+      "sourceFile": "samples/Curio Video Stats/Third Man Factor/captions-KfWKc7wCxIolYhLdGmWu-edited-07-06-2026-2.41PM_1_prob4_hyp1.MP4",
+      "creative": {
+        "archetype": "atmospheric survival mystery with immediate visual evidence",
+        "durationSeconds": 20.17,
+        "resolution": "2160x3840@30",
+        "openingFrame": "footprints visible at t=0 — the anomaly before the explanation",
+        "hookWording": "When survivors are about to give up… someone appears right beside them",
+        "premiseUnderstandableBySeconds": 2,
+        "visualTimeline": "footprints → mountains → sailors → polar environments → distant person → struggling survivor → named phenomenon",
+        "reveal": "'The Third Man Factor' named at ~70-80% of runtime; supernatural reading NOT fully eliminated (residual mystery)",
+        "audio": { "integratedLufs": -17.1, "lra": 3.1, "style": "restrained dark bed" },
+        "cta": "soft signature",
+        "producedWith": "Captions.ai (external — not the factory renderer)"
+      },
+      "analytics": {
+        "viewsTotal": 606,
+        "viewsInstagram": null,
+        "viewsFacebook": null,
+        "splitNote": "IG/FB split missing from screenshots — 606 is combined; do not optimize on it",
+        "reachInstagram": 165,
+        "avgWatchTimeSeconds": 12,
+        "watchRatio": 0.595,
+        "skipRate": 0.386,
+        "retentionAtEnd": 0.20,
+        "likes": 16, "comments": 2, "shares": 2, "saves": 2, "reposts": 2,
+        "likeRate": 0.080, "shareRate": 0.011, "saveRate": 0.011, "commentRate": 0.011,
+        "profileSourceShare": 0.123,
+        "countsNote": "raw counts from the insights header; rates per Leon's 2026-07-12 analysis (IG-basis)"
+      },
+      "verdict": "ONLY clear retention winner (skip 20.5-34.8pp better than every other post; only video with nonzero shares/saves/reposts/comments)"
+    },
+    {
+      "id": "posted-boat-v1",
+      "title": "300 Years Boat (Fata Morgana) v1",
+      "postedAt": "2026-07-06",
+      "platform": "instagram+facebook-crosspost",
+      "sourceFile": "samples/Curio Video Stats/300 Years Boat/captions-juXJaNDMd1qe4leou0WC-edited-07-06-2026-2.56PM_1_prob4_hyp1.MP4",
+      "creative": {
+        "archetype": "atmospheric mystery, slow-premise variant",
+        "durationSeconds": 23.53,
+        "resolution": "2160x3840@30",
+        "openingFrame": "dark storm-ship composition, premise not yet stated",
+        "hookWording": "For 300 years, sailors who saw this thought… (sentence FRAGMENT — premise arrives late)",
+        "premiseUnderstandableBySeconds": 8,
+        "visualTimeline": "single ship composition held through most of the hook; floating ship/fog/false horizon later",
+        "reveal": "optical illusion (false horizon) — the fascinating idea is delayed",
+        "audio": { "integratedLufs": -16.7, "lra": 4.5, "style": "dark bed" },
+        "cta": "extended product card at end",
+        "producedWith": "Captions.ai (external)"
+      },
+      "analytics": {
+        "viewsTotal": 503,
+        "viewsInstagram": 196,
+        "viewsFacebook": 307,
+        "reachInstagram": null,
+        "avgWatchTimeSeconds": 6,
+        "watchRatio": 0.255,
+        "skipRate": 0.591,
+        "retentionAtEnd": 0.05,
+        "likeRate": 0.063, "shareRate": 0, "saveRate": 0.006, "commentRate": 0,
+        "countsNote": "counts derived from IG views x rate where raw counts absent (flagged derived)"
+      },
+      "verdict": "aesthetic liked (6.3% like rate, 2nd best) but comprehension too slow: ~half the audience gone in the first seconds"
+    },
+    {
+      "id": "posted-cant-forget",
+      "title": "Can't Forget Anything (hyperthymesia)",
+      "postedAt": "2026-07-06",
+      "platform": "instagram+facebook-crosspost",
+      "sourceFile": "samples/Curio Video Stats/Cant' forget anything/captions-dH9Nn1FvEEe7m3ERa4Ub-edited_2_prob4_hyp1.MP4",
+      "creative": {
+        "archetype": "what-if explainer with generic symbolic imagery",
+        "durationSeconds": 20.43,
+        "resolution": "2160x3840@30",
+        "openingFrame": "glowing brain silhouette — generic stock/AI-health look; no person, conflict, evidence, or mystery",
+        "hookWording": "What if you could never forget anything? (reads as a superpower; the painful contradiction lands late)",
+        "premiseUnderstandableBySeconds": 3,
+        "visualTimeline": "brain imagery throughout",
+        "reveal": "perfect memory as a burden",
+        "audio": { "integratedLufs": -9.6, "truePeakDbfs": 0.6, "lra": 1.4, "style": "LOUD + CLIPPING — audio normalization failure" },
+        "cta": "soft signature",
+        "producedWith": "Captions.ai (external)"
+      },
+      "analytics": {
+        "viewsTotal": 279,
+        "viewsInstagram": 72,
+        "viewsFacebook": 207,
+        "reachInstagram": null,
+        "avgWatchTimeSeconds": 5,
+        "watchRatio": 0.245,
+        "skipRate": 0.677,
+        "retentionAtEnd": 0.04,
+        "likeRate": 0.032, "shareRate": 0.016, "saveRate": 0.016, "commentRate": 0,
+        "exploreSourceShare": 0.236,
+        "countsNote": "counts derived from IG views x rate where raw counts absent (flagged derived)"
+      },
+      "verdict": "topic has save/share pull (1.6% each + 23.6% Explore sampling) but the generic opening lost the sampled audience — REWRITE AND RETEST the concept, don't discard"
+    },
+    {
+      "id": "posted-boat-retry",
+      "title": "300 Years Boat Retry",
+      "postedAt": "2026-07-06",
+      "platform": "instagram+facebook-crosspost",
+      "sourceFile": "samples/Curio Video Stats/300 Years Boat Retry/My Video-5.MP4",
+      "creative": {
+        "archetype": "atmospheric mystery, longer/more-explicit revision (UNCONTROLLED retry: hook, duration, pacing, first shot AND editing all changed at once)",
+        "durationSeconds": 28.0,
+        "resolution": "1080x1920@60",
+        "openingFrame": "same storm-ship composition held longer",
+        "hookWording": "more explicit opening, small serif phrases revealed gradually",
+        "premiseUnderstandableBySeconds": 10,
+        "visualTimeline": "longer hold on one composition; more atmospheric setup before explanation",
+        "reveal": "false horizon, later than v1",
+        "audio": { "integratedLufs": -17.1, "lra": 2.8, "style": "dark bed" },
+        "cta": "product card",
+        "producedWith": "Captions.ai (external)"
+      },
+      "analytics": {
+        "viewsTotal": 406,
+        "viewsInstagram": 136,
+        "viewsFacebook": 270,
+        "reachInstagram": null,
+        "avgWatchTimeSeconds": null,
+        "watchRatio": null,
+        "skipRate": 0.734,
+        "retentionAtEnd": 0.03,
+        "likeRate": 0.009, "shareRate": 0, "saveRate": 0, "commentRate": 0,
+        "countsNote": "avg watch time missing from screenshots; counts derived from IG views x rate"
+      },
+      "verdict": "revision made everything WORSE (skip 59.1%→73.4%, likes 6.3%→0.9%, all sharing to zero): slower, less visually progressive first 3s; also proof that changing five variables at once teaches nothing"
+    }
+  ]
+}

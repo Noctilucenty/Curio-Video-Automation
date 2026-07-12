@@ -3,6 +3,9 @@ dist/
 # Runtime state stays local; the shared trend intelligence IS committed.
 data/*
 !data/viral-intelligence/
+# Ground truth for posted videos (creative metadata + platform-separated
+# analytics) is durable shared memory — committed.
+!data/posted-experiments.json
 .env
 .env.local
 *.log
@@ -10,3 +13,6 @@ data/*
 
 # Reference videos stay local (downloaded third-party content — not ours to redistribute)
 samples/
+# User-supplied audio with UNVERIFIED license stays local (registered in
+# assets/audio-assets.json, approved:false until the license is confirmed)
+Sound Effects/

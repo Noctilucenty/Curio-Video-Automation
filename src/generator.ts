@@ -111,6 +111,8 @@ export interface GeneratedPackage {
   promptVersion: string;
   input: { system: string; user: string };
   rawOutput: unknown;
+  /** Exact model id the API reported for this generation (snapshot). */
+  modelUsed: string;
 }
 
 export async function generatePackage(
@@ -122,12 +124,14 @@ export async function generatePackage(
 ): Promise<GeneratedPackage> {
   const system = packageSystemPrompt(activeRules, patterns);
   const user = packageUserPrompt(topic, feedback);
+  let modelUsed = llm.model;
   const raw: any = await llm.generateJson({
     system,
     user,
     schemaName: "curio_video_package",
     schema: PACKAGE_SCHEMA as unknown as Record<string, unknown>,
     purpose: "package",
+    onModel: (m) => { modelUsed = m; },
   });
 
   const issues = validateRawPackage(raw);
@@ -180,5 +184,6 @@ export async function generatePackage(
     promptVersion: PROMPT_VERSIONS.package,
     input: { system, user },
     rawOutput: raw,
+    modelUsed,
   };
 }

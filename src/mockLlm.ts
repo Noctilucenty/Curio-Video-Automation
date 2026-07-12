@@ -15,9 +15,31 @@ export function mockGenerate(req: JsonRequest): unknown {
   switch (req.purpose) {
     case "package": return mockPackage(req.user);
     case "judge": return mockJudge(req.user);
+    case "factcheck": return mockFactcheck(req.user);
     case "learning": return mockLearning(req.user);
     case "ingest": return mockIngest(req.user);
   }
+}
+
+/**
+ * Offline fact-checker: flags the same tells the real prompt bans ("studies
+ * show" filler, invented-stat smell). The deterministic contested-claims
+ * screen runs BEFORE any LLM call, so the mock only needs to exercise the
+ * LLM-pass plumbing + the fail path.
+ */
+function mockFactcheck(user: string): unknown {
+  const lower = user.toLowerCase();
+  const findings: any[] = [];
+  if (/studies show|scientists say|research proves/.test(lower)) {
+    findings.push({
+      claim: "unattributed 'studies show' claim",
+      verdict: "unsupported",
+      issue: "cites studies without naming any",
+      required_fix: "Name the researcher/study or drop the claim.",
+    });
+  }
+  const pass = findings.length === 0;
+  return { findings, pass, fix: pass ? "" : findings[0].required_fix };
 }
 
 /**

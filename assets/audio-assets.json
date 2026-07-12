@@ -1,0 +1,14 @@
+{
+  "_readme": "Audio asset registry (src/audioAssets.ts). Only approved:true assets are auto-mixed into renders. UNVERIFIED licenses must stay approved:false until Leon confirms the source and license — publishing with unlicensed audio risks takedowns/muting.",
+  "assets": [
+    {
+      "id": "synthwave-user-2026-07-12",
+      "role": "bed",
+      "path": "Sound Effects/Synthwave.mp3",
+      "license": "UNVERIFIED — user-supplied 2026-07-12; file has no license metadata and its container signature (DASH remux via Lavf) matches a platform download. Confirm source + license before approving.",
+      "mood": "synthwave / retro energetic",
+      "approved": false,
+      "notes": "4:45 runtime. Mood-mismatched with the dark-mystery brand bed (playbook: low drone + tick + boom). Candidate for upbeat participation formats only, and only after license verification."
+    }
+  ]
+}

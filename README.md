@@ -2,14 +2,16 @@
 
 Automated short-form video factory for Curio.
 
-**OpenAI = brain · ElevenLabs = voice · HeyGen = renderer · Captions.ai = editor ·
+**OpenAI = brain · ElevenLabs = voice · local ffmpeg = renderer ·
 this DB = memory + learning loop · platform analytics = feedback signal.**
 
-HeyGen never decides content quality and never speaks. OpenAI controls the hook,
-script, caption rhythm, pre-publish scoring, and the weekly learning analysis;
+OpenAI (`gpt-5.6`, reasoning routed per task) controls the hook, script, caption
+rhythm, fact-checking, pre-publish scoring, and the learning analysis;
 ElevenLabs narrates (documentary-narrator voice, settings pinned in `src/voice.ts`);
-HeyGen only lip-syncs the avatar to that audio; Captions.ai burns the curio_premium
-captions and cuts filler words + silences.
+the LOCAL renderer composites and burns captions itself and enforces a loudness
+gate on every output. HeyGen (avatar path) is dormant behind `RENDERER=heygen`;
+Captions.ai post-processing is parked — a verbatim TTS read has no fillers or
+silences to cut.
 
 ## The loop
 
@@ -17,16 +19,19 @@ captions and cuts filler words + silences.
 topic ──► OpenAI: full video package        (hooks ×5, script, timed captions,
               │                              scene direction, title, post copy)
               ▼
+        fact-check gate                     contested-claims screen (code, free)
+              │  fail → rewrite w/ feedback + LLM factuality pass (xhigh reasoning)
+              ▼  pass
         OpenAI judge: score 0–10            hook ≥8 · captions ≥8 · brand ≥8
               │  fail → rewrite w/ feedback (max 2 auto-regens)   viral ≥7 · safety ≥8
               ▼  pass
-        ElevenLabs narration (mp3) ──► HeyGen render, avatar lip-syncs (1080×1920)
+        ElevenLabs narration (mp3) ──► local ffmpeg render (1080×1920, captions burned)
               ▼
-        Captions.ai: burn captions · cut fillers · cut silences   ← publish THIS file
-              ▼
+        loudness gate                       −16 LUFS target; hard-fail outside
+              ▼                             [−20,−12] LUFS or true peak > −0.9 dBTP
         review queue  ── you approve / reject / edit / regenerate
               ▼
-        published → ingest analytics → weekly learning run
+        published → ingest analytics (IG/FB SEPARATED) → learning run
               ▼
         new prompt_rules injected into every future generation
 ```
@@ -52,7 +57,7 @@ delivery (ellipsis before twists, shortest-heaviest final line, key word last).
 npm install
 cp .env.example .env       # fill keys, or leave empty for full mock mode
 npm run dev                # http://localhost:8790  (review dashboard at /)
-npm test                   # 42 tests, all offline
+npm test                   # full suite, offline (renderer tests need ffmpeg + swiftc)
 ```
 
 With **no keys set**, both providers run in deterministic mock mode: the mock
@@ -65,7 +70,8 @@ pipeline — including the fail→rewrite loop — works end-to-end offline.
 | var | purpose |
 | --- | --- |
 | `OPENAI_API_KEY` | real script/judge/learning generation (empty = mock) |
-| `OPENAI_MODEL` | default `gpt-5-mini` (hard rule: never downgrade to 4o-mini) |
+| `OPENAI_MODEL` | default `gpt-5.6` (newest flagship alias; hard rule: never mini/nano; pin a snapshot id during A/B cohorts) |
+| `CARDS_FROZEN` | default frozen — card topics/generation return 403; set `0` to unfreeze deliberately |
 | `ELEVENLABS_API_KEY` | real narration (empty = mock voice) |
 | `ELEVENLABS_VOICE_ID` | the documentary-narrator voice (see `VOICE_DIRECTION`) |
 | `ELEVENLABS_MODEL` | default `eleven_multilingual_v2` |

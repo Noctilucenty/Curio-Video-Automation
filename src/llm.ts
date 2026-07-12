@@ -9,7 +9,10 @@ export interface JsonRequest {
   schemaName: string;
   schema: Record<string, unknown>;
   /** Judge/learning calls want stricter, lower-temperature behavior. */
-  purpose: "package" | "judge" | "learning" | "ingest";
+  purpose: "package" | "judge" | "factcheck" | "learning" | "ingest";
+  /** Called with the EXACT model id the API response reports (snapshot, not
+   * the request alias) so generation records can pin what actually ran. */
+  onModel?: (model: string) => void;
 }
 
 export interface LlmClient {
@@ -19,6 +22,20 @@ export interface LlmClient {
 
 const OPENAI_URL = "https://api.openai.com/v1/responses";
 const MAX_ATTEMPTS = 3;
+
+/**
+ * Reasoning-effort routing (Codex review policy, 2026-07-12): strongest model
+ * everywhere quality matters, but do NOT overpower it — deterministic checks
+ * stay in code, and reasoning depth is matched to the task. "max" is reserved
+ * for exceptional manual investigations, never the production loop.
+ */
+export const PURPOSE_REASONING: Record<JsonRequest["purpose"], "low" | "medium" | "high" | "xhigh"> = {
+  package: "high",   // hook/script/visual-direction generation
+  judge: "high",     // independent creative judging
+  factcheck: "xhigh", // factuality + source review — the strictest pass
+  learning: "high",  // analytics synthesis + rule proposals
+  ingest: "low",     // messy-text parsing; structure does the work
+};
 
 export class OpenAiClient implements LlmClient {
   constructor(private apiKey: string, public readonly model: string) {}
@@ -35,6 +52,7 @@ export class OpenAiClient implements LlmClient {
           },
           body: JSON.stringify({
             model: this.model,
+            reasoning: { effort: PURPOSE_REASONING[req.purpose] },
             input: [
               { role: "system", content: [{ type: "input_text", text: req.system }] },
               { role: "user", content: [{ type: "input_text", text: req.user }] },
@@ -59,7 +77,8 @@ export class OpenAiClient implements LlmClient {
         if (!res.ok) {
           throw new Error(`openai ${res.status}: ${(await res.text()).slice(0, 500)}`);
         }
-        const body = (await res.json()) as { output?: Array<{ type: string; content?: Array<{ type: string; text?: string }> }> };
+        const body = (await res.json()) as { model?: string; output?: Array<{ type: string; content?: Array<{ type: string; text?: string }> }> };
+        if (body.model) req.onModel?.(body.model);
         const text = extractOutputText(body);
         if (!text) throw new Error("openai response had no output_text");
         return JSON.parse(text);
@@ -109,6 +128,7 @@ import { mockGenerate } from "./mockLlm.js";
 export class MockLlmClient implements LlmClient {
   readonly model = "mock-llm";
   async generateJson(req: JsonRequest): Promise<unknown> {
+    req.onModel?.(this.model);
     return mockGenerate(req);
   }
 }

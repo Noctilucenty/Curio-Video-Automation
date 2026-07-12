@@ -51,6 +51,8 @@ export interface JudgeResult {
   promptVersion: string;
   input: { system: string; user: string };
   rawOutput: unknown;
+  /** Exact model id the API reported for this judge call (snapshot). */
+  modelUsed: string;
 }
 
 export async function judgePackage(
@@ -73,12 +75,14 @@ final video; the script field is unused). Judge accordingly:
 - IGNORE narration pacing, loop-back endings, spoken delivery, and script quality.`
     : "";
   const user = `Score this Curio ${format} package.${cardNote}\n\nJSON package:\n${JSON.stringify(wireFormat(pkg), null, 2)}`;
+  let modelUsed = llm.model;
   const raw: any = await llm.generateJson({
     system,
     user,
     schemaName: "curio_judge_scores",
     schema: JUDGE_SCHEMA as unknown as Record<string, unknown>,
     purpose: "judge",
+    onModel: (m) => { modelUsed = m; },
   });
 
   const partial = {
@@ -94,7 +98,7 @@ final video; the script field is unused). Judge accordingly:
     fix: String(raw.fix ?? ""),
   };
   const scores: JudgeScores = { ...partial, pass: meetsThresholds(partial) };
-  return { scores, promptVersion: PROMPT_VERSIONS.judge, input: { system, user }, rawOutput: raw };
+  return { scores, promptVersion: PROMPT_VERSIONS.judge, input: { system, user }, rawOutput: raw, modelUsed };
 }
 
 function wireFormat(pkg: VideoPackage) {

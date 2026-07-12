@@ -71,7 +71,7 @@ export function createApp(deps: AppDeps): App {
     res.status(401).json({ error: "missing or invalid admin token" });
   });
 
-  app.use("/api", buildRoutes({ repo, llm, renderer, voice, post, queue }));
+  app.use("/api", buildRoutes({ repo, llm, renderer, voice, post, queue, cardsFrozen: config.cardsFrozen }));
 
   // Review dashboard (static single page hitting the API above).
   const publicDir = join(dirname(fileURLToPath(import.meta.url)), "..", "public");

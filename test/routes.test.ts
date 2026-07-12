@@ -10,9 +10,9 @@ import { ensureSeedRules } from "../src/learning.js";
 import type { Config } from "../src/config.js";
 import type { LearningRule } from "../src/types.js";
 
-function testConfig(adminToken: string | null = null): Config {
+function testConfig(adminToken: string | null = null, cardsFrozen = false): Config {
   return {
-    port: 0, adminToken, dataDir: "./data", renderer: "mock" as const,
+    port: 0, adminToken, dataDir: "./data", renderer: "mock" as const, cardsFrozen,
     openai: { apiKey: null, model: "mock-llm" },
     heygen: { apiKey: null, avatarId: "av", voiceId: "vo" },
     elevenlabs: { apiKey: null, voiceId: "", modelId: "eleven_multilingual_v2" },
@@ -20,11 +20,11 @@ function testConfig(adminToken: string | null = null): Config {
   };
 }
 
-async function makeApp(adminToken: string | null = null) {
+async function makeApp(adminToken: string | null = null, cardsFrozen = false) {
   const repo = new InMemoryRepo();
   await ensureSeedRules(repo);
   const { app, queue } = createApp({
-    config: testConfig(adminToken), repo, llm: new MockLlmClient(), renderer: new MockRenderer(),
+    config: testConfig(adminToken, cardsFrozen), repo, llm: new MockLlmClient(), renderer: new MockRenderer(),
     voice: new MockVoice(), post: new MockPostProcessor(),
   });
   return { app, queue, repo };
@@ -187,6 +187,17 @@ describe("api flow", () => {
     expect(bad.body.unmatched).toHaveLength(1);
     expect(bad.body.unmatched[0].reason).toContain("no published video matches");
     expect((await request(app).post("/api/performance/ingest").send({})).status).toBe(400);
+  });
+
+  it("refuses card topics and card generation while cards are frozen", async () => {
+    const { app } = await makeApp(null, true);
+    const topic = await request(app).post("/api/video-topics").send({ topic: "card topic", format: "card" });
+    expect(topic.status).toBe(403);
+    expect(topic.body.error).toContain("FROZEN");
+    const gen = await request(app).post("/api/videos/generate").send({ topic: "card topic", format: "card" });
+    expect(gen.status).toBe(403);
+    // narrated stays open
+    expect((await request(app).post("/api/video-topics").send({ topic: "narrated topic" })).status).toBe(201);
   });
 
   it("enforces the admin token on mutations but keeps reads open", async () => {

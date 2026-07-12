@@ -63,12 +63,39 @@ describe("generation pipeline", () => {
     expect(done.post?.status).toBe("completed");
     expect(done.post?.videoUrl).toContain(".captioned.mp4");
     expect(done.post?.operations).toEqual({ captions: true, cutFillers: true, cutSilences: true });
-    // package + judge recorded with prompt versions
+    // package + factcheck + judge recorded with prompt versions
     const gens = await repo.listGenerations(done.id);
-    expect(gens.map((g) => g.kind).sort()).toEqual(["judge", "package"]);
+    expect(gens.map((g) => g.kind).sort()).toEqual(["factcheck", "judge", "package"]);
     expect(gens.every((g) => g.promptVersion && g.model === "stub-llm")).toBe(true);
     // topic consumed
     expect((await repo.getTopic(topic.id))?.status).toBe("used");
+  });
+
+  it("a contested psychology claim fails fact-check and is rewritten before judging", async () => {
+    class ContestedLlm implements LlmClient {
+      readonly model = "stub-llm";
+      packageCalls = 0;
+      async generateJson(req: JsonRequest): Promise<unknown> {
+        const out: any = mockGenerate(req);
+        if (req.purpose === "package") {
+          this.packageCalls++;
+          if (this.packageCalls === 1) {
+            out.script = "Ego depletion drains your willpower with every choice you make.";
+          }
+        }
+        return out;
+      }
+    }
+    const { repo, video, deps } = await setup(new ContestedLlm());
+    const done = await runGenerationPipeline(deps, video.id);
+
+    // rewritten once, then clean: rendered and reviewable
+    expect(done.status).toBe("ready_for_review");
+    expect(done.attempts).toBe(2);
+    const fc = (await repo.listGenerations(done.id)).filter((g) => g.kind === "factcheck");
+    expect(fc).toHaveLength(2);
+    // the first failure came from the zero-token deterministic screen
+    expect(fc[0].model).toBe("deterministic-screen");
   });
 
   it("card format skips narration entirely and renders via the card path", async () => {

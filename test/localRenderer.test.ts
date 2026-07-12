@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { LocalRenderer } from "../src/localRenderer.js";
+import { LocalRenderer, measureLoudness, LOUDNESS_RANGE } from "../src/localRenderer.js";
 import type { VideoPackage } from "../src/types.js";
 
 const hasFfmpeg = spawnSync("ffmpeg", ["-version"], { encoding: "utf8" }).status === 0;
@@ -54,6 +54,12 @@ describe.skipIf(!runnable)("LocalRenderer (real ffmpeg + swift typography)", () 
     expect(v.height).toBe(1920);
     expect(Number(info.format.duration)).toBeGreaterThan(2);
     expect(Number(info.format.duration)).toBeLessThan(3.5);
+
+    // narration is loudness-normalized into the social window
+    const m = measureLoudness(outPath);
+    expect(m.integrated).toBeGreaterThanOrEqual(LOUDNESS_RANGE.minIntegrated);
+    expect(m.integrated).toBeLessThanOrEqual(LOUDNESS_RANGE.maxIntegrated);
+    expect(m.truePeak).toBeLessThanOrEqual(LOUDNESS_RANGE.maxTruePeak);
   }, 180_000);
 
   it("refuses to render without narration audio", async () => {
@@ -64,7 +70,7 @@ describe.skipIf(!runnable)("LocalRenderer (real ffmpeg + swift typography)", () 
 });
 
 describe.skipIf(!runnable)("LocalRenderer card mode (real ffmpeg + swift)", () => {
-  it("renders an AUDIBLE ~6s card with synthesized bed — silence gate enforced", async () => {
+  it("renders a ~6s card whose bed lands in the loudness window — range gate enforced", async () => {
     const dataDir = mkdtempSync(join(tmpdir(), "curio-card-render-"));
     const r = new LocalRenderer(dataDir);
     const { providerVideoId } = await r.createVideo({
@@ -95,10 +101,12 @@ describe.skipIf(!runnable)("LocalRenderer card mode (real ffmpeg + swift)", () =
     expect(dur).toBeGreaterThan(5.5);
     expect(dur).toBeLessThan(6.6);
 
-    // THE regression that shipped in card v1: audio track existed but was
-    // pure silence. The synthesized bed must be genuinely audible.
-    const vol = spawnSync("ffmpeg", ["-hide_banner", "-i", outPath, "-af", "volumedetect", "-vn", "-f", "null", "-"], { encoding: "utf8" });
-    const mean = Number(`${vol.stderr}`.match(/mean_volume:\s*(-?[\d.]+)\s*dB/)?.[1]);
-    expect(mean).toBeGreaterThan(-55);
+    // Card v1 shipped SILENT (-inf); card v2 passed a binary gate at a
+    // whisper-quiet -45.6 LUFS. The gate is now a loudness RANGE: integrated
+    // within the social window and no clipping.
+    const m = measureLoudness(outPath);
+    expect(m.integrated).toBeGreaterThanOrEqual(LOUDNESS_RANGE.minIntegrated);
+    expect(m.integrated).toBeLessThanOrEqual(LOUDNESS_RANGE.maxIntegrated);
+    expect(m.truePeak).toBeLessThanOrEqual(LOUDNESS_RANGE.maxTruePeak);
   }, 120_000);
 });

@@ -4,30 +4,45 @@ Two engines exist. Do not conflate them.
 
 ## 1. Video factory (THIS repo)
 
-Pipeline: topic → gpt-5-mini package (hooks/script/captions/copy) → judge with
-rewrite loop (max 2 regens; calibration rules tune the judge) → ElevenLabs
-narration → renderer → review dashboard (:8790) → manual post → analytics
-ingest → learning run → new rules injected into the next generation.
+Pipeline: topic → gpt-5.6 package (hooks/script/captions/copy) → FACT-CHECK
+gate (contested-claims screen in code + xhigh-reasoning LLM pass; rejects
+before judging) → judge with rewrite loop (max 2 regens; calibration rules
+tune the judge) → ElevenLabs narration → renderer (loudness-gated: −16 LUFS
+target, hard-fail outside [−20,−12] LUFS / true peak > −0.9 dBTP) → review
+dashboard (:8790) → manual post → analytics ingest (IG/FB separated) →
+learning run → new rules injected into the next generation.
+Exact response model recorded per generation; audio via assets/audio-assets.json
+registry (no magic filenames). Cards FROZEN (API 403) until unfrozen.
 
 **Live counts come from the running server** (`/api/videos`, `/api/learning/rules`,
 `/api/learning/runs`, `/api/performance/summary`) or `data/automation.json` —
-never guess them. Snapshot at 2026-07-12:
-14 videos (11 published — mock-render era, 2 ready_for_review, 1 failed) ·
-9 active rules (5 seed + 3 learned + 1 judge-calibration) · 17 metrics rows ·
-2 learning runs · 30 recorded generations.
+never guess them. Snapshot at 2026-07-12 (post-import):
+25 videos (15 published — incl. the 4 REAL posted experiments + mock-render
+era, 6 ready_for_review, 2 generated, 1 needs_revision, 1 failed) ·
+9 active rules · 21 metrics rows · 2 learning runs · 54 recorded generations.
 
-Provider state: OpenAI LIVE (gpt-5-mini) · ElevenLabs LIVE (narrator
+Provider state: OpenAI LIVE (gpt-5.6) · ElevenLabs LIVE (narrator
 `UBtJzywcDa3wB8w48g0v`) · renderer = local ffmpeg (no-avatar; HeyGen dormant
 behind `RENDERER=heygen`, no avatar will be used) · Captions.ai parked (key was
 rejected; likely unnecessary — TTS scripts have no fillers/silences and we burn
 our own captions).
 
-**Blocking quality issue:** local renderer v1 REJECTED in review (see
-EXPERIMENT_LEDGER EXP-202607-02). Renderer v2 requirements: text-as-
-cinematography (large centered metronome beats, scale hierarchy) or eerie
-footage layer, plus the audio stack (drone bed, ticking, pre-punch silence,
-signature boom). Waiting on Leon: 2–3 reference reels, licensed audio files
-(drone/tick/boom), font decision. Do not publish local-render output before v2.
+**Ground truth (2026-07-12):** Curio's four REAL posted videos are imported
+(`data/posted-experiments.json` → `tools/import_posted_experiments.ts`), with
+platform-separated analytics. Third Man Factor is the only retention winner;
+the primary bet is "atmospheric survival mystery with immediate visual
+evidence" — three replications + two controlled A/Bs queued in
+`docs/curio/NEXT_EXPERIMENTS.md`.
+
+**Blocking quality issue:** local renderer v1 (narrated) REJECTED in review
+(EXPERIMENT_LEDGER EXP-202607-02). Renderer v2 requirements: text-as-
+cinematography or eerie footage layer, plus the audio stack (drone bed,
+ticking, pre-punch silence, signature boom) — the loudness gate and audio
+registry now exist; still waiting on Leon for licensed audio files
+(drone/tick/boom; Synthwave.mp3 is registered but license-unverified and
+mood-mismatched) and 2–3 reference reels. Do not publish narrated local-render
+output before v2. The Third Man-class posts were produced externally in
+Captions.ai — that path remains available for the replication experiments.
 
 ## 2. Card content engine (main `curio` repo — NOT this repo)
 

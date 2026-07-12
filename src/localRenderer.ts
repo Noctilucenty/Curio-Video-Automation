@@ -14,12 +14,20 @@ import { join, resolve } from "node:path";
 import type { RenderRequest, RenderStatus, Renderer } from "./heygen.js";
 import { CAPTION_STYLE } from "./captions.js";
 import { makeId } from "./config.js";
+import { resolveAudioAsset } from "./audioAssets.js";
 
 const WIDTH = 1080;
 const HEIGHT = 1920;
 const FPS = 30;
 const FONT_SIZE = 58;
-const DRONE_CANDIDATES = ["assets/drone.mp3", "assets/drone.m4a", "assets/drone.wav"];
+
+/**
+ * Every render's final audio is normalized to this target and then MEASURED.
+ * Curio's own posted videos sat at -16.7..-17.1 LUFS; the one at -9.6 LUFS
+ * (+0.6 dBFS true peak — clipping) was the engagement floor. -16 LUFS with
+ * -1.5 dBTP headroom is the social-feed sweet spot.
+ */
+const LOUDNORM = "loudnorm=I=-16:TP=-1.5:LRA=7";
 
 export class LocalRenderer implements Renderer {
   readonly provider = "local" as const;
@@ -70,7 +78,7 @@ export class LocalRenderer implements Renderer {
     this.renderCaptionPngs(pngDir, lines.map((l, i) => ({ id: `c${i}`, text: l.text, emphasis: l.emphasis })));
 
     // ---- ffmpeg composition -------------------------------------------------
-    const droneFile = DRONE_CANDIDATES.map((p) => resolve(p)).find((p) => existsSync(p));
+    const droneFile = resolveAudioAsset("drone")?.path;
     const args: string[] = ["-y", "-hide_banner", "-loglevel", "error"];
     const total = duration + 0.4;
 
@@ -106,14 +114,18 @@ export class LocalRenderer implements Renderer {
       prev = next;
     });
     fc.push(`[${prev}]format=yuv420p[v]`);
+    // Final mix is ALWAYS loudness-normalized — narration-only renders used to
+    // ship at whatever level ElevenLabs happened to emit.
     if (droneFile) {
-      fc.push(`[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=0:weights=1 0.12,afade=t=out:st=${Math.max(0, duration - 1.2).toFixed(2)}:d=1.2[a]`);
+      fc.push(`[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=0:weights=1 0.12,afade=t=out:st=${Math.max(0, duration - 1.2).toFixed(2)}:d=1.2,${LOUDNORM}[a]`);
+    } else {
+      fc.push(`[1:a]${LOUDNORM}[a]`);
     }
 
     args.push(
       "-filter_complex", fc.join(";"),
       "-map", "[v]",
-      "-map", droneFile ? "[a]" : "1:a",
+      "-map", "[a]",
       "-c:v", "libx264", "-preset", "slow", "-crf", "18",
       "-c:a", "aac", "-b:a", "192k",
       "-r", String(FPS),
@@ -126,7 +138,7 @@ export class LocalRenderer implements Renderer {
     if (res.status !== 0) {
       throw new Error(`ffmpeg failed: ${(res.stderr || res.stdout || "unknown").slice(-500)}`);
     }
-    assertAudible(outPath); // narration must actually be audible in the mux
+    assertLoudness(outPath); // narration must land in the social-loudness window
     this.results.set(providerVideoId, {
       providerVideoId,
       status: "completed",
@@ -183,11 +195,10 @@ export class LocalRenderer implements Renderer {
     if (!existsSync(footerPng)) throw new Error("footer png was not produced");
 
     const DURATION = 6.0;
-    const providedBed = ["assets/bed.mp3", "assets/bed.m4a", "assets/bed.wav", ...DRONE_CANDIDATES]
-      .map((p) => resolve(p))
-      .find((p) => existsSync(p));
-    const bed = providedBed ?? this.ensureSynthBed(DURATION);
-    const bedVolume = providedBed ? 0.35 : 1.0; // synth bed is pre-leveled
+    const bed =
+      resolveAudioAsset("bed")?.path ??
+      resolveAudioAsset("drone")?.path ??
+      this.ensureSynthBed(DURATION);
 
     const footerFadeIn = (DURATION * 0.62).toFixed(2);
     const args: string[] = ["-y", "-hide_banner", "-loglevel", "error"];
@@ -203,7 +214,9 @@ export class LocalRenderer implements Renderer {
         `[2:v]format=rgba,colorchannelmixer=aa=0.7,fade=t=in:st=${footerFadeIn}:d=0.7:alpha=1[foot]`,
         `[bg][foot]overlay=x=(W-w)/2:y=H*0.86-h[vv]`,
         `[vv]format=yuv420p[v]`,
-        `[1:a]atrim=0:${DURATION},volume=${bedVolume},afade=t=in:st=0:d=0.6,afade=t=out:st=${(DURATION - 1.0).toFixed(2)}:d=1.0[a]`,
+        // Normalize BEFORE the fades: the bed lands at target loudness, then
+        // the envelope shapes it. (Normalizing after would fight the fade-out.)
+        `[1:a]atrim=0:${DURATION},${LOUDNORM},afade=t=in:st=0:d=0.6,afade=t=out:st=${(DURATION - 1.0).toFixed(2)}:d=1.0[a]`,
       ].join(";"),
       "-map", "[v]", "-map", "[a]",
       "-c:v", "libx264", "-preset", "slow", "-crf", "18",
@@ -217,7 +230,7 @@ export class LocalRenderer implements Renderer {
     if (res.status !== 0) {
       throw new Error(`ffmpeg card failed: ${(res.stderr || res.stdout || "unknown").slice(-500)}`);
     }
-    assertAudible(outPath); // a silent track must never reach the review queue
+    assertLoudness(outPath); // silent AND whisper-quiet AND clipping all fail here
     this.results.set(providerVideoId, {
       providerVideoId,
       status: "completed",
@@ -287,26 +300,57 @@ export class LocalRenderer implements Renderer {
   }
 }
 
-/**
- * Quality gate: reject outputs whose audio is effectively silent. A silent
- * track is worse than no track — "audio stream exists" checks pass it while
- * the platform buries the post. mean_volume below -55 dB over the whole file
- * means nothing audible was mixed in.
- */
-export function assertAudible(path: string): void {
+export interface LoudnessMeasurement {
+  /** EBU R128 integrated loudness, LUFS. */
+  integrated: number;
+  /** True peak, dBFS. */
+  truePeak: number;
+}
+
+/** Measure integrated loudness + true peak (EBU R128) of a file's audio. */
+export function measureLoudness(path: string): LoudnessMeasurement {
   const res = spawnSync(
     "ffmpeg",
-    ["-hide_banner", "-i", path, "-af", "volumedetect", "-vn", "-f", "null", "-"],
-    { encoding: "utf8", timeout: 60_000 },
+    ["-hide_banner", "-nostats", "-i", path, "-map", "a:0", "-af", "ebur128=peak=true", "-f", "null", "-"],
+    { encoding: "utf8", timeout: 120_000 },
   );
   const out = `${res.stderr}\n${res.stdout}`;
-  const m = out.match(/mean_volume:\s*(-?[\d.]+|inf|-inf)\s*dB/i);
-  const mean = m ? Number(m[1].replace(/^-?inf$/i, "-999")) : NaN;
-  if (!Number.isFinite(mean) || mean < -55) {
-    throw new Error(
-      `render produced a silent/near-silent audio track (mean_volume=${m?.[1] ?? "unreadable"} dB) — refusing to queue it`,
-    );
+  const summary = out.slice(out.lastIndexOf("Summary:"));
+  const i = summary.match(/I:\s*(-?[\d.]+|-?inf)\s*LUFS/i);
+  const p = summary.match(/Peak:\s*(-?[\d.]+|-?inf)\s*dBFS/i);
+  const parse = (m: RegExpMatchArray | null) =>
+    m ? Number(m[1].replace(/^-?inf$/i, "-999")) : NaN;
+  return { integrated: parse(i), truePeak: parse(p) };
+}
+
+/**
+ * Loudness-range quality gate. The old binary silence check (-55 dB mean)
+ * passed a whisper-quiet track; both of Curio's real audio failures sat
+ * OUTSIDE a healthy range, on opposite ends:
+ *   - card v1 shipped silent (-inf);
+ *   - "Can't Forget Anything" posted at -9.6 LUFS / +0.6 dBTP — clipping.
+ * So the gate now requires social-feed loudness: integrated within
+ * [-20, -12] LUFS AND true peak <= -0.9 dBTP. Renders are loudnorm'd to
+ * -16 LUFS / -1.5 dBTP, so anything outside the window is a real defect.
+ */
+export const LOUDNESS_RANGE = { minIntegrated: -20, maxIntegrated: -12, maxTruePeak: -0.9 } as const;
+
+export function assertLoudness(path: string): LoudnessMeasurement {
+  const m = measureLoudness(path);
+  const problems: string[] = [];
+  if (!Number.isFinite(m.integrated) || m.integrated < LOUDNESS_RANGE.minIntegrated) {
+    problems.push(`integrated ${m.integrated} LUFS is below ${LOUDNESS_RANGE.minIntegrated} (too quiet/silent for a feed)`);
   }
+  if (m.integrated > LOUDNESS_RANGE.maxIntegrated) {
+    problems.push(`integrated ${m.integrated} LUFS is above ${LOUDNESS_RANGE.maxIntegrated} (too hot)`);
+  }
+  if (!Number.isFinite(m.truePeak) || m.truePeak > LOUDNESS_RANGE.maxTruePeak) {
+    problems.push(`true peak ${m.truePeak} dBFS exceeds ${LOUDNESS_RANGE.maxTruePeak} (clipping risk)`);
+  }
+  if (problems.length) {
+    throw new Error(`render failed the loudness gate — refusing to queue it: ${problems.join("; ")}`);
+  }
+  return m;
 }
 
 function probeDuration(path: string): number {

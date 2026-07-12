@@ -14,6 +14,7 @@ import type { JudgeScores, Topic, Video } from "./types.js";
 import { assertTransition } from "./types.js";
 import { generatePackage } from "./generator.js";
 import { judgePackage } from "./judge.js";
+import { factCheckPackage, type FactCheckResult } from "./factcheck.js";
 import { loadApprovedPatterns } from "./intelligence.js";
 import { makeId } from "./config.js";
 
@@ -81,7 +82,7 @@ export async function runGenerationPipeline(deps: PipelineDeps, videoId: string)
       video.pkg = gen.pkg;
       // Cohort key for later rule validation: which rules shaped this package.
       video.appliedRuleIds = generatorRules.map((r) => r.id);
-      await recordGeneration(repo, video, "package", gen.promptVersion, llm.model, gen.input, gen.rawOutput);
+      await recordGeneration(repo, video, "package", gen.promptVersion, gen.modelUsed, gen.input, gen.rawOutput);
       setStatus(video, "generated");
       await repo.updateVideo(video);
     } catch (e) {
@@ -91,9 +92,24 @@ export async function runGenerationPipeline(deps: PipelineDeps, videoId: string)
       return repo.updateVideo(video);
     }
 
+    // Fact-check BEFORE the creative judge: a contested/unsupported claim is a
+    // rewrite, full stop — no judge tokens, no render. This stage exists
+    // because a strong creative judge approved the ego-depletion card
+    // (2026-07-12): factual integrity must be its own gate, not a judge score.
+    const facts = await factCheckPackage(llm, video.pkg!);
+    await recordGeneration(repo, video, "factcheck", facts.promptVersion, facts.modelUsed, facts.input, facts.rawOutput);
+    if (!facts.pass) {
+      feedback = factCheckFeedback(facts);
+      if (attempt < MAX_AUTO_REGENS) {
+        setStatus(video, "needs_revision");
+        await repo.updateVideo(video);
+      }
+      continue;
+    }
+
     const judged = await judgePackage(llm, video.pkg!, calibrationRules, video.format ?? "narrated");
     video.judge = judged.scores;
-    await recordGeneration(repo, video, "judge", judged.promptVersion, llm.model, judged.input, judged.rawOutput);
+    await recordGeneration(repo, video, "judge", judged.promptVersion, judged.modelUsed, judged.input, judged.rawOutput);
 
     if (judged.scores.pass) break;
 
@@ -123,9 +139,17 @@ export async function finalizeManualEdit(deps: PipelineDeps, videoId: string): P
   const video = await repo.getVideo(videoId);
   if (!video?.pkg) throw new Error(`video ${videoId} has no package to finalize`);
   const calibrationRules = (await repo.listRules(true)).filter((r) => r.category === "calibration");
+  // The human outranks the creative judge, but factual problems must still be
+  // visible on the record — a manual edit can introduce a contested claim.
+  const facts = await factCheckPackage(llm, video.pkg);
+  await recordGeneration(repo, video, "factcheck", facts.promptVersion, facts.modelUsed, facts.input, facts.rawOutput);
+  if (!facts.pass) {
+    const flagged = facts.findings.filter((f) => f.verdict !== "supported").map((f) => f.issue).join("; ");
+    video.reviewNote = [video.reviewNote, `⚠ fact-check flagged: ${flagged}`].filter(Boolean).join(" | ");
+  }
   const judged = await judgePackage(llm, video.pkg, calibrationRules, video.format ?? "narrated");
   video.judge = judged.scores;
-  await recordGeneration(repo, video, "judge", judged.promptVersion, llm.model, judged.input, judged.rawOutput);
+  await recordGeneration(repo, video, "judge", judged.promptVersion, judged.modelUsed, judged.input, judged.rawOutput);
   await repo.updateVideo(video);
   return renderVideo(deps, video);
 }
@@ -296,10 +320,27 @@ function setStatus(video: Video, to: Video["status"]): void {
   video.status = to;
 }
 
+/**
+ * A fact-check failure re-enters the same rewrite loop as judge feedback.
+ * Creative scores are zeroed-out placeholders — the only signal that matters
+ * downstream is factualSafety=0 plus the concrete problems/fix text.
+ */
+function factCheckFeedback(facts: FactCheckResult): JudgeScores {
+  return {
+    hookScore: 0, retentionScore: 0, clarityScore: 0, captionReadability: 0,
+    brandFit: 0, viralPotential: 0, factualSafety: 0, overallScore: 0,
+    problems: facts.findings
+      .filter((f) => f.verdict !== "supported")
+      .map((f) => `FACT-CHECK ${f.verdict}: ${f.claim} — ${f.issue}`),
+    fix: facts.fix || "Replace every contested/unsupported claim with a replicated, sourceable mechanism.",
+    pass: false,
+  };
+}
+
 async function recordGeneration(
   repo: Repo,
   video: Video,
-  kind: "package" | "judge",
+  kind: "package" | "judge" | "factcheck",
   promptVersion: string,
   model: string,
   input: unknown,

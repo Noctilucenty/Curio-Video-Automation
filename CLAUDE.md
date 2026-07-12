@@ -19,9 +19,27 @@ after Curio's own posted results (or ≥2 independent outliers) support them.
 Separate observations, hypotheses, confirmed rules, rejected rules — always.
 
 ## Hard rules
-- Model: full-strength GPT-5 line (gpt-5.1 or newer) — Leon's call 2026-07-12:
-  best quality over cost for the video factory. Never downgrade to mini/nano.
-  (The main curio app's card engine keeps its own model rule.) Config in `.env`.
+- Model: newest full-strength GPT — currently the `gpt-5.6` alias (flagship
+  gpt-5.6-sol). Leon's call 2026-07-12: best quality over cost; never mini/nano
+  for content decisions. (The main curio app's card engine keeps its own model
+  rule.) Reasoning is routed per task (src/llm.ts PURPOSE_REASONING): xhigh for
+  fact-check, high for generation/judging/learning, low for parsing;
+  deterministic checks (loudness, schema, caption limits) stay in CODE, never
+  a model. Exact response model is recorded per generation; PIN a snapshot via
+  OPENAI_MODEL during controlled A/B cohorts.
+- Factual gate: a separate fact-check stage (src/factcheck.ts) runs BEFORE the
+  creative judge and before any render — contested psychology (ego depletion,
+  power posing, learning styles, …) is rejected in code; the LLM pass demands
+  named sources and flags overclaimed absolutes. A strong judge approving a
+  contested claim is exactly how the ego-depletion card shipped; the gate is
+  structural now.
+- Audio gate: every render is loudnorm'd to −16 LUFS/−1.5 dBTP and hard-fails
+  outside integrated [−20, −12] LUFS or true peak > −0.9 dBTP. Audio files are
+  declared in assets/audio-assets.json (role/license/approved) — no magic
+  filenames, no unverified-license asset auto-mixed.
+- FORMATS: static cards are FROZEN (Leon 2026-07-12) — the API refuses card
+  topics/generation (403) until CARDS_FROZEN=0. Primary bet: atmospheric
+  survival mystery narrative (docs/curio/NEXT_EXPERIMENTS.md).
 - Factual accuracy over drama: no invented stats, no AI-slop psychology claims,
   no fake mysteries presented as verified fact.
 - Category diversity: don't let generation collapse onto easy psychology/mystery
@@ -39,4 +57,9 @@ Separate observations, hypotheses, confirmed rules, rejected rules — always.
 When Leon pastes video analytics: `POST /api/performance/ingest {raw}` →
 `POST /api/learning/run` → report improvementDelta, platform notes, calibration
 notes, new rules. Ledger discipline: add one entry per posted video to
-`docs/curio/EXPERIMENT_LEDGER.md`.
+`docs/curio/EXPERIMENT_LEDGER.md` AND to `data/posted-experiments.json`
+(machine copy; import with `npx tsx tools/import_posted_experiments.ts`).
+**Platform-separated is mandatory**: IG views and FB views recorded separately —
+combined totals are not an optimization target. Capture checklist (retention
+curve points, view sources, creative metadata): use
+`docs/curio/ANALYTICS_CAPTURE_TEMPLATE.md` for every post, no exceptions.
