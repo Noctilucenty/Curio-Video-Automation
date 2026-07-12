@@ -125,6 +125,18 @@ export async function finalizeManualEdit(deps: PipelineDeps, videoId: string): P
  */
 async function renderVideo(deps: PipelineDeps, video: Video): Promise<Video> {
   const { repo, renderer, voice } = deps;
+  // Fail fast with an actionable message instead of a cryptic provider error:
+  // a live HeyGen renderer without an avatar can never produce a video.
+  if (renderer.provider === "heygen" && !deps.avatarId) {
+    video.render = {
+      provider: renderer.provider,
+      status: "failed",
+      error: "HEYGEN_AVATAR_ID is not set — pick an avatar in HeyGen and add its id to .env",
+    };
+    video.error = video.render.error;
+    setStatus(video, "failed");
+    return repo.updateVideo(video);
+  }
   video.render = { provider: renderer.provider, status: "rendering" };
   video.audio = { provider: voice.provider, status: "not_started" };
   await repo.updateVideo(video);
