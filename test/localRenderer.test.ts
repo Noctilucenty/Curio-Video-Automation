@@ -62,3 +62,43 @@ describe.skipIf(!runnable)("LocalRenderer (real ffmpeg + swift typography)", () 
     await expect(r.createVideo({ pkg, avatarId: "", voiceId: "" })).rejects.toThrow(/narration/);
   });
 });
+
+describe.skipIf(!runnable)("LocalRenderer card mode (real ffmpeg + swift)", () => {
+  it("renders an AUDIBLE ~6s card with synthesized bed — silence gate enforced", async () => {
+    const dataDir = mkdtempSync(join(tmpdir(), "curio-card-render-"));
+    const r = new LocalRenderer(dataDir);
+    const { providerVideoId } = await r.createVideo({
+      pkg: {
+        ...pkg,
+        title: "Your brain signs contracts you never see",
+        cta: "Real rabbit holes live in Curio.",
+        captionLines: [
+          { startHint: 0, endHint: 2, text: "The Zeigarnik effect keeps unfinished tasks pinging you", emphasis: "Zeigarnik effect", position: "lower_center", style: "curio_premium" },
+          { startHint: 2, endHint: 4, text: "Anchoring lets the first number drag your judgment", emphasis: "Anchoring", position: "lower_center", style: "curio_premium" },
+          { startHint: 4, endHint: 6, text: "Emotional contagion syncs your mood to the room", emphasis: "Emotional contagion", position: "lower_center", style: "curio_premium" },
+          { startHint: 6, endHint: 8, text: "Choice-supportive memory rewrites your past picks kindly", emphasis: "Choice-supportive memory", position: "lower_center", style: "curio_premium" },
+        ],
+      },
+      avatarId: "", voiceId: "", format: "card",
+    });
+    const status = await r.pollUntilDone(providerVideoId);
+    expect(status.status).toBe("completed");
+
+    const outPath = join(dataDir, "videos", `${providerVideoId}.mp4`);
+    expect(existsSync(outPath)).toBe(true);
+
+    // duration ~6s and streams present
+    const probe = spawnSync("ffprobe", ["-v", "error", "-show_entries", "format=duration:stream=codec_type", "-of", "default=noprint_wrappers=1", outPath], { encoding: "utf8" });
+    expect(probe.stdout).toContain("codec_type=video");
+    expect(probe.stdout).toContain("codec_type=audio");
+    const dur = Number(probe.stdout.match(/duration=([\d.]+)/)?.[1]);
+    expect(dur).toBeGreaterThan(5.5);
+    expect(dur).toBeLessThan(6.6);
+
+    // THE regression that shipped in card v1: audio track existed but was
+    // pure silence. The synthesized bed must be genuinely audible.
+    const vol = spawnSync("ffmpeg", ["-hide_banner", "-i", outPath, "-af", "volumedetect", "-vn", "-f", "null", "-"], { encoding: "utf8" });
+    const mean = Number(`${vol.stderr}`.match(/mean_volume:\s*(-?[\d.]+)\s*dB/)?.[1]);
+    expect(mean).toBeGreaterThan(-55);
+  }, 120_000);
+});

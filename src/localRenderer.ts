@@ -126,6 +126,7 @@ export class LocalRenderer implements Renderer {
     if (res.status !== 0) {
       throw new Error(`ffmpeg failed: ${(res.stderr || res.stdout || "unknown").slice(-500)}`);
     }
+    assertAudible(outPath); // narration must actually be audible in the mux
     this.results.set(providerVideoId, {
       providerVideoId,
       status: "completed",
@@ -135,10 +136,12 @@ export class LocalRenderer implements Renderer {
   }
 
   /**
-   * Static read-a-card short (4-6s): one full-frame typographic card, film
-   * grain for life, optional low bed audio (assets/bed.* or the drone file).
-   * The video is deliberately SHORTER than its read time — pause/screenshot/
-   * rewatch behavior is the retention mechanic (see WINNING_REFERENCES.md).
+   * Static read-a-card short (~6s): one full-frame typographic card with slow
+   * push-in + grain, a continuous dark ambient bed (licensed file if present,
+   * synthesized otherwise — silence is NEVER acceptable), and the signature
+   * footer fading in for the final stretch only. The video is deliberately
+   * SHORTER than its read time — pause/screenshot/rewatch is the retention
+   * mechanic (see WINNING_REFERENCES.md).
    */
   private async createCardVideo(req: RenderRequest): Promise<{ providerVideoId: string }> {
     const providerVideoId = makeId("localcard");
@@ -147,42 +150,61 @@ export class LocalRenderer implements Renderer {
 
     this.ensureCaptionTool();
     mkdirSync(pngDir, { recursive: true });
+
+    // Card face WITHOUT the footer — branding fades in late, not permanently.
     const specPath = join(pngDir, "spec.json");
     writeFileSync(specPath, JSON.stringify({
       mode: "card",
       width: WIDTH,
       height: HEIGHT,
       outDir: pngDir,
-      fontSize: 40,
+      fontSize: 47, // 4-5 items max => bigger, phone-feed-readable body type
       title: req.pkg.title,
-      footer: req.pkg.cta,
-      // Card list items: the caption beats, minus any final line that just
-      // repeats the CTA (the footer already carries the signature).
+      footer: "",
       lines: req.pkg.captionLines
         .filter((l) => !l.text.toLowerCase().includes("curio"))
-        .slice(0, 8)
+        .slice(0, 5)
         .map((l, i) => ({ id: `i${i}`, text: l.text.replace(/\s+/g, " ").trim(), emphasis: l.emphasis })),
     }));
     execFileSync(this.toolPath, [specPath], { timeout: 60_000 });
     const cardPng = join(pngDir, "card.png");
     if (!existsSync(cardPng)) throw new Error("card png was not produced");
 
-    const DURATION = 5.2;
-    const bedFile = ["assets/bed.mp3", "assets/bed.m4a", "assets/bed.wav", ...DRONE_CANDIDATES]
+    // Footer as its own overlay (rendered via lines mode, dimmed in ffmpeg).
+    const footerSpec = join(pngDir, "footer-spec.json");
+    writeFileSync(footerSpec, JSON.stringify({
+      width: WIDTH,
+      outDir: pngDir,
+      fontSize: 30,
+      lines: [{ id: "footer", text: req.pkg.cta, emphasis: "" }],
+    }));
+    execFileSync(this.toolPath, [footerSpec], { timeout: 60_000 });
+    const footerPng = join(pngDir, "footer.png");
+    if (!existsSync(footerPng)) throw new Error("footer png was not produced");
+
+    const DURATION = 6.0;
+    const providedBed = ["assets/bed.mp3", "assets/bed.m4a", "assets/bed.wav", ...DRONE_CANDIDATES]
       .map((p) => resolve(p))
       .find((p) => existsSync(p));
+    const bed = providedBed ?? this.ensureSynthBed(DURATION);
+    const bedVolume = providedBed ? 0.35 : 1.0; // synth bed is pre-leveled
 
+    const footerFadeIn = (DURATION * 0.62).toFixed(2);
     const args: string[] = ["-y", "-hide_banner", "-loglevel", "error"];
-    args.push("-loop", "1", "-t", String(DURATION), "-i", cardPng);
-    if (bedFile) args.push("-i", bedFile);
-    else args.push("-f", "lavfi", "-t", String(DURATION), "-i", "anullsrc=r=44100:cl=stereo");
-
-    const audioChain = bedFile
-      ? `[1:a]atrim=0:${DURATION},volume=0.35,afade=t=in:st=0:d=0.4,afade=t=out:st=${(DURATION - 0.8).toFixed(2)}:d=0.8[a]`
-      : `[1:a]anull[a]`;
+    args.push("-loop", "1", "-t", String(DURATION), "-i", cardPng);   // [0]
+    args.push("-i", bed);                                             // [1]
+    args.push("-loop", "1", "-t", String(DURATION), "-i", footerPng); // [2]
     args.push(
       "-filter_complex",
-      `[0:v]noise=alls=3:allf=t,format=yuv420p[v];${audioChain}`,
+      [
+        // Slow push-in: controlled ambient motion so the frame is alive.
+        `[0:v]zoompan=z='min(1.035,1+0.0002*on)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${WIDTH}x${HEIGHT}:fps=${FPS},noise=alls=3:allf=t[bg]`,
+        // Signature appears only for the final ~2s, dimmed.
+        `[2:v]format=rgba,colorchannelmixer=aa=0.7,fade=t=in:st=${footerFadeIn}:d=0.7:alpha=1[foot]`,
+        `[bg][foot]overlay=x=(W-w)/2:y=H*0.86-h[vv]`,
+        `[vv]format=yuv420p[v]`,
+        `[1:a]atrim=0:${DURATION},volume=${bedVolume},afade=t=in:st=0:d=0.6,afade=t=out:st=${(DURATION - 1.0).toFixed(2)}:d=1.0[a]`,
+      ].join(";"),
       "-map", "[v]", "-map", "[a]",
       "-c:v", "libx264", "-preset", "slow", "-crf", "18",
       "-c:a", "aac", "-b:a", "160k",
@@ -195,12 +217,42 @@ export class LocalRenderer implements Renderer {
     if (res.status !== 0) {
       throw new Error(`ffmpeg card failed: ${(res.stderr || res.stdout || "unknown").slice(-500)}`);
     }
+    assertAudible(outPath); // a silent track must never reach the review queue
     this.results.set(providerVideoId, {
       providerVideoId,
       status: "completed",
       videoUrl: `/videos/${providerVideoId}.mp4`,
     });
     return { providerVideoId };
+  }
+
+  /**
+   * Synthesized dark ambient bed: two slowly-beating low sines + lowpassed
+   * brown noise with a gentle tremolo. Placeholder quality — a licensed bed at
+   * assets/bed.mp3 always wins — but it is REAL sound; cards must never ship
+   * silent. Cached per duration.
+   */
+  private ensureSynthBed(duration: number): string {
+    const path = join(this.dirs.tmp, `synth_bed_${duration.toFixed(1)}s.m4a`);
+    if (existsSync(path)) return path;
+    const d = duration.toFixed(2);
+    const res = spawnSync("ffmpeg", [
+      "-y", "-hide_banner", "-loglevel", "error",
+      "-f", "lavfi", "-i", `sine=frequency=52:duration=${d}`,
+      "-f", "lavfi", "-i", `sine=frequency=52.7:duration=${d}`,
+      "-f", "lavfi", "-i", `anoisesrc=colour=brown:duration=${d}:amplitude=0.35:seed=71`,
+      "-filter_complex",
+      [
+        `[2:a]lowpass=f=170,volume=0.55[noise]`,
+        `[0:a][1:a]amix=inputs=2:duration=first,volume=0.6[drone]`,
+        `[drone][noise]amix=inputs=2:duration=first,tremolo=f=0.13:d=0.35,volume=0.5[a]`,
+      ].join(";"),
+      "-map", "[a]", "-c:a", "aac", "-b:a", "128k", path,
+    ], { encoding: "utf8", timeout: 60_000 });
+    if (res.status !== 0 || !existsSync(path)) {
+      throw new Error(`synth bed failed: ${(res.stderr || "unknown").slice(-300)}`);
+    }
+    return path;
   }
 
   async pollUntilDone(providerVideoId: string): Promise<RenderStatus> {
@@ -232,6 +284,28 @@ export class LocalRenderer implements Renderer {
     for (const l of lines) {
       if (!existsSync(join(outDir, `${l.id}.png`))) throw new Error(`caption png missing: ${l.id}`);
     }
+  }
+}
+
+/**
+ * Quality gate: reject outputs whose audio is effectively silent. A silent
+ * track is worse than no track — "audio stream exists" checks pass it while
+ * the platform buries the post. mean_volume below -55 dB over the whole file
+ * means nothing audible was mixed in.
+ */
+export function assertAudible(path: string): void {
+  const res = spawnSync(
+    "ffmpeg",
+    ["-hide_banner", "-i", path, "-af", "volumedetect", "-vn", "-f", "null", "-"],
+    { encoding: "utf8", timeout: 60_000 },
+  );
+  const out = `${res.stderr}\n${res.stdout}`;
+  const m = out.match(/mean_volume:\s*(-?[\d.]+|inf|-inf)\s*dB/i);
+  const mean = m ? Number(m[1].replace(/^-?inf$/i, "-999")) : NaN;
+  if (!Number.isFinite(mean) || mean < -55) {
+    throw new Error(
+      `render produced a silent/near-silent audio track (mean_volume=${m?.[1] ?? "unreadable"} dB) — refusing to queue it`,
+    );
   }
 }
 

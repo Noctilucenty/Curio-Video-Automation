@@ -134,25 +134,28 @@ export function packageUserPrompt(topic: Topic, feedback?: JudgeScores): string 
     ? `\nA previous attempt failed quality review. Problems: ${feedback.problems.join("; ")}. Required fix: ${feedback.fix}. Address every problem — do not repeat them.`
     : "";
   const card = topic.format === "card"
-    ? `\nFormat: STATIC TEXT CARD — a 4-6s full-screen read-a-card short with NO
+    ? `\nFormat: STATIC TEXT CARD — a ~6s full-screen read-a-card short with NO
 narration in the final video. The retention mechanic is pause/screenshot/save:
-the card holds more value than the runtime allows, so every item must be worth
-keeping. caption_lines are the on-card numbered list items: 5-8 items, each
-4-10 words, each a self-contained true insight (no filler items, no vague
-platitudes, nothing unverifiable presented as fact). Specificity is the save
-trigger: prefer NAMED mechanisms (Zeigarnik effect, emotional contagion,
-choice-supportive bias) or vivid concrete phrasing — generic lines every psych
-account posts score low. Exactly one emphasis
-phrase per item, set ONLY via the "emphasis" field (a VERBATIM phrase from
-that item — never leave it empty) — plain text everywhere, NO markdown, no
-asterisks, no numbering inside the text (numbers are added by the renderer).
+the card holds more value than the runtime allows, so every item must TEACH
+something the viewer can trust and keep.
+caption_lines are the on-card numbered list items: EXACTLY 4 or 5 items, each
+scannable in ONE glance — max 10 words. Use the colon pattern: "<Mechanism
+name>: <punchy claim>" (e.g. "Zeigarnik effect: unfinished tasks won't stop
+pinging you"). The NAME is mandatory — it's what makes the card save-worthy
+and hands the reader a rabbit hole to pull. Claims read as tendencies, not
+iron laws ("tends to", "can", "often" where needed) while staying punchy —
+never absolutes like "facts bend first", never vague ominous psych-speak that
+sounds profound but teaches nothing.
+Exactly one emphasis phrase per item, set ONLY via the "emphasis" field: a
+VERBATIM 1-3 word phrase from that item (ideally the mechanism name) — never
+empty, never longer. Plain text everywhere: NO markdown, no asterisks, no
+numbering inside the text (numbers are added by the renderer).
 Item rules: item 1 must NOT restate the title; no CTA and no Curio mention in
-any item (the card footer carries the signature separately).
+any item (the footer signature is rendered separately and appears late).
 title = the card headline, <=8 words, a SHARP tension claim with a concrete
-image — "Your brain signs deals without you" energy, never an abstract summary
-like "Quiet mental defaults". Timing hints are simple sequential estimates
-(not rendered). The script field is a faithful spoken equivalent kept for the
-record only.`
+image — "Your brain signs deals without you" energy, never an abstract summary.
+Timing hints are simple sequential estimates (not rendered). The script field
+is a faithful spoken equivalent kept for the record only.`
     : "";
   return `Topic: ${topic.topic}
 Category: ${topic.category}

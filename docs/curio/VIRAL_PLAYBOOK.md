@@ -59,7 +59,9 @@ this file + the factory rules DB updated. Every rule cites its evidence.
   reference set: 8 Hard Truths 332K/63×; Psychology Facts; 6 Sides) — this is
   also literally Curio's native card format. Curio-own validation pending.
   Nuance vs the rejected "listicle churn": the rejected pattern is 29s NARRATED
-  list slop; the card is silent, denser than its runtime, and premium-typeset.
+  list slop; the card carries an ambient bed, is denser than its runtime, and
+  premium-typeset. PRIORITY (Leon 2026-07-12): cards are the SECONDARY,
+  save-oriented format — atmospheric mystery narrative is Curio's primary bet.
 
 - **Eerie-footage-plus-text is the winning no-avatar format**: static/slow
   cinematic footage with an unsettling quality (abandoned hallway, blood-red
@@ -78,6 +80,13 @@ this file + the factory rules DB updated. Every rule cites its evidence.
 
 ## REJECTED
 
+- **Silent audio tracks** (card v1, 2026-07-12): a muxed-but-empty AAC stream
+  passes naive "audio exists" checks and ships a dead post. Renders now hard-
+  fail below -55 dB mean volume (assertAudible in localRenderer). An audible
+  bed is mandatory on every format, including static cards.
+- **Unnamed mechanism paraphrases** (card v1): items that gesture at psychology
+  without naming the effect sound profound but teach nothing — no trust, no
+  save. Cards must NAME the mechanism or state a checkable finding.
 - **Flat-gradient + bottom-strip captions + naked TTS** (factory local render
   v1, 2026-07-12): subtitle-strip staging over an empty frame with no audio
   design reads unfinished. Text must be the cinematography (big, centered,

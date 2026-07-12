@@ -144,12 +144,22 @@ export async function generatePackage(
   if (topic.format === "card") {
     // Card items are LIST ENTRIES, not narration beats: never split them into
     // fragments — a numbered half-sentence breaks the read-a-card format.
-    // Timing hints are placeholders (the card is a single static frame).
+    // Emphasis must stay 1-3 words or it stops signalling hierarchy: overlong
+    // phrases are trimmed to their tail (a suffix of a contained phrase is
+    // still contained). Max 5 items — density killed card v1's readability.
+    const trimEmphasis = (emphasis: string, text: string): string => {
+      if (!emphasis || !text.toLowerCase().includes(emphasis.toLowerCase())) return "";
+      const words = emphasis.split(/\s+/);
+      if (words.length <= 3) return emphasis;
+      const tail = words.slice(-3).join(" ");
+      return text.toLowerCase().includes(tail.toLowerCase()) ? tail : "";
+    };
     pkg.captionLines = pkg.captionLines
       .filter((l) => l.text.length > 0)
+      .slice(0, 5)
       .map((l, i) => ({
         ...l,
-        emphasis: l.emphasis && l.text.toLowerCase().includes(l.emphasis.toLowerCase()) ? l.emphasis : "",
+        emphasis: trimEmphasis(l.emphasis, l.text),
         startHint: i * 2,
         endHint: i * 2 + 2,
       }));

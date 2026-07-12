@@ -65,3 +65,24 @@ rule_action:       # none | created PROVISIONAL | promoted CONFIRMED | rejected
   music bed)
 - rule_action: REJECTED pattern recorded in playbook; renderer v2 requirements
   derived (text-as-cinematography or eerie footage layer + audio stack).
+
+## EXP-202607-03 — Static card v1 "brain signs contracts" (internal review, unpublished)
+
+- date: 2026-07-12
+- platform: none (Leon review — killed before posting)
+- topic: quiet psychological mechanisms (card format)
+- length_seconds: 5.2
+- opening_frame: full card (title + 7 items + permanent footer)
+- visual_mechanic: static typographic card, grain only
+- audio_style: **SILENT** — aac track existed with no signal (anullsrc fallback)
+- interpretation: Leon's scores — hook 7, typography 7, mobile readability 5,
+  info value 4, audio 0, retention 5, brand fit 7, publish-readiness 3.
+  Root causes: silent bed; 7 items too dense / body type too small; emphasis
+  over-applied; items paraphrased mechanisms without NAMING them (sounded
+  profound, taught nothing); permanent footer read as ad; zero motion.
+- confidence: high
+- rule_action: card spec v2 enforced in code (4-5 named-mechanism items,
+  emphasis 1-3 words, 47pt body, late-fading footer, push-in motion, synth/
+  licensed bed, structural SILENCE GATE on every render). Strategy note:
+  static cards = SECONDARY save-format; atmospheric mystery narrative remains
+  Curio's PRIMARY format bet.

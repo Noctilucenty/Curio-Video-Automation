@@ -126,7 +126,7 @@ if spec.mode == "card" {
   }
 
   // Vertically center the block inside comfortable margins.
-  let contentW = W * 0.82
+  let contentW = W * 0.86
   let measured = body.boundingRect(
     with: NSSize(width: contentW, height: .greatestFiniteMagnitude),
     options: [.usesLineFragmentOrigin, .usesFontLeading]
