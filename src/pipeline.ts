@@ -180,10 +180,22 @@ async function renderVideo(deps: PipelineDeps, video: Video): Promise<Video> {
     video.render.videoUrl = done.videoUrl;
     await repo.updateVideo(video);
 
-    // 3. Captions + cleanup. A post failure leaves the raw render reviewable
-    //    (status still ready_for_review) with the error visible; retry via
-    //    POST /videos/:id/postprocess.
-    await runPostProcess(deps, video);
+    // 3. Captions + cleanup. The local renderer burns curio_premium captions
+    //    itself and a verbatim TTS read has nothing to cut — skip the external
+    //    editor entirely. Otherwise run it; a post failure leaves the raw
+    //    render reviewable with the error visible (retry via
+    //    POST /videos/:id/postprocess).
+    if (renderer.burnsCaptions) {
+      video.post = {
+        provider: "builtin",
+        status: "completed",
+        videoUrl: done.videoUrl,
+        operations: { captions: true, cutFillers: false, cutSilences: false },
+      };
+      await repo.updateVideo(video);
+    } else {
+      await runPostProcess(deps, video);
+    }
     setStatus(video, "ready_for_review");
   } catch (e) {
     video.render.status = "failed";

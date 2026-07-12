@@ -76,6 +76,9 @@ export function createApp(deps: AppDeps): App {
   const publicDir = join(dirname(fileURLToPath(import.meta.url)), "..", "public");
   app.use(express.static(publicDir));
 
+  // Locally rendered MP4s (LocalRenderer writes <dataDir>/videos/*.mp4).
+  app.use("/videos", express.static(join(config.dataDir, "videos")));
+
   // Central error handler: anything async that leaked through becomes a clean 500.
   app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     console.error("[api] unhandled:", err);

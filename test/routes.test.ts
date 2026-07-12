@@ -12,7 +12,7 @@ import type { LearningRule } from "../src/types.js";
 
 function testConfig(adminToken: string | null = null): Config {
   return {
-    port: 0, adminToken, dataDir: "./data",
+    port: 0, adminToken, dataDir: "./data", renderer: "mock" as const,
     openai: { apiKey: null, model: "mock-llm" },
     heygen: { apiKey: null, avatarId: "av", voiceId: "vo" },
     elevenlabs: { apiKey: null, voiceId: "", modelId: "eleven_multilingual_v2" },

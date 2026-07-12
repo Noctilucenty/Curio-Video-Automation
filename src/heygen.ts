@@ -22,7 +22,10 @@ export interface RenderStatus {
 }
 
 export interface Renderer {
-  readonly provider: "heygen" | "mock";
+  readonly provider: "heygen" | "mock" | "local";
+  /** True when the renderer burns curio_premium captions itself — the external
+   * post-process step is skipped entirely for such renders. */
+  readonly burnsCaptions: boolean;
   /** Upload narration audio; returns the provider asset id to render with. */
   uploadAudio(audio: Uint8Array, mimeType: string): Promise<{ assetId: string }>;
   createVideo(req: RenderRequest): Promise<{ providerVideoId: string }>;
@@ -36,6 +39,7 @@ const MAX_ATTEMPTS = 3;
 
 export class HeyGenRenderer implements Renderer {
   readonly provider = "heygen" as const;
+  readonly burnsCaptions = false;
   constructor(private apiKey: string) {}
 
   async uploadAudio(audio: Uint8Array, mimeType: string): Promise<{ assetId: string }> {
@@ -148,6 +152,7 @@ export class HeyGenRenderer implements Renderer {
 /** Instant fake renders for dev/tests; URL is deterministic per id. */
 export class MockRenderer implements Renderer {
   readonly provider = "mock" as const;
+  readonly burnsCaptions = false;
   private seq = 0;
   private assetSeq = 0;
   /** Remembers the last request so tests can assert the audio was wired in. */

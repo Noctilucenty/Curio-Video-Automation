@@ -5,6 +5,8 @@ export interface Config {
   port: number;
   adminToken: string | null;
   dataDir: string;
+  /** "local" = no-avatar dark-editorial renderer (default); "heygen" = avatar. */
+  renderer: "local" | "heygen" | "mock";
   openai: { apiKey: string | null; model: string };
   heygen: { apiKey: string | null; avatarId: string; voiceId: string };
   elevenlabs: { apiKey: string | null; voiceId: string; modelId: string };
@@ -12,10 +14,12 @@ export interface Config {
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
+  const renderer = env.RENDERER?.trim().toLowerCase();
   return {
     port: Number(env.PORT) || 8790,
     adminToken: env.ADMIN_TOKEN?.trim() || null,
     dataDir: env.DATA_DIR?.trim() || "./data",
+    renderer: renderer === "heygen" || renderer === "mock" ? renderer : "local",
     openai: {
       apiKey: env.OPENAI_API_KEY?.trim() || null,
       // Hard rule from the launch brief: Curio content defaults to gpt-5-mini

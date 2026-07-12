@@ -72,7 +72,7 @@ export interface JudgeScores {
 }
 
 export interface RenderInfo {
-  provider: "heygen" | "mock";
+  provider: "heygen" | "mock" | "local";
   status: "not_started" | "rendering" | "completed" | "failed";
   providerVideoId?: string;
   videoUrl?: string;
@@ -89,9 +89,11 @@ export interface AudioInfo {
   error?: string;
 }
 
-/** Captions.ai step: burned captions + filler-word and silence cuts. */
+/** Post step: burned captions (+ cuts when an external editor is used).
+ * "builtin" = the local renderer burned captions itself; nothing to cut
+ * because a verbatim TTS read has no fillers or dead silences. */
 export interface PostInfo {
-  provider: "captions_ai" | "mock";
+  provider: "captions_ai" | "mock" | "builtin";
   status: "not_started" | "processing" | "completed" | "failed";
   /** Final deliverable URL (captioned + cleaned). Publish THIS, not render.videoUrl. */
   videoUrl?: string;
