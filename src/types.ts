@@ -41,6 +41,13 @@ export interface CaptionLine {
 }
 
 /** The full structured package OpenAI produces per video — never just "captions". */
+/** The ONE viewer action a video is designed to produce. Optimizing for all
+ * of them at once stacks tactics until the video feels manipulative, dense,
+ * and confusing — Leon's doctrine (2026-07-12): low cognitive load, one
+ * primary outcome, at most one secondary. Curio default: retention primary,
+ * shares secondary. */
+export type ViewerOutcome = "retention" | "shares" | "saves" | "comments" | "likes";
+
 export interface VideoPackage {
   topic: string;
   category: string;
@@ -57,6 +64,14 @@ export interface VideoPackage {
   hashtags: string[];
   cta: string;
   estimatedLengthSeconds: number;
+  /** Optional only for packages stored before 2026-07-12 — the generator
+   * schema requires all three on every new package. */
+  primaryOutcome?: ViewerOutcome;
+  secondaryOutcome?: ViewerOutcome;
+  /** The exact beat/line engineered to produce the primary outcome — a
+   * concrete moment ("the reveal at ~11s: 'The horizon is lying'"), never a
+   * vague claim like "this creates curiosity". */
+  outcomeMoment?: string;
 }
 
 export interface JudgeScores {
@@ -68,6 +83,10 @@ export interface JudgeScores {
   viralPotential: number;
   factualSafety: number;
   overallScore: number;
+  /** The judge's verification of the one-outcome design: names the intended
+   * primary outcome and the exact moment that produces it (or what's missing).
+   * Optional only for scores stored before 2026-07-12. */
+  outcomeCheck?: string;
   problems: string[];
   fix: string;
   pass: boolean;

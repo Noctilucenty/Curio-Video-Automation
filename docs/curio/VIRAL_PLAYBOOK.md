@@ -4,6 +4,29 @@ Rules live in three states. Promotion discipline (from CLAUDE.md): observation �
 metric → comparison vs prior evidence → CONFIRMED / PROVISIONAL / REJECTED →
 this file + the factory rules DB updated. Every rule cites its evidence.
 
+## Design frame: one primary outcome (Leon, 2026-07-12)
+
+Every video is designed for **low cognitive load and one primary behavioral
+outcome** — retention, shares, saves, comments, or likes — plus at most one
+secondary. Stacking tactics for every outcome at once makes a video feel
+manipulative, dense, and confusing. Think in **viewer mechanisms**, not
+"psychology effects": first-frame comprehension → curiosity → evidence →
+payoff → natural response.
+
+- Curio default: **retention primary, shares secondary**.
+- saves primary only for genuinely useful reference content.
+- comments must come from real ambiguity or participation, never "What do you
+  think?" bait.
+- likes alone are never proof of retention (Boat v1: 6.3% likes, 59% skip).
+- Banned regardless of outcome: fake controversy, unsupported psychology
+  claims, anxiety bait, gender stereotypes, manufactured disagreement,
+  loss-aversion CTAs.
+- Enforced structurally: package schema requires `primary_outcome` /
+  `secondary_outcome` / `outcome_moment`; the judge must name the exact beat
+  that produces the outcome and rejects vague mechanism claims.
+- Published analytics — not theory or judge scores — decide whether the
+  mechanism worked.
+
 ## CONFIRMED (multiple independent results, incl. Curio's own)
 
 **From Curio's OWN posted results** (2026-07-12 four-post analysis — the

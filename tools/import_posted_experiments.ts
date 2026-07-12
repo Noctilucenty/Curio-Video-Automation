@@ -122,6 +122,11 @@ async function main() {
         hashtags: ["#curio", "#mystery", "#psychology"],
         cta: exp.creative.cta,
         estimatedLengthSeconds: exp.creative.durationSeconds,
+        // All four posted experiments were retention-first mystery designs
+        // (that's what the ledger evaluates them against).
+        primaryOutcome: "retention",
+        secondaryOutcome: "shares",
+        outcomeMoment: `[reconstructed] the reveal: ${exp.creative.reveal}`,
       },
       render: { provider: "mock", status: "completed", videoUrl: exp.sourceFile },
       post: { provider: "captions_ai", status: "completed", videoUrl: exp.sourceFile },

@@ -26,6 +26,23 @@ describe("package schema validation", () => {
     expect(issues.join("; ")).toContain("need >=3 caption_lines");
     expect(issues.length).toBeGreaterThan(5);
   });
+
+  it("enforces the one-outcome doctrine structurally", () => {
+    const good = mockGenerate({ system: "", user: "Topic: x\nCategory: c\nPlatform: tiktok\nTarget length: 28s", schemaName: "s", schema: {}, purpose: "package" }) as any;
+    // missing primary outcome
+    expect(validateRawPackage({ ...good, primary_outcome: undefined }).join("; ")).toContain("primary_outcome");
+    // outcome must be from the enum
+    expect(validateRawPackage({ ...good, primary_outcome: "virality" }).join("; ")).toContain("primary_outcome");
+    // secondary must differ from primary — one outcome means one
+    expect(validateRawPackage({ ...good, secondary_outcome: good.primary_outcome }).join("; "))
+      .toContain("secondary_outcome must differ");
+    // an absent/trivially short mechanism moment is invalid in code
+    // (semantic vagueness like "creates curiosity" is the judge's rejection)
+    expect(validateRawPackage({ ...good, outcome_moment: "curiosity" }).join("; "))
+      .toContain("outcome_moment");
+    // secondary is optional (null) — a single-outcome design is valid
+    expect(validateRawPackage({ ...good, secondary_outcome: null })).toEqual([]);
+  });
 });
 
 describe("generatePackage", () => {

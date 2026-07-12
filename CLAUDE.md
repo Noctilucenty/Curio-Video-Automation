@@ -40,6 +40,18 @@ Separate observations, hypotheses, confirmed rules, rejected rules — always.
 - FORMATS: static cards are FROZEN (Leon 2026-07-12) — the API refuses card
   topics/generation (403) until CARDS_FROZEN=0. Primary bet: atmospheric
   survival mystery narrative (docs/curio/NEXT_EXPERIMENTS.md).
+- ONE-OUTCOME DOCTRINE (Leon 2026-07-12): every video is designed for low
+  cognitive load and ONE primary viewer outcome (retention | shares | saves |
+  comments | likes) + at most one secondary — never all at once; stacked
+  tactics read as manipulative and dense. Curio default: retention primary,
+  shares secondary. Think in viewer mechanisms (first-frame comprehension →
+  curiosity → evidence → payoff → natural response), not "psychology effects";
+  a mechanism must serve the subject naturally, never a forced bias checklist.
+  Structural: the package schema requires primary_outcome/secondary_outcome/
+  outcome_moment, and the judge must name the exact beat producing the outcome
+  (vague "creates curiosity" claims are rejected). Published analytics — not
+  theory or judge scores — decide whether the mechanism worked. Full text:
+  ONE_OUTCOME_DOCTRINE in src/prompts.ts.
 - Factual accuracy over drama: no invented stats, no AI-slop psychology claims,
   no fake mysteries presented as verified fact.
 - Category diversity: don't let generation collapse onto easy psychology/mystery

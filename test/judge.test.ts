@@ -49,6 +49,9 @@ const pkg = (over: Partial<VideoPackage> = {}): VideoPackage => ({
   hashtags: ["#psychology", "#brain", "#curio"],
   cta: "Curio turns scrolling into things worth remembering.",
   estimatedLengthSeconds: 28,
+  primaryOutcome: "retention",
+  secondaryOutcome: "shares",
+  outcomeMoment: `the reframe beat: "Because survival trained it that way." recasts the opening line`,
   ...over,
 });
 
@@ -71,6 +74,18 @@ describe("mock judge rubric (offline judge behaves like the real one)", () => {
     const { scores } = await judgePackage(llm, pkg());
     expect(scores.pass).toBe(true);
     expect(scores.problems).toEqual([]);
+    // the judge names the intended outcome and the concrete moment
+    expect(scores.outcomeCheck).toContain("retention");
+    expect(scores.outcomeCheck).toContain("survival trained it");
+  });
+
+  it("flags a package with no declared outcome moment (one-outcome doctrine)", async () => {
+    const { scores } = await judgePackage(
+      llm,
+      pkg({ primaryOutcome: undefined, secondaryOutcome: undefined, outcomeMoment: undefined }),
+    );
+    expect(scores.problems.join("; ")).toContain("outcome");
+    expect(scores.outcomeCheck).toContain("cannot verify");
   });
 
   it("fails brand_fit on banned phrases and reports the problem", async () => {

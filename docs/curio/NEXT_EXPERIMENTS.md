@@ -19,6 +19,15 @@ bed at −16 LUFS (the render gate enforces it).
 Every experiment must be captured per docs/curio/ANALYTICS_CAPTURE_TEMPLATE.md
 (IG and FB views SEPARATED — non-negotiable).
 
+**One-outcome declaration (Leon 2026-07-12, applies to every experiment
+below):** primary outcome = **retention**, secondary = **shares**
+(send-to-someone on the survival stakes). The outcome moment for each REP is
+its named-explanation beat at ~70–80% — the delayed payoff the whole open loop
+exists for. Do NOT bolt on save bait, comment bait, or extra tactics: comments
+may emerge from the residual mystery on their own, and that's the only
+acceptable source. Success is judged against the declared outcome (skip rate /
+avg watch), not against likes.
+
 ---
 
 ## REP-1 — Paradoxical undressing (hypothermia)

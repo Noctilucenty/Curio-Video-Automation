@@ -20,7 +20,8 @@ export const JUDGE_SCHEMA = {
   additionalProperties: false,
   required: [
     "hook_score", "retention_score", "clarity_score", "caption_readability",
-    "brand_fit", "viral_potential", "factual_safety", "overall_score", "problems", "fix",
+    "brand_fit", "viral_potential", "factual_safety", "overall_score",
+    "outcome_check", "problems", "fix",
   ],
   properties: {
     hook_score: { type: "integer", minimum: 0, maximum: 10 },
@@ -31,6 +32,9 @@ export const JUDGE_SCHEMA = {
     viral_potential: { type: "integer", minimum: 0, maximum: 10 },
     factual_safety: { type: "integer", minimum: 0, maximum: 10 },
     overall_score: { type: "integer", minimum: 0, maximum: 10 },
+    // One-outcome verification: name the intended primary outcome and the
+    // EXACT moment engineered to produce it. Vague mechanism claims fail.
+    outcome_check: { type: "string" },
     problems: { type: "array", items: { type: "string" } },
     fix: { type: "string" },
   },
@@ -94,6 +98,7 @@ final video; the script field is unused). Judge accordingly:
     viralPotential: int(raw.viral_potential),
     factualSafety: int(raw.factual_safety),
     overallScore: int(raw.overall_score),
+    outcomeCheck: String(raw.outcome_check ?? ""),
     problems: Array.isArray(raw.problems) ? raw.problems.map(String) : [],
     fix: String(raw.fix ?? ""),
   };
@@ -116,6 +121,10 @@ function wireFormat(pkg: VideoPackage) {
     hashtags: pkg.hashtags,
     cta: pkg.cta,
     estimated_length_seconds: pkg.estimatedLengthSeconds,
+    // The generator's design claim, for the judge to verify against the script.
+    primary_outcome: pkg.primaryOutcome ?? null,
+    secondary_outcome: pkg.secondaryOutcome ?? null,
+    outcome_moment: pkg.outcomeMoment ?? null,
   };
 }
 

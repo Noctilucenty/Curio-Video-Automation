@@ -9,11 +9,11 @@
 import type { JudgeScores, LearningRule, Topic } from "./types.js";
 
 export const PROMPT_VERSIONS = {
-  package: "pkg_v4_retention_engineer",
-  judge: "judge_v4_calibrated",
+  package: "pkg_v5_one_outcome",
+  judge: "judge_v5_outcome_check",
   factcheck: "factcheck_v2_overclaims_block",
   learning: "learn_v2_compounding",
-  ingest: "ingest_v1",
+  ingest: "ingest_v2_surface",
 } as const;
 
 // The non-negotiable operating frame for every content decision: platforms
@@ -103,6 +103,36 @@ Include audio notes in scene_direction: low sub-bass drone bed, subtle ticking,
 near-dead silence right before the final line, one deep clean boom on the Curio
 signature. Mute the voiceover during any staring/tension hold.`;
 
+// Leon's design doctrine (2026-07-12): reduce cognitive load and design for
+// ONE clear viewer action. Stacking tactics makes a video feel manipulative,
+// dense, and confusing. Think in VIEWER MECHANISMS, not "psychology effects":
+// first-frame comprehension → curiosity → evidence → payoff → natural response.
+export const ONE_OUTCOME_DOCTRINE = `DESIGN DOCTRINE — low cognitive load, one primary behavioral outcome:
+- The premise must be understandable within 1-2 seconds, including with sound off.
+- Show the concrete subject or anomaly immediately; never make viewers decode vague setup.
+- One idea per beat; short, plain-language captions.
+- Every visual change must clarify the story, provide evidence, or escalate tension.
+- Create ONE open loop, then deliver a satisfying payoff.
+- BEFORE writing, select the one primary outcome (set primary_outcome):
+  - retention: immediate anomaly, escalating evidence, delayed explanation, loopable ending.
+  - shares: emotionally specific recognition, or surprising information relevant to another person.
+  - saves: genuinely useful, accurate information worth returning to.
+  - comments: an honest unresolved question, interpretation, prediction, or personal comparison.
+  - likes: strong emotional or aesthetic resonance — but likes alone are never proof of retention.
+- At most ONE secondary outcome (secondary_outcome, or null). Never optimize
+  simultaneously for retention, shares, saves, likes, and comments.
+- Curio default: retention primary, shares secondary. saves is primary only for
+  genuinely useful reference content. comments must emerge from real ambiguity or
+  participation — never generic "What do you think?" bait.
+- outcome_moment: name the EXACT beat/line engineered to produce the primary
+  outcome (e.g. 'the reveal at ~11s: "The horizon is lying"'). Vague claims like
+  "this creates curiosity" are invalid.
+- Never use fake controversy, unsupported psychology claims, anxiety bait, gender
+  stereotypes, manufactured disagreement, or manipulative loss-aversion CTAs.
+- Any viewer mechanism must serve the subject naturally; never force a checklist
+  of tactics into the video.
+- Published analytics — not theory or judge scores — decide whether the mechanism worked.`;
+
 export interface PromptPattern {
   pattern: string;
   guidance: string;
@@ -120,10 +150,11 @@ export function packageSystemPrompt(rules: LearningRule[], patterns: PromptPatte
         .map((p) => `- ${p.pattern}: ${p.guidance}`)
         .join("\n")}`
     : "";
-  return `${OPERATING_MINDSET}\n\n${BRAND_VOICE}\n\n${CAPTION_RULES}\n\n${STRUCTURE}${learned}${trends}\n
+  return `${OPERATING_MINDSET}\n\n${ONE_OUTCOME_DOCTRINE}\n\n${BRAND_VOICE}\n\n${CAPTION_RULES}\n\n${STRUCTURE}${learned}${trends}\n
 Produce the FULL video package as JSON matching the provided schema: 5 hook options,
 the selected best hook, spoken script, scene direction (visual + audio), avatar tone,
-timed caption lines, title, thumbnail text, platform post caption, hashtags, and CTA.
+timed caption lines, title, thumbnail text, platform post caption, hashtags, CTA,
+and the one-outcome fields (primary_outcome, secondary_outcome, outcome_moment).
 The script is what the avatar SPEAKS — write for the ear. Captions are what the
 viewer READS — shorter beats derived from the script, not a transcript dump.
 The post caption should run emotional-first (make them recognize themselves),
@@ -180,6 +211,8 @@ caption_readability, brand_fit, viral_potential, factual_safety, overall_score.
 
 ${OPERATING_MINDSET}
 
+${ONE_OUTCOME_DOCTRINE}
+
 ${BRAND_VOICE}
 
 Scoring guidance — score the way the platform's retention model would:
@@ -196,6 +229,15 @@ Scoring guidance — score the way the platform's retention model would:
   save-worthiness, loop-back ending for rewatch. No trigger = <=6.
 - factual_safety: claims defensible, no invented stats, no medical/financial advice,
   no fake mystery presented as verified fact.
+
+OUTCOME CHECK (outcome_check field, mandatory): identify the package's intended
+primary outcome and name the EXACT moment in the script/captions that produces
+it — quote the line and give its approximate timestamp. Verify it matches the
+package's declared primary_outcome/outcome_moment. REJECT vague mechanism
+claims such as "this creates curiosity" or "viewers will be intrigued": if you
+cannot point to the specific beat, say so in outcome_check, list it as a
+problem, and cap viral_potential at 6. A package stacking tactics for many
+outcomes at once (dense, manipulative feel) is a retention_score problem too.
 List concrete problems and ONE prioritized fix instruction for the rewrite loop.${cal}`;
 }
 

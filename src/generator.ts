@@ -15,6 +15,7 @@ export const PACKAGE_SCHEMA = {
     "topic", "category", "target_platform", "hook_options", "selected_hook", "script",
     "scene_direction", "avatar_tone", "caption_lines", "title", "thumbnail_text",
     "post_caption", "hashtags", "cta", "estimated_length_seconds",
+    "primary_outcome", "secondary_outcome", "outcome_moment",
   ],
   properties: {
     topic: { type: "string" },
@@ -48,8 +49,15 @@ export const PACKAGE_SCHEMA = {
     hashtags: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 8 },
     cta: { type: "string" },
     estimated_length_seconds: { type: "number" },
+    // One-outcome doctrine: the video is designed for ONE primary viewer
+    // action (+ at most one secondary), never all of them at once.
+    primary_outcome: { type: "string", enum: ["retention", "shares", "saves", "comments", "likes"] },
+    secondary_outcome: { type: ["string", "null"], enum: ["retention", "shares", "saves", "comments", "likes", null] },
+    outcome_moment: { type: "string" },
   },
 } as const;
+
+export const VIEWER_OUTCOMES = ["retention", "shares", "saves", "comments", "likes"] as const;
 
 export class PackageValidationError extends Error {
   constructor(public issues: string[]) {
@@ -75,6 +83,18 @@ export function validateRawPackage(raw: any): string[] {
     });
   }
   if (typeof raw?.estimated_length_seconds !== "number") issues.push("missing estimated_length_seconds");
+  // One-outcome doctrine: exactly one primary, at most one secondary, and the
+  // moment that produces it must be named concretely.
+  if (!VIEWER_OUTCOMES.includes(raw?.primary_outcome)) issues.push("missing/bad primary_outcome");
+  if (raw?.secondary_outcome != null && !VIEWER_OUTCOMES.includes(raw.secondary_outcome)) {
+    issues.push("bad secondary_outcome");
+  }
+  if (raw?.secondary_outcome != null && raw.secondary_outcome === raw?.primary_outcome) {
+    issues.push("secondary_outcome must differ from primary_outcome");
+  }
+  if (typeof raw?.outcome_moment !== "string" || raw.outcome_moment.trim().length < 15) {
+    issues.push("outcome_moment must name the exact beat that produces the primary outcome");
+  }
   return issues;
 }
 
@@ -103,6 +123,9 @@ function toDomain(raw: any): VideoPackage {
     hashtags: raw.hashtags.map(String),
     cta: raw.cta,
     estimatedLengthSeconds: raw.estimated_length_seconds,
+    primaryOutcome: raw.primary_outcome,
+    secondaryOutcome: raw.secondary_outcome ?? undefined,
+    outcomeMoment: raw.outcome_moment,
   };
 }
 
