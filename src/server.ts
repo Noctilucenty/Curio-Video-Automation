@@ -1,5 +1,9 @@
 // Entry point: real config, JSON-file persistence, seed rules, listen.
 
+// Load .env before anything reads process.env (native Node 21+, no dependency;
+// silently skipped when no .env exists — e.g. fresh clones stay in mock mode).
+try { process.loadEnvFile(); } catch { /* no .env — mock mode */ }
+
 import { loadConfig } from "./config.js";
 import { JsonFileRepo } from "./repository.js";
 import { makeLlmClient } from "./llm.js";
