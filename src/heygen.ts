@@ -12,6 +12,8 @@ export interface RenderRequest {
   voiceId: string;
   /** HeyGen asset id of the ElevenLabs narration; when set, the avatar speaks this audio. */
   audioAssetId?: string;
+  /** "card" = 4-6s static read-a-card short (no narration); default "narrated". */
+  format?: "narrated" | "card";
 }
 
 export interface RenderStatus {

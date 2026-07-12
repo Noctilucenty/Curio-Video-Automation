@@ -134,12 +134,36 @@ export async function generatePackage(
   if (issues.length) throw new PackageValidationError(issues);
 
   const pkg = toDomain(raw);
-  // Repair caption drift (overlong lines, broken timing) instead of failing;
-  // anything the normalizer can't fix is a hard error.
-  pkg.captionLines = normalizeCaptions(pkg.captionLines);
-  const remaining = validateCaptions(pkg.captionLines);
-  if (remaining.length) {
-    throw new PackageValidationError(remaining.map((r) => `caption[${r.index}]: ${r.problem}`));
+  // Models sometimes wrap emphasis in markdown — captions are rendered as
+  // literal glyphs, so strip markers everywhere and rely on the emphasis field.
+  const stripMd = (s: string) => s.replace(/\*\*|__|\*/g, "").replace(/\s+/g, " ").trim();
+  pkg.title = stripMd(pkg.title);
+  pkg.selectedHook = stripMd(pkg.selectedHook);
+  pkg.captionLines = pkg.captionLines.map((l) => ({ ...l, text: stripMd(l.text), emphasis: stripMd(l.emphasis) }));
+
+  if (topic.format === "card") {
+    // Card items are LIST ENTRIES, not narration beats: never split them into
+    // fragments — a numbered half-sentence breaks the read-a-card format.
+    // Timing hints are placeholders (the card is a single static frame).
+    pkg.captionLines = pkg.captionLines
+      .filter((l) => l.text.length > 0)
+      .map((l, i) => ({
+        ...l,
+        emphasis: l.emphasis && l.text.toLowerCase().includes(l.emphasis.toLowerCase()) ? l.emphasis : "",
+        startHint: i * 2,
+        endHint: i * 2 + 2,
+      }));
+    if (pkg.captionLines.length < 3) {
+      throw new PackageValidationError(["card needs >=3 list items"]);
+    }
+  } else {
+    // Repair caption drift (overlong lines, broken timing) instead of failing;
+    // anything the normalizer can't fix is a hard error.
+    pkg.captionLines = normalizeCaptions(pkg.captionLines);
+    const remaining = validateCaptions(pkg.captionLines);
+    if (remaining.length) {
+      throw new PackageValidationError(remaining.map((r) => `caption[${r.index}]: ${r.problem}`));
+    }
   }
   return {
     pkg,

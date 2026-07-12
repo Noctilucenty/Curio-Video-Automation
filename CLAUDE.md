@@ -19,7 +19,9 @@ after Curio's own posted results (or ≥2 independent outliers) support them.
 Separate observations, hypotheses, confirmed rules, rejected rules — always.
 
 ## Hard rules
-- Model: gpt-5-mini (or newest approved) — never silently downgrade. Config in `.env`.
+- Model: full-strength GPT-5 line (gpt-5.1 or newer) — Leon's call 2026-07-12:
+  best quality over cost for the video factory. Never downgrade to mini/nano.
+  (The main curio app's card engine keeps its own model rule.) Config in `.env`.
 - Factual accuracy over drama: no invented stats, no AI-slop psychology claims,
   no fake mysteries presented as verified fact.
 - Category diversity: don't let generation collapse onto easy psychology/mystery

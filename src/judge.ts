@@ -57,10 +57,22 @@ export async function judgePackage(
   llm: LlmClient,
   pkg: VideoPackage,
   calibration: LearningRule[] = [],
+  format: "narrated" | "card" = "narrated",
 ): Promise<JudgeResult> {
   const system = judgeSystemPrompt(calibration);
-  // The judge sees the wire-format package (what a fresh reviewer would see).
-  const user = `Score this Curio video package.\n\nJSON package:\n${JSON.stringify(wireFormat(pkg), null, 2)}`;
+  // Cards are judged as CARDS: without this, the judge fails static cards
+  // against narration criteria (pacing, loop endings, spoken delivery).
+  const cardNote = format === "card"
+    ? `\nFORMAT: STATIC READ-A-CARD SHORT (4-6s single frame, NO narration in the
+final video; the script field is unused). Judge accordingly:
+- hook_score = does the TITLE alone stop the scroll;
+- retention_score = does the item ORDERING keep pulling the eye down the list;
+- viral_potential = save/screenshot/send-worthiness — specificity wins: named
+  mechanisms and vivid phrasing beat generic psych-account lines;
+- caption_readability = list items scannable in one glance each;
+- IGNORE narration pacing, loop-back endings, spoken delivery, and script quality.`
+    : "";
+  const user = `Score this Curio ${format} package.${cardNote}\n\nJSON package:\n${JSON.stringify(wireFormat(pkg), null, 2)}`;
   const raw: any = await llm.generateJson({
     system,
     user,

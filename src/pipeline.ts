@@ -36,7 +36,11 @@ function trendPatterns(deps: PipelineDeps) {
   return deps.intelligenceDir ? loadApprovedPatterns(deps.intelligenceDir) : [];
 }
 
-export async function createDraftVideo(repo: Repo, topicId?: string): Promise<Video> {
+export async function createDraftVideo(
+  repo: Repo,
+  topicId?: string,
+  format: "narrated" | "card" = "narrated",
+): Promise<Video> {
   const now = Date.now();
   return repo.createVideo({
     id: makeId("vid"),
@@ -44,6 +48,7 @@ export async function createDraftVideo(repo: Repo, topicId?: string): Promise<Vi
     status: "draft",
     attempts: 0,
     generationIds: [],
+    format,
     render: { provider: "mock", status: "not_started" },
     createdAt: now,
     updatedAt: now,
@@ -86,7 +91,7 @@ export async function runGenerationPipeline(deps: PipelineDeps, videoId: string)
       return repo.updateVideo(video);
     }
 
-    const judged = await judgePackage(llm, video.pkg!, calibrationRules);
+    const judged = await judgePackage(llm, video.pkg!, calibrationRules, video.format ?? "narrated");
     video.judge = judged.scores;
     await recordGeneration(repo, video, "judge", judged.promptVersion, llm.model, judged.input, judged.rawOutput);
 
@@ -118,7 +123,7 @@ export async function finalizeManualEdit(deps: PipelineDeps, videoId: string): P
   const video = await repo.getVideo(videoId);
   if (!video?.pkg) throw new Error(`video ${videoId} has no package to finalize`);
   const calibrationRules = (await repo.listRules(true)).filter((r) => r.category === "calibration");
-  const judged = await judgePackage(llm, video.pkg, calibrationRules);
+  const judged = await judgePackage(llm, video.pkg, calibrationRules, video.format ?? "narrated");
   video.judge = judged.scores;
   await recordGeneration(repo, video, "judge", judged.promptVersion, llm.model, judged.input, judged.rawOutput);
   await repo.updateVideo(video);
@@ -132,8 +137,8 @@ export async function finalizeManualEdit(deps: PipelineDeps, videoId: string): P
  */
 async function renderVideo(deps: PipelineDeps, video: Video): Promise<Video> {
   const { repo, renderer, voice } = deps;
-  // Fail fast with an actionable message instead of a cryptic provider error:
-  // a live HeyGen renderer without an avatar can never produce a video.
+  const format = video.format ?? "narrated";
+  // Fail fast with actionable messages instead of cryptic provider errors.
   if (renderer.provider === "heygen" && !deps.avatarId) {
     video.render = {
       provider: renderer.provider,
@@ -144,6 +149,56 @@ async function renderVideo(deps: PipelineDeps, video: Video): Promise<Video> {
     setStatus(video, "failed");
     return repo.updateVideo(video);
   }
+  if (format === "card" && renderer.provider === "heygen") {
+    video.render = {
+      provider: renderer.provider,
+      status: "failed",
+      error: "card format requires the local renderer (RENDERER=local) — HeyGen only renders avatars",
+    };
+    video.error = video.render.error;
+    setStatus(video, "failed");
+    return repo.updateVideo(video);
+  }
+
+  // Static cards have no narration: skip voice synthesis entirely.
+  if (format === "card") {
+    video.render = { provider: renderer.provider, status: "rendering" };
+    await repo.updateVideo(video);
+    try {
+      const { providerVideoId } = await renderer.createVideo({
+        pkg: video.pkg!,
+        avatarId: deps.avatarId,
+        voiceId: deps.voiceId,
+        format: "card",
+      });
+      video.render.providerVideoId = providerVideoId;
+      await repo.updateVideo(video);
+      const done = await renderer.pollUntilDone(providerVideoId);
+      if (done.status !== "completed") {
+        video.render.status = "failed";
+        video.render.error = done.error;
+        video.error = `card render failed: ${done.error}`;
+        setStatus(video, "failed");
+        return repo.updateVideo(video);
+      }
+      video.render.status = "completed";
+      video.render.videoUrl = done.videoUrl;
+      video.post = {
+        provider: "builtin",
+        status: "completed",
+        videoUrl: done.videoUrl,
+        operations: { captions: true, cutFillers: false, cutSilences: false },
+      };
+      setStatus(video, "ready_for_review");
+    } catch (e) {
+      video.render.status = "failed";
+      video.render.error = e instanceof Error ? e.message : String(e);
+      video.error = `card render failed: ${video.render.error}`;
+      setStatus(video, "failed");
+    }
+    return repo.updateVideo(video);
+  }
+
   video.render = { provider: renderer.provider, status: "rendering" };
   video.audio = { provider: voice.provider, status: "not_started" };
   await repo.updateVideo(video);

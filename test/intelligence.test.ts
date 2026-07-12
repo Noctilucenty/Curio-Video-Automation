@@ -42,12 +42,18 @@ describe("approved-pattern loading (evidence discipline is structural)", () => {
     expect(loadApprovedPatterns(dir)).toEqual([]);
   });
 
-  it("real committed approved-patterns.json parses and starts empty (nothing auto-promotes)", () => {
+  it("every committed approved pattern carries evidence and loads cleanly", () => {
     const committed = JSON.parse(
       readFileSync(join(__dirname, "..", "data", "viral-intelligence", "approved-patterns.json"), "utf8"),
     );
     expect(Array.isArray(committed.patterns)).toBe(true);
-    expect(committed.patterns).toHaveLength(0);
+    for (const p of committed.patterns) {
+      expect(p.evidence.length, `${p.id} must cite evidence`).toBeGreaterThan(0);
+      expect(p.promotedAt).toBeTruthy();
+    }
+    // and the loader accepts the committed file as-is
+    const loaded = loadApprovedPatterns(join(__dirname, "..", "data", "viral-intelligence"));
+    expect(loaded.length).toBe(committed.patterns.length);
   });
 
   it("real committed trend snapshots validate against the schema rules", () => {

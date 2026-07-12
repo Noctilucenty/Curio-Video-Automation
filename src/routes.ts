@@ -55,6 +55,7 @@ export function buildRoutes(deps: RouteDeps): Router {
       targetLengthSeconds: clampLength(Number(b.target_length_seconds) || 15),
       language: String(b.language ?? "en").trim(),
       sourceRef: b.source_ref ? String(b.source_ref) : undefined,
+      format: b.format === "card" ? "card" as const : "narrated" as const,
       status: "queued",
       createdAt: Date.now(),
     };
@@ -92,6 +93,7 @@ export function buildRoutes(deps: RouteDeps): Router {
         targetLengthSeconds: clampLength(Number(b.target_length_seconds) || 15),
         language: String(b.language ?? "en").trim(),
         sourceRef: b.source_ref ? String(b.source_ref) : undefined,
+        format: b.format === "card" ? "card" as const : "narrated" as const,
         status: "queued",
         createdAt: Date.now(),
       };
@@ -101,7 +103,7 @@ export function buildRoutes(deps: RouteDeps): Router {
       return;
     }
 
-    const video = await createDraftVideo(repo, topic.id);
+    const video = await createDraftVideo(repo, topic.id, topic.format ?? "narrated");
     const job = queue.enqueue("generate", { videoId: video.id });
     res.status(202).json({ video_id: video.id, job_id: job.id, status: video.status });
   });
@@ -411,7 +413,7 @@ function topicWire(t: Topic) {
   return {
     id: t.id, topic: t.topic, category: t.category, target_platform: t.targetPlatform,
     tone: t.tone, target_length_seconds: t.targetLengthSeconds, language: t.language,
-    source_ref: t.sourceRef ?? null, status: t.status, created_at: t.createdAt,
+    source_ref: t.sourceRef ?? null, format: t.format ?? "narrated", status: t.status, created_at: t.createdAt,
   };
 }
 
@@ -419,6 +421,7 @@ function videoWire(v: Video) {
   return {
     id: v.id,
     topic_id: v.topicId ?? null,
+    format: v.format ?? "narrated",
     status: v.status,
     attempts: v.attempts,
     error: v.error ?? null,

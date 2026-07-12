@@ -24,6 +24,8 @@ export interface Topic {
   language: string;
   /** Optional Curio card / source reference. */
   sourceRef?: string;
+  /** "card" = 4-6s static read-a-card short; default "narrated". */
+  format?: "narrated" | "card";
   status: "queued" | "used" | "archived";
   createdAt: number;
 }
@@ -113,6 +115,8 @@ export interface Video {
   /** Active generator rule ids at package-generation time — the cohort key for
    * "did this rule actually improve performance?" in later learning runs. */
   appliedRuleIds?: string[];
+  /** Copied from the topic at draft time; decides the render path. */
+  format?: "narrated" | "card";
   render: RenderInfo;
   audio?: AudioInfo;
   post?: PostInfo;

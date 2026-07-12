@@ -1,4 +1,17 @@
 {
   "_discipline": "Patterns land here ONLY after Curio's own analytics (or >=2 independent outliers + review) support them. Each needs id, pattern, guidance, evidence[], promotedAt. Loaded into every generation prompt.",
-  "patterns": []
+  "patterns": [
+    {
+      "id": "pat-static-text-card",
+      "pattern": "static read-a-card short (4-6s)",
+      "guidance": "Full-screen title + 5-8 numbered list items; video shorter than read time so viewers pause/screenshot/save. Items must each carry a keepable insight; one emphasis phrase per item; premium type, no clutter.",
+      "evidence": [
+        "yt:cgLQdjDG4lc (8 Hard Truths, 332K views, 63x breakout, 5s static)",
+        "yt:rj94C0mZayU (Psychology Facts card, 4s static)",
+        "yt:Yltx_7N2HvY (6 Sides card, 5s static)",
+        "samples/ reference set reviewed 2026-07-12"
+      ],
+      "promotedAt": "2026-07-12"
+    }
+  ]
 }

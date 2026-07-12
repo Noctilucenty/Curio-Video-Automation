@@ -53,6 +53,14 @@ this file + the factory rules DB updated. Every rule cites its evidence.
 
 ## PROVISIONAL (evidence exists, not yet validated by Curio's own analytics)
 
+- **Static read-a-card short (4-6s)** — full-screen title + numbered list,
+  single frame, video shorter than read time → pause/screenshot/save mechanic.
+  PROMOTED to approved-patterns.json on 3 independent outliers (2026-07-12
+  reference set: 8 Hard Truths 332K/63×; Psychology Facts; 6 Sides) — this is
+  also literally Curio's native card format. Curio-own validation pending.
+  Nuance vs the rejected "listicle churn": the rejected pattern is 29s NARRATED
+  list slop; the card is silent, denser than its runtime, and premium-typeset.
+
 - **Eerie-footage-plus-text is the winning no-avatar format**: static/slow
   cinematic footage with an unsettling quality (abandoned hallway, blood-red
   sky, ice shelf) + one static curiosity text + dark ambient music. Low effort,

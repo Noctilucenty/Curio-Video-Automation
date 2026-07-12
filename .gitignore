@@ -7,3 +7,6 @@ data/*
 .env.local
 *.log
 .DS_Store
+
+# Reference videos stay local (downloaded third-party content — not ours to redistribute)
+samples/

@@ -71,6 +71,33 @@ describe("generation pipeline", () => {
     expect((await repo.getTopic(topic.id))?.status).toBe("used");
   });
 
+  it("card format skips narration entirely and renders via the card path", async () => {
+    const llm = new PoisonedLlm(0);
+    const repo = new InMemoryRepo();
+    const topic: Topic = {
+      id: makeId("top"), topic: "Seven quiet mechanisms your brain runs daily",
+      category: "psychology", targetPlatform: "shorts", tone: "calm", targetLengthSeconds: 15,
+      language: "en", status: "queued", createdAt: Date.now(), format: "card",
+    };
+    await repo.createTopic(topic);
+    const video = await createDraftVideo(repo, topic.id, "card");
+    const renderer = new MockRenderer();
+    const explodingVoice: VoiceSynth = {
+      provider: "elevenlabs",
+      async synthesize() { throw new Error("must not be called for cards"); },
+    };
+    const done = await runGenerationPipeline({
+      repo, llm, renderer, voice: explodingVoice, post: new MockPostProcessor(),
+      avatarId: "", voiceId: "",
+    }, video.id);
+
+    expect(done.status).toBe("ready_for_review");
+    expect(done.audio).toBeUndefined();                       // no narration step at all
+    expect(renderer.lastRequest?.format).toBe("card");
+    expect(done.post?.provider).toBe("builtin");              // captions ARE the card
+    expect(done.post?.operations).toEqual({ captions: true, cutFillers: false, cutSilences: false });
+  });
+
   it("voice failure falls back to HeyGen TTS but still renders and reviews", async () => {
     const brokenVoice: VoiceSynth = {
       provider: "elevenlabs",

@@ -49,6 +49,7 @@ export class LocalRenderer implements Renderer {
   }
 
   async createVideo(req: RenderRequest): Promise<{ providerVideoId: string }> {
+    if (req.format === "card") return this.createCardVideo(req);
     if (!req.audioAssetId || !this.audio.has(req.audioAssetId)) {
       throw new Error("local renderer needs the ElevenLabs narration (no TTS fallback exists locally)");
     }
@@ -124,6 +125,75 @@ export class LocalRenderer implements Renderer {
     const res = spawnSync("ffmpeg", args, { encoding: "utf8", timeout: 5 * 60_000 });
     if (res.status !== 0) {
       throw new Error(`ffmpeg failed: ${(res.stderr || res.stdout || "unknown").slice(-500)}`);
+    }
+    this.results.set(providerVideoId, {
+      providerVideoId,
+      status: "completed",
+      videoUrl: `/videos/${providerVideoId}.mp4`,
+    });
+    return { providerVideoId };
+  }
+
+  /**
+   * Static read-a-card short (4-6s): one full-frame typographic card, film
+   * grain for life, optional low bed audio (assets/bed.* or the drone file).
+   * The video is deliberately SHORTER than its read time — pause/screenshot/
+   * rewatch behavior is the retention mechanic (see WINNING_REFERENCES.md).
+   */
+  private async createCardVideo(req: RenderRequest): Promise<{ providerVideoId: string }> {
+    const providerVideoId = makeId("localcard");
+    const outPath = join(this.dirs.videos, `${providerVideoId}.mp4`);
+    const pngDir = join(this.dirs.tmp, providerVideoId);
+
+    this.ensureCaptionTool();
+    mkdirSync(pngDir, { recursive: true });
+    const specPath = join(pngDir, "spec.json");
+    writeFileSync(specPath, JSON.stringify({
+      mode: "card",
+      width: WIDTH,
+      height: HEIGHT,
+      outDir: pngDir,
+      fontSize: 40,
+      title: req.pkg.title,
+      footer: req.pkg.cta,
+      // Card list items: the caption beats, minus any final line that just
+      // repeats the CTA (the footer already carries the signature).
+      lines: req.pkg.captionLines
+        .filter((l) => !l.text.toLowerCase().includes("curio"))
+        .slice(0, 8)
+        .map((l, i) => ({ id: `i${i}`, text: l.text.replace(/\s+/g, " ").trim(), emphasis: l.emphasis })),
+    }));
+    execFileSync(this.toolPath, [specPath], { timeout: 60_000 });
+    const cardPng = join(pngDir, "card.png");
+    if (!existsSync(cardPng)) throw new Error("card png was not produced");
+
+    const DURATION = 5.2;
+    const bedFile = ["assets/bed.mp3", "assets/bed.m4a", "assets/bed.wav", ...DRONE_CANDIDATES]
+      .map((p) => resolve(p))
+      .find((p) => existsSync(p));
+
+    const args: string[] = ["-y", "-hide_banner", "-loglevel", "error"];
+    args.push("-loop", "1", "-t", String(DURATION), "-i", cardPng);
+    if (bedFile) args.push("-i", bedFile);
+    else args.push("-f", "lavfi", "-t", String(DURATION), "-i", "anullsrc=r=44100:cl=stereo");
+
+    const audioChain = bedFile
+      ? `[1:a]atrim=0:${DURATION},volume=0.35,afade=t=in:st=0:d=0.4,afade=t=out:st=${(DURATION - 0.8).toFixed(2)}:d=0.8[a]`
+      : `[1:a]anull[a]`;
+    args.push(
+      "-filter_complex",
+      `[0:v]noise=alls=3:allf=t,format=yuv420p[v];${audioChain}`,
+      "-map", "[v]", "-map", "[a]",
+      "-c:v", "libx264", "-preset", "slow", "-crf", "18",
+      "-c:a", "aac", "-b:a", "160k",
+      "-r", String(FPS),
+      "-t", String(DURATION),
+      "-movflags", "+faststart",
+      outPath,
+    );
+    const res = spawnSync("ffmpeg", args, { encoding: "utf8", timeout: 3 * 60_000 });
+    if (res.status !== 0) {
+      throw new Error(`ffmpeg card failed: ${(res.stderr || res.stdout || "unknown").slice(-500)}`);
     }
     this.results.set(providerVideoId, {
       providerVideoId,

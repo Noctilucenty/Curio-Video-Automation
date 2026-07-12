@@ -22,9 +22,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     renderer: renderer === "heygen" || renderer === "mock" ? renderer : "local",
     openai: {
       apiKey: env.OPENAI_API_KEY?.trim() || null,
-      // Hard rule from the launch brief: Curio content defaults to gpt-5-mini
-      // (or newest approved model via env) — never silently downgrade to 4o-mini.
-      model: env.OPENAI_MODEL?.trim() || "gpt-5-mini",
+      // Leon's rule (updated 2026-07-12): the video factory uses full-strength
+      // GPT-5 models — best quality over cost. Never silently downgrade to a
+      // mini/nano tier.
+      model: env.OPENAI_MODEL?.trim() || "gpt-5.1",
     },
     heygen: {
       apiKey: env.HEYGEN_API_KEY?.trim() || null,

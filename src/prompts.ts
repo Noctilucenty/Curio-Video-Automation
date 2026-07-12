@@ -133,12 +133,33 @@ export function packageUserPrompt(topic: Topic, feedback?: JudgeScores): string 
   const fb = feedback
     ? `\nA previous attempt failed quality review. Problems: ${feedback.problems.join("; ")}. Required fix: ${feedback.fix}. Address every problem — do not repeat them.`
     : "";
+  const card = topic.format === "card"
+    ? `\nFormat: STATIC TEXT CARD — a 4-6s full-screen read-a-card short with NO
+narration in the final video. The retention mechanic is pause/screenshot/save:
+the card holds more value than the runtime allows, so every item must be worth
+keeping. caption_lines are the on-card numbered list items: 5-8 items, each
+4-10 words, each a self-contained true insight (no filler items, no vague
+platitudes, nothing unverifiable presented as fact). Specificity is the save
+trigger: prefer NAMED mechanisms (Zeigarnik effect, emotional contagion,
+choice-supportive bias) or vivid concrete phrasing — generic lines every psych
+account posts score low. Exactly one emphasis
+phrase per item, set ONLY via the "emphasis" field (a VERBATIM phrase from
+that item — never leave it empty) — plain text everywhere, NO markdown, no
+asterisks, no numbering inside the text (numbers are added by the renderer).
+Item rules: item 1 must NOT restate the title; no CTA and no Curio mention in
+any item (the card footer carries the signature separately).
+title = the card headline, <=8 words, a SHARP tension claim with a concrete
+image — "Your brain signs deals without you" energy, never an abstract summary
+like "Quiet mental defaults". Timing hints are simple sequential estimates
+(not rendered). The script field is a faithful spoken equivalent kept for the
+record only.`
+    : "";
   return `Topic: ${topic.topic}
 Category: ${topic.category}
 Platform: ${topic.targetPlatform}
 Tone: ${topic.tone}
 Target length: ${topic.targetLengthSeconds}s
-Language: ${topic.language}${topic.sourceRef ? `\nSource reference: ${topic.sourceRef}` : ""}${fb}`;
+Language: ${topic.language}${topic.sourceRef ? `\nSource reference: ${topic.sourceRef}` : ""}${card}${fb}`;
 }
 
 export function judgeSystemPrompt(calibration: LearningRule[] = []): string {
