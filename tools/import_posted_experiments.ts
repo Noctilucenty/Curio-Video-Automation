@@ -6,8 +6,11 @@
 //
 // Update semantics: metric rows are CONTENT-ADDRESSED (id carries a hash of
 // the row's values). Correcting posted-experiments.json produces a new row id
-// with a newer ingestedAt, and learning's latest-per-(video,platform) rule
-// supersedes the stale one — re-running with unchanged data adds nothing.
+// with a newer ingestedAt, and learning's latest-per-(video,platform,surface)
+// rule supersedes the stale one. Re-running with unchanged data refreshes the
+// existing row's ingestedAt instead of skipping it, so REVERTING a correction
+// (A→B→A) also re-selects the original row — the current dataset content is
+// always the latest stream, whatever the edit history.
 //
 // PLATFORM SEPARATION (hard rule): a metrics row is only written when the
 // INSTAGRAM view count is known. Combined IG+FB totals never enter the
@@ -15,7 +18,7 @@
 // the corruption the dataset warns about. Experiments missing the split are
 // reported so Leon can pull the number from the insights Engagement tab.
 //
-// Run: npx tsx tools/import_posted_experiments.ts [dataDir]
+// Run: npx tsx tools/import_posted_experiments.ts [dataDir] [datasetPath]
 
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -24,7 +27,8 @@ import { JsonFileRepo } from "../src/repository.js";
 import type { PerformanceMetrics, Topic, Video } from "../src/types.js";
 
 const dataDir = process.argv[2] ?? "./data";
-const dataset = JSON.parse(readFileSync(resolve("data/posted-experiments.json"), "utf8"));
+const datasetPath = process.argv[3] ?? "data/posted-experiments.json";
+const dataset = JSON.parse(readFileSync(resolve(datasetPath), "utf8"));
 
 function epoch(dateStr: string): number {
   return new Date(`${dateStr}T12:00:00-07:00`).getTime();
@@ -137,9 +141,14 @@ async function main() {
       );
       continue;
     }
-    const already = (await repo.listMetrics(videoId)).some((x) => x.id === m.id);
-    if (already) {
-      console.log(`unchanged ${videoId} (${m.id})`);
+    // Latest-wins selection keys on ingestedAt, so the row for the CURRENT
+    // dataset content must always carry the newest timestamp. Touching an
+    // existing row covers the A→B→A case: reverting a correction re-selects
+    // the original row instead of leaving the superseded one active.
+    const existingRow = (await repo.listMetrics(videoId)).find((x) => x.id === m.id);
+    if (existingRow) {
+      existingRow.ingestedAt = Date.now();
+      console.log(`unchanged ${videoId} (${m.id}) — refreshed as latest`);
     } else {
       await repo.addMetrics(m);
       console.log(`imported ${videoId} → ${m.id} (IG views ${m.views}, reach ${m.reach ?? "?"})`);

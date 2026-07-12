@@ -66,11 +66,35 @@ export function engagementScore(m: PerformanceMetrics): number {
   return m.completionRate * 100 + interaction;
 }
 
-/** Idempotently install the seed content rules (called at server boot). */
+/**
+ * Sync installed seed rules to SEED_RULES (called at server boot).
+ * prompts.ts is the single source of truth: seeds in the store that are no
+ * longer in SEED_RULES are DEACTIVATED (an edited seed must not keep its stale
+ * text injecting contradictory guidance — e.g. the obsolete "25-32 seconds"
+ * default vs the current 12-16s), and new/changed seeds are installed.
+ * Idempotent; never touches manual or learning_run rules.
+ */
 export async function ensureSeedRules(repo: Repo): Promise<void> {
   const existing = await repo.listRules();
-  if (existing.some((r) => r.source === "seed")) return;
+  const wanted = new Set(SEED_RULES.map((s) => `${s.category}::${s.rule}`));
+  const installed = new Set<string>();
+  for (const r of existing) {
+    if (r.source !== "seed") continue;
+    const key = `${r.category}::${r.rule}`;
+    if (wanted.has(key)) {
+      installed.add(key);
+      if (!r.active) {
+        r.active = true;
+        await repo.updateRule(r);
+      }
+    } else if (r.active) {
+      r.active = false;
+      r.rule = `[superseded seed — no longer in SEED_RULES] ${r.rule}`;
+      await repo.updateRule(r);
+    }
+  }
   for (const s of SEED_RULES) {
+    if (installed.has(`${s.category}::${s.rule}`)) continue;
     await repo.addRule({
       id: makeId("rule"),
       category: s.category,
@@ -98,9 +122,12 @@ interface RuleValidationResult {
 }
 
 /**
- * Latest metrics row per (video, platform) — cross-posted videos are the norm
- * for a short-form factory, and a TikTok drop must never overwrite the IG
- * stream. Re-sending analytics for the same platform updates that stream.
+ * Latest metrics row per (video, platform, surface) — cross-posted videos are
+ * the norm for a short-form factory, and a TikTok drop must never overwrite
+ * the IG stream. Surface is part of the key because Instagram and Facebook
+ * BOTH canonicalize to platform "reels": without it, whichever surface is
+ * ingested last would silently replace the other in learning and the summary.
+ * Re-sending analytics for the same (platform, surface) updates that stream.
  */
 export async function latestMetricsByVideo(repo: Repo): Promise<Map<string, PerformanceMetrics[]>> {
   const metrics = await repo.listMetrics();
@@ -109,7 +136,7 @@ export async function latestMetricsByVideo(repo: Repo): Promise<Map<string, Perf
   // the performance summary — fake high-view examples must not shape rules.
   const usable = metrics.filter((m) => m.provenance !== "synthetic");
   for (const m of [...usable].sort((a, b) => a.ingestedAt - b.ingestedAt)) {
-    byKey.set(`${m.videoId}::${m.platform}`, m);
+    byKey.set(`${m.videoId}::${m.platform}::${m.surface ?? "unspecified"}`, m);
   }
   const byVideo = new Map<string, PerformanceMetrics[]>();
   for (const m of byKey.values()) {

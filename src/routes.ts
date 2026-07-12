@@ -16,7 +16,7 @@ import { createDraftVideo } from "./pipeline.js";
 import { normalizeCaptions, captionsToSrt, CAPTION_STYLE } from "./captions.js";
 import { PUBLISH_THRESHOLDS } from "./judge.js";
 import { runLearning, LearningDataError, MIN_VIDEOS_FOR_LEARNING, latestMetricsByVideo, engagementScore } from "./learning.js";
-import { ingestRawAnalytics } from "./ingest.js";
+import { canonicalSurface, ingestRawAnalytics } from "./ingest.js";
 
 export interface RouteDeps {
   repo: Repo;
@@ -261,6 +261,10 @@ export function buildRoutes(deps: RouteDeps): Router {
       id: makeId("met"),
       videoId: video.id,
       platform: PLATFORMS.has(platform) ? platform : "tiktok",
+      // IG and FB share platform "reels" — surface keeps their streams apart.
+      // The raw platform label is the fallback hint ("instagram" ⇒ surface).
+      surface: canonicalSurface(b.surface) ?? canonicalSurface(b.platform),
+      reach: b.reach != null && Number.isFinite(Number(b.reach)) ? num(b.reach) : undefined,
       provenance: "real",
       views: num(b.views),
       avgWatchTime: num(b.avg_watch_time),

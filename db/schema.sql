@@ -8,12 +8,23 @@ create table if not exists topics (
   category text not null default 'general',
   target_platform text not null default 'tiktok' check (target_platform in ('tiktok','reels','shorts')),
   tone text not null default 'calm, premium, mysterious',
-  target_length_seconds int not null default 28 check (target_length_seconds between 20 and 45),
+  -- Mirrors the API's clampLength [10,45]; app default is 15 (12-16s policy).
+  target_length_seconds int not null default 15 check (target_length_seconds between 10 and 45),
   language text not null default 'en',
+  format text not null default 'narrated' check (format in ('narrated','card')),
   source_ref text,
   status text not null default 'queued' check (status in ('queued','used','archived')),
   created_at timestamptz not null default now()
 );
+-- Format routing + 12-16s length policy (2026-07-12): format controls the
+-- card freeze and renderer selection; the old 20-45s check rejected the
+-- current default.
+alter table topics add column if not exists format text not null default 'narrated'
+  check (format in ('narrated','card'));
+alter table topics alter column target_length_seconds set default 15;
+alter table topics drop constraint if exists topics_target_length_seconds_check;
+alter table topics add constraint topics_target_length_seconds_check
+  check (target_length_seconds between 10 and 45);
 
 create table if not exists videos (
   id text primary key,
@@ -21,10 +32,11 @@ create table if not exists videos (
   status text not null default 'draft' check (status in
     ('draft','generated','needs_revision','ready_for_review','approved','published','rejected','failed')),
   attempts int not null default 0,
+  format text not null default 'narrated' check (format in ('narrated','card')),
   package jsonb,            -- full OpenAI video package (hooks, script, caption_lines, copy)
   judge jsonb,              -- latest judge scores + problems + fix + pass
   applied_rule_ids jsonb,   -- generator rules active at generation time (rule-cohort validation)
-  render_provider text,     -- 'heygen' | 'mock'
+  render_provider text,     -- 'heygen' | 'local' | 'mock'
   render_status text,       -- 'not_started' | 'rendering' | 'completed' | 'failed'
   provider_video_id text,
   video_url text,
@@ -36,6 +48,8 @@ create table if not exists videos (
 );
 create index if not exists videos_status_idx on videos(status);
 alter table videos add column if not exists applied_rule_ids jsonb;
+alter table videos add column if not exists format text not null default 'narrated'
+  check (format in ('narrated','card'));
 
 -- Every LLM call: prompt A/B trail + future fine-tuning dataset.
 create table if not exists prompt_versions (

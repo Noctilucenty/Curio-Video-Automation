@@ -25,9 +25,9 @@ export const INGEST_SCHEMA = {
         type: "object",
         additionalProperties: false,
         required: [
-          "match_hint", "platform", "views", "avg_watch_time", "completion_rate",
-          "skip_rate", "likes", "comments", "shares", "saves", "follows",
-          "profile_clicks", "app_downloads", "posted_at",
+          "match_hint", "platform", "surface", "views", "reach", "avg_watch_time",
+          "completion_rate", "skip_rate", "likes", "comments", "shares", "saves",
+          "follows", "profile_clicks", "app_downloads", "posted_at",
         ],
         properties: {
           match_hint: {
@@ -41,7 +41,9 @@ export const INGEST_SCHEMA = {
             },
           },
           platform: { type: ["string", "null"] },
+          surface: { type: ["string", "null"] },
           views: { type: "number" },
+          reach: { type: ["number", "null"] },
           avg_watch_time: { type: ["number", "null"] },
           completion_rate: { type: ["number", "null"] },
           skip_rate: { type: ["number", "null"] },
@@ -62,7 +64,12 @@ export const INGEST_SCHEMA = {
 export interface ParsedEntry {
   match_hint: { video_id?: string | null; hook?: string | null; title?: string | null };
   platform?: string | null;
+  /** Exact distribution surface when the paste distinguishes it ("Instagram
+   * views", "Facebook reach"). IG and FB canonicalize to the same platform,
+   * so this is what keeps their metric streams separate. */
+  surface?: string | null;
   views?: number | null;
+  reach?: number | null;
   avg_watch_time?: number | null;
   completion_rate?: number | null;
   skip_rate?: number | null;
@@ -250,6 +257,10 @@ function toMetrics(entry: ParsedEntry, video: Video): PerformanceMetrics {
     id: makeId("met"),
     videoId: video.id,
     platform,
+    // The platform label doubles as a surface hint: "Instagram" and "Facebook"
+    // both canonicalize to platform "reels", but their streams must never merge.
+    surface: canonicalSurface(entry.surface) ?? canonicalSurface(entry.platform),
+    reach: entry.reach != null ? num(entry.reach) : undefined,
     provenance: "real", // pasted platform analytics — the loop's only training signal
     views: num(entry.views),
     avgWatchTime: num(entry.avg_watch_time),
@@ -271,6 +282,25 @@ function toMetrics(entry: ParsedEntry, video: Video): PerformanceMetrics {
 function epochMs(v: number | null | undefined): number | null {
   if (!v || !Number.isFinite(v) || v <= 0) return null;
   return v < 1e12 ? Math.round(v * 1000) : v;
+}
+
+/**
+ * Map a free-form label ("Instagram", "FB", "ig reels") to the exact
+ * distribution surface, or undefined when the label doesn't identify one
+ * (e.g. bare "reels" — could be either IG or FB). Shared with the direct
+ * /videos/:id/performance route so every live ingestion path separates
+ * surfaces the same way.
+ */
+export function canonicalSurface(
+  label: string | null | undefined,
+): PerformanceMetrics["surface"] {
+  if (!label) return undefined;
+  const tokens = new Set(normalize(label).split(" "));
+  if (tokens.has("instagram") || tokens.has("ig")) return "instagram";
+  if (tokens.has("facebook") || tokens.has("fb") || tokens.has("meta")) return "facebook";
+  if (tokens.has("tiktok") || tokens.has("tik") || tokens.has("tok")) return "tiktok";
+  if (tokens.has("youtube") || tokens.has("yt") || tokens.has("shorts")) return "youtube";
+  return undefined;
 }
 
 function canonicalPlatform(label: string | null | undefined, fallback: Platform): Platform {

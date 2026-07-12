@@ -53,7 +53,7 @@ function mockIngest(user: string): unknown {
   const entries: any[] = [];
 
   const NUMERIC = new Set([
-    "views", "avg_watch_time", "completion_rate", "skip_rate", "likes", "comments",
+    "views", "reach", "avg_watch_time", "completion_rate", "skip_rate", "likes", "comments",
     "shares", "saves", "follows", "profile_clicks", "app_downloads", "posted_at",
   ]);
   const finish = (fields: Record<string, string>) => {
@@ -65,6 +65,7 @@ function mockIngest(user: string): unknown {
     for (const [k, v] of Object.entries(fields)) {
       if (k === "video_id" || k === "hook" || k === "title") entry.match_hint[k] = v;
       else if (k === "platform") entry.platform = v;
+      else if (k === "surface") entry.surface = v;
       else if (NUMERIC.has(k)) entry[k] = Number(v.replace(/[%,]/g, ""));
     }
     entries.push(entry);

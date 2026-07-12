@@ -237,6 +237,13 @@ units. Extract one entry per video. Rules:
 - Copy any hook/title/id text you can find into match_hint verbatim; the server
   uses it to match the entry to a stored video. Never invent values: omit fields
   that are not present (except views/likes/comments/shares/saves — default 0).
+- surface: the exact distribution surface when the analytics distinguish it —
+  "instagram", "facebook", "tiktok", or "youtube". Meta cross-posts report IG
+  and Facebook separately ("Instagram views 196 / Facebook views 307"): emit
+  ONE ENTRY PER SURFACE with that surface's own numbers, never a combined
+  total. Only when the paste offers a single number with no surface breakdown
+  may you emit one entry with surface null.
+- reach: accounts reached on that surface when shown, else null.
 - posted_at: epoch milliseconds if a date is present, else omit.`;
 }
 

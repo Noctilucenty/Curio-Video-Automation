@@ -7,6 +7,7 @@ import { MockPostProcessor } from "../src/postprocess.js";
 import { createDraftVideo, runGenerationPipeline } from "../src/pipeline.js";
 import { runLearning, engagementScore, ensureSeedRules, LearningDataError, latestMetricsByVideo } from "../src/learning.js";
 import { makeId } from "../src/config.js";
+import { SEED_RULES } from "../src/prompts.js";
 import type { LearningRule, PerformanceMetrics, Topic } from "../src/types.js";
 import type { LlmClient } from "../src/llm.js";
 
@@ -63,6 +64,69 @@ describe("metrics provenance", () => {
     expect(latest.has("v1")).toBe(false);
     expect(latest.has("v2")).toBe(true);
     expect(latest.has("v3")).toBe(true);
+  });
+});
+
+describe("surface separation", () => {
+  it("IG and FB rows on the shared reels platform never overwrite each other", async () => {
+    const repo = new InMemoryRepo();
+    const t = Date.now();
+    await repo.addMetrics(metrics("v1", { platform: "reels", surface: "instagram", views: 196, ingestedAt: t }));
+    // FB arrives later — before the surface-aware key it would replace the IG row
+    await repo.addMetrics(metrics("v1", { platform: "reels", surface: "facebook", views: 307, ingestedAt: t + 1 }));
+    const rows = (await latestMetricsByVideo(repo)).get("v1")!;
+    expect(rows).toHaveLength(2);
+    expect(new Set(rows.map((r) => r.surface))).toEqual(new Set(["instagram", "facebook"]));
+    expect(rows.find((r) => r.surface === "instagram")!.views).toBe(196);
+  });
+
+  it("a re-sent drop updates only its own (platform, surface) stream", async () => {
+    const repo = new InMemoryRepo();
+    const t = Date.now();
+    await repo.addMetrics(metrics("v1", { platform: "reels", surface: "instagram", views: 196, ingestedAt: t }));
+    await repo.addMetrics(metrics("v1", { platform: "reels", surface: "facebook", views: 307, ingestedAt: t + 1 }));
+    await repo.addMetrics(metrics("v1", { platform: "reels", surface: "instagram", views: 240, ingestedAt: t + 2 }));
+    const rows = (await latestMetricsByVideo(repo)).get("v1")!;
+    expect(rows).toHaveLength(2);
+    expect(rows.find((r) => r.surface === "instagram")!.views).toBe(240);
+    expect(rows.find((r) => r.surface === "facebook")!.views).toBe(307);
+  });
+});
+
+describe("seed rule sync", () => {
+  it("deactivates installed seeds that left SEED_RULES and installs the current set", async () => {
+    const repo = new InMemoryRepo();
+    // The exact stale rule Codex flagged live in the store: contradicted the
+    // current 12-16s policy but survived because ensureSeedRules early-returned.
+    await repo.addRule({
+      id: "rule_stale_length", category: "length",
+      rule: "Default to 25-32 seconds unless the topic genuinely needs more.",
+      source: "seed", active: true, createdAt: 1,
+    });
+    await ensureSeedRules(repo);
+    const all = await repo.listRules();
+    const stale = all.find((r) => r.id === "rule_stale_length")!;
+    expect(stale.active).toBe(false);
+    expect(stale.rule).toContain("superseded seed");
+    const activeSeeds = all.filter((r) => r.source === "seed" && r.active);
+    expect(activeSeeds.length).toBe(SEED_RULES.length);
+    expect(activeSeeds.some((r) => r.rule.includes("12-16 seconds"))).toBe(true);
+
+    // Idempotent: a second boot neither duplicates nor re-touches anything.
+    await ensureSeedRules(repo);
+    const seedsAfter = (await repo.listRules()).filter((r) => r.source === "seed");
+    expect(seedsAfter.length).toBe(SEED_RULES.length + 1);
+    expect(seedsAfter.filter((r) => r.active).length).toBe(SEED_RULES.length);
+  });
+
+  it("never touches manual or learning_run rules", async () => {
+    const repo = new InMemoryRepo();
+    await repo.addRule({ id: "rule_manual", category: "hook", rule: "manual rule", source: "manual", active: true, createdAt: 1 });
+    await repo.addRule({ id: "rule_learned", category: "hook", rule: "learned rule", source: "learning_run", active: true, createdAt: 1 });
+    await ensureSeedRules(repo);
+    const all = await repo.listRules();
+    expect(all.find((r) => r.id === "rule_manual")!.active).toBe(true);
+    expect(all.find((r) => r.id === "rule_learned")!.active).toBe(true);
   });
 });
 

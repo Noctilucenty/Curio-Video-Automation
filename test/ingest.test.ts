@@ -6,7 +6,7 @@ import { MockRenderer } from "../src/heygen.js";
 import { MockVoice } from "../src/voice.js";
 import { MockPostProcessor } from "../src/postprocess.js";
 import { createDraftVideo, runGenerationPipeline } from "../src/pipeline.js";
-import { ingestRawAnalytics, similarity } from "../src/ingest.js";
+import { canonicalSurface, ingestRawAnalytics, similarity } from "../src/ingest.js";
 import { latestMetricsByVideo } from "../src/learning.js";
 import { makeId } from "../src/config.js";
 import type { Topic, Video } from "../src/types.js";
@@ -267,6 +267,36 @@ describe("ingestRawAnalytics (mock parser)", () => {
     const byPlatform = Object.fromEntries(streams.map((m) => [m.platform, m.views]));
     expect(byPlatform.tiktok).toBe(5000);  // updated
     expect(byPlatform.reels).toBe(2000);   // NOT overwritten by the tiktok update
+  });
+
+  it("stores surface + reach so IG and FB drops for one reel stay separate streams", async () => {
+    const repo = new InMemoryRepo();
+    const video = await publishedVideo(repo, "Meta cross-post separation");
+    const base = `video_id=${video.id} completion_rate=0.5 likes=10 comments=1 shares=2 saves=3`;
+    // The platform label alone identifies the surface ("instagram"/"facebook"
+    // both canonicalize to platform reels).
+    await ingestRawAnalytics(repo, new MockLlmClient(), `${base} platform=instagram views=196 reach=160`);
+    await ingestRawAnalytics(repo, new MockLlmClient(), `${base} platform=facebook views=307`);
+
+    const streams = (await latestMetricsByVideo(repo)).get(video.id)!;
+    expect(streams).toHaveLength(2);
+    expect(streams.every((m) => m.platform === "reels")).toBe(true);
+    const ig = streams.find((m) => m.surface === "instagram")!;
+    const fb = streams.find((m) => m.surface === "facebook")!;
+    expect(ig.views).toBe(196);
+    expect(ig.reach).toBe(160);
+    expect(fb.views).toBe(307); // did NOT overwrite the IG row
+  });
+
+  it("canonicalSurface maps labels and refuses ambiguous ones", () => {
+    expect(canonicalSurface("Instagram")).toBe("instagram");
+    expect(canonicalSurface("ig reels")).toBe("instagram");
+    expect(canonicalSurface("FB")).toBe("facebook");
+    expect(canonicalSurface("Meta")).toBe("facebook");
+    expect(canonicalSurface("TikTok")).toBe("tiktok");
+    expect(canonicalSurface("YouTube Shorts")).toBe("youtube");
+    expect(canonicalSurface("reels")).toBeUndefined(); // could be IG or FB
+    expect(canonicalSurface(null)).toBeUndefined();
   });
 
   it("normalizes epoch-seconds posted_at to milliseconds", async () => {
