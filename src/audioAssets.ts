@@ -67,6 +67,10 @@ export function resolveAudioAsset(
     const p = resolve(asset.path);
     if (existsSync(p)) return { path: p, source: "registry" };
   }
+  // Legacy magic filenames exist ONLY for pre-registry setups: the moment a
+  // registry file is present it is the single source of truth, and no
+  // unreviewed file — including one copied onto assets/bed.mp3 — can auto-mix.
+  if (existsSync(resolve(registryPath))) return null;
   for (const candidate of LEGACY_PATHS[role]) {
     const p = resolve(candidate);
     if (existsSync(p)) return { path: p, source: "legacy" };

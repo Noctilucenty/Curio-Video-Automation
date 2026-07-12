@@ -6,6 +6,9 @@ data/*
 # Ground truth for posted videos (creative metadata + platform-separated
 # analytics) is durable shared memory — committed.
 !data/posted-experiments.json
+# Reference-corpus manifest (paths + methods, no third-party content) — committed.
+# Contact sheets under data/video-analysis/ stay local (derived from third-party frames).
+!data/video-reference-manifest.json
 .env
 .env.local
 *.log

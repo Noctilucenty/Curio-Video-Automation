@@ -5,7 +5,7 @@ import { MockRenderer } from "../src/heygen.js";
 import { MockVoice } from "../src/voice.js";
 import { MockPostProcessor } from "../src/postprocess.js";
 import { createDraftVideo, runGenerationPipeline } from "../src/pipeline.js";
-import { runLearning, engagementScore, ensureSeedRules, LearningDataError } from "../src/learning.js";
+import { runLearning, engagementScore, ensureSeedRules, LearningDataError, latestMetricsByVideo } from "../src/learning.js";
 import { makeId } from "../src/config.js";
 import type { LearningRule, PerformanceMetrics, Topic } from "../src/types.js";
 import type { LlmClient } from "../src/llm.js";
@@ -50,6 +50,19 @@ describe("engagement scoring", () => {
     const likes = engagementScore(metrics("v", { likes: 120 }));
     expect(saves).toBeGreaterThan(shares);
     expect(shares).toBeGreaterThan(likes);
+  });
+});
+
+describe("metrics provenance", () => {
+  it("synthetic rows never reach learning — fake views cannot shape rules", async () => {
+    const repo = new InMemoryRepo();
+    await repo.addMetrics(metrics("v1", { provenance: "synthetic", views: 999999 }));
+    await repo.addMetrics(metrics("v2", { provenance: "real", views: 100 }));
+    await repo.addMetrics(metrics("v3", { views: 100 })); // untagged (test/dev helper) passes
+    const latest = await latestMetricsByVideo(repo);
+    expect(latest.has("v1")).toBe(false);
+    expect(latest.has("v2")).toBe(true);
+    expect(latest.has("v3")).toBe(true);
   });
 });
 

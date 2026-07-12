@@ -250,6 +250,7 @@ function toMetrics(entry: ParsedEntry, video: Video): PerformanceMetrics {
     id: makeId("met"),
     videoId: video.id,
     platform,
+    provenance: "real", // pasted platform analytics — the loop's only training signal
     views: num(entry.views),
     avgWatchTime: num(entry.avg_watch_time),
     completionRate: rate(entry.completion_rate),

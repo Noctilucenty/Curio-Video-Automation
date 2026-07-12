@@ -1,12 +1,14 @@
 {
-  "_readme": "Ground truth for every video Curio has actually POSTED — creative metadata + platform-separated analytics, matched to Instagram insights screenshots on 2026-07-12. This file is the durable machine copy; docs/curio/EXPERIMENT_LEDGER.md is the human trail. Import into the factory repo with: npx tsx tools/import_posted_experiments.ts. RULE: combined IG+FB view totals are NOT an optimization target — engagement rates here are Instagram signals.",
+  "_readme": "Ground truth for every video Curio has actually POSTED — creative metadata + platform-separated analytics, matched to Instagram insights screenshots on 2026-07-12. This file is the durable machine copy; docs/curio/EXPERIMENT_LEDGER.md is the human trail. Import with: npx tsx tools/import_posted_experiments.ts (content-addressed rows; corrections here supersede stale rows via latest-wins). RULES: combined IG+FB view totals are NOT an optimization target; a metrics row is only imported when viewsInstagram is known. Every experiment carries a `provenance` block separating observed / derived / estimated / user-reported values — treat estimated values as approximate.",
   "collectedAt": "2026-07-12",
-  "source": "Instagram Reel insights screenshots (samples/Curio Video Stats/*) + ffprobe/ebur128 measurements of the posted files",
+  "source": "Instagram Reel insights screenshots (samples/Curio Video Stats/*) + ffprobe/ebur128 measurements of the posted files + reviewer screenshot readings (Codex, 2026-07-12)",
   "experiments": [
     {
       "id": "posted-third-man",
       "title": "Third Man Factor",
+      "category": "survival-psychology",
       "postedAt": "2026-06-30",
+      "postedAtProvenance": "inferred — views graph starts Jun 30; exact post time unverified",
       "platform": "instagram+facebook-crosspost",
       "sourceFile": "samples/Curio Video Stats/Third Man Factor/captions-KfWKc7wCxIolYhLdGmWu-edited-07-06-2026-2.41PM_1_prob4_hyp1.MP4",
       "creative": {
@@ -26,23 +28,31 @@
         "viewsTotal": 606,
         "viewsInstagram": null,
         "viewsFacebook": null,
-        "splitNote": "IG/FB split missing from screenshots — 606 is combined; do not optimize on it",
+        "splitNote": "IG/FB split MISSING from screenshots — 606 is combined. NO metrics row is imported until Leon pulls the IG-only view count from the Reel insights; rates below are IG signals per his analysis.",
         "reachInstagram": 165,
         "avgWatchTimeSeconds": 12,
         "watchRatio": 0.595,
         "skipRate": 0.386,
-        "retentionAtEnd": 0.20,
+        "retentionAtEnd": 0.2,
+        "retentionAtEndProvenance": "estimated from the retention graph shape — approximate, not a platform number",
         "likes": 16, "comments": 2, "shares": 2, "saves": 2, "reposts": 2,
-        "likeRate": 0.080, "shareRate": 0.011, "saveRate": 0.011, "commentRate": 0.011,
-        "profileSourceShare": 0.123,
-        "countsNote": "raw counts from the insights header; rates per Leon's 2026-07-12 analysis (IG-basis)"
+        "likeRate": 0.08, "shareRate": 0.011, "saveRate": 0.011, "commentRate": 0.011,
+        "profileSourceShare": 0.123
+      },
+      "provenance": {
+        "observed": ["durationSeconds", "resolution", "audio (ffmpeg ebur128)", "viewsTotal", "reachInstagram", "avgWatchTimeSeconds", "likes/comments/shares/saves/reposts (insights header)"],
+        "derived": ["watchRatio (avgWatch/duration)"],
+        "estimated": ["retentionAtEnd (graph shape)", "postedAt (graph start)"],
+        "userReported": ["skipRate, rates, profileSourceShare, visual timeline and hook wording (Leon's 2026-07-12 analysis of the video + insights)"]
       },
       "verdict": "ONLY clear retention winner (skip 20.5-34.8pp better than every other post; only video with nonzero shares/saves/reposts/comments)"
     },
     {
       "id": "posted-boat-v1",
       "title": "300 Years Boat (Fata Morgana) v1",
+      "category": "strange-science",
       "postedAt": "2026-07-06",
+      "postedAtProvenance": "inferred from the export filename date — unverified",
       "platform": "instagram+facebook-crosspost",
       "sourceFile": "samples/Curio Video Stats/300 Years Boat/captions-juXJaNDMd1qe4leou0WC-edited-07-06-2026-2.56PM_1_prob4_hyp1.MP4",
       "creative": {
@@ -62,20 +72,28 @@
         "viewsTotal": 503,
         "viewsInstagram": 196,
         "viewsFacebook": 307,
-        "reachInstagram": null,
+        "reachInstagram": 160,
         "avgWatchTimeSeconds": 6,
         "watchRatio": 0.255,
         "skipRate": 0.591,
         "retentionAtEnd": 0.05,
-        "likeRate": 0.063, "shareRate": 0, "saveRate": 0.006, "commentRate": 0,
-        "countsNote": "counts derived from IG views x rate where raw counts absent (flagged derived)"
+        "retentionAtEndProvenance": "estimated from the retention graph shape — approximate",
+        "likeRate": 0.063, "shareRate": 0, "saveRate": 0.006, "commentRate": 0
+      },
+      "provenance": {
+        "observed": ["durationSeconds", "resolution", "audio (ebur128)", "viewsInstagram", "viewsFacebook", "reachInstagram (reviewer screenshot reading)"],
+        "derived": ["viewsTotal (IG+FB)", "watchRatio", "like/share/save counts in the import (IG views x rate, rounded)"],
+        "estimated": ["retentionAtEnd", "postedAt", "premiseUnderstandableBySeconds"],
+        "userReported": ["skipRate, rates, hook wording, timeline (Leon's analysis)"]
       },
       "verdict": "aesthetic liked (6.3% like rate, 2nd best) but comprehension too slow: ~half the audience gone in the first seconds"
     },
     {
       "id": "posted-cant-forget",
       "title": "Can't Forget Anything (hyperthymesia)",
+      "category": "psychology-memory",
       "postedAt": "2026-07-06",
+      "postedAtProvenance": "inferred from the export filename date — unverified",
       "platform": "instagram+facebook-crosspost",
       "sourceFile": "samples/Curio Video Stats/Cant' forget anything/captions-dH9Nn1FvEEe7m3ERa4Ub-edited_2_prob4_hyp1.MP4",
       "creative": {
@@ -85,7 +103,7 @@
         "openingFrame": "glowing brain silhouette — generic stock/AI-health look; no person, conflict, evidence, or mystery",
         "hookWording": "What if you could never forget anything? (reads as a superpower; the painful contradiction lands late)",
         "premiseUnderstandableBySeconds": 3,
-        "visualTimeline": "brain imagery throughout",
+        "visualTimeline": "multiple distinct scenes (full shot list not yet audited); OPENING scene is the verified generic brain silhouette — the retention leak is the opening, not necessarily the whole edit",
         "reveal": "perfect memory as a burden",
         "audio": { "integratedLufs": -9.6, "truePeakDbfs": 0.6, "lra": 1.4, "style": "LOUD + CLIPPING — audio normalization failure" },
         "cta": "soft signature",
@@ -95,21 +113,29 @@
         "viewsTotal": 279,
         "viewsInstagram": 72,
         "viewsFacebook": 207,
-        "reachInstagram": null,
+        "reachInstagram": 59,
         "avgWatchTimeSeconds": 5,
         "watchRatio": 0.245,
         "skipRate": 0.677,
         "retentionAtEnd": 0.04,
+        "retentionAtEndProvenance": "estimated from the retention graph shape — approximate",
         "likeRate": 0.032, "shareRate": 0.016, "saveRate": 0.016, "commentRate": 0,
-        "exploreSourceShare": 0.236,
-        "countsNote": "counts derived from IG views x rate where raw counts absent (flagged derived)"
+        "exploreSourceShare": 0.236
+      },
+      "provenance": {
+        "observed": ["durationSeconds", "resolution", "audio incl. clipping true peak (ebur128)", "viewsInstagram", "viewsFacebook", "reachInstagram (reviewer screenshot reading)"],
+        "derived": ["viewsTotal", "watchRatio", "engagement counts in the import (IG views x rate, rounded)"],
+        "estimated": ["retentionAtEnd", "postedAt"],
+        "userReported": ["skipRate, rates, exploreSourceShare, opening-frame description (Leon's analysis)"]
       },
       "verdict": "topic has save/share pull (1.6% each + 23.6% Explore sampling) but the generic opening lost the sampled audience — REWRITE AND RETEST the concept, don't discard"
     },
     {
       "id": "posted-boat-retry",
       "title": "300 Years Boat Retry",
+      "category": "strange-science",
       "postedAt": "2026-07-06",
+      "postedAtProvenance": "inferred — unverified",
       "platform": "instagram+facebook-crosspost",
       "sourceFile": "samples/Curio Video Stats/300 Years Boat Retry/My Video-5.MP4",
       "creative": {
@@ -118,7 +144,8 @@
         "resolution": "1080x1920@60",
         "openingFrame": "same storm-ship composition held longer",
         "hookWording": "more explicit opening, small serif phrases revealed gradually",
-        "premiseUnderstandableBySeconds": 10,
+        "premiseUnderstandableBySeconds": 3,
+        "premiseNote": "the basic upside-down-ship premise reads within ~2-3s (reviewer correction); the FAILURE was pacing after the premise — slower, less visually progressive first stretch — not premise opacity",
         "visualTimeline": "longer hold on one composition; more atmospheric setup before explanation",
         "reveal": "false horizon, later than v1",
         "audio": { "integratedLufs": -17.1, "lra": 2.8, "style": "dark bed" },
@@ -134,10 +161,16 @@
         "watchRatio": null,
         "skipRate": 0.734,
         "retentionAtEnd": 0.03,
-        "likeRate": 0.009, "shareRate": 0, "saveRate": 0, "commentRate": 0,
-        "countsNote": "avg watch time missing from screenshots; counts derived from IG views x rate"
+        "retentionAtEndProvenance": "estimated from the retention graph shape — approximate",
+        "likeRate": 0.009, "shareRate": 0, "saveRate": 0, "commentRate": 0
       },
-      "verdict": "revision made everything WORSE (skip 59.1%→73.4%, likes 6.3%→0.9%, all sharing to zero): slower, less visually progressive first 3s; also proof that changing five variables at once teaches nothing"
+      "provenance": {
+        "observed": ["durationSeconds", "resolution", "audio (ebur128)", "viewsInstagram", "viewsFacebook"],
+        "derived": ["viewsTotal", "engagement counts in the import (IG views x rate, rounded)"],
+        "estimated": ["retentionAtEnd", "postedAt", "premiseUnderstandableBySeconds (reviewer estimate)"],
+        "userReported": ["skipRate, rates, change list (Leon's analysis)"]
+      },
+      "verdict": "revision made everything WORSE (skip 59.1%→73.4%, likes 6.3%→0.9%, all sharing to zero): pacing after the premise got slower and less visually progressive; also proof that changing five variables at once teaches nothing"
     }
   ]
 }

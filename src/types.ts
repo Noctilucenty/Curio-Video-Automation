@@ -154,6 +154,10 @@ export interface PerformanceMetrics {
   surface?: "instagram" | "facebook" | "tiktok" | "youtube";
   /** Accounts reached on this surface, when the platform reports it. */
   reach?: number;
+  /** "real" = actual platform analytics; "synthetic" = dev/mock-era rows.
+   * Learning runs EXCLUDE synthetic rows — fake high-view examples must never
+   * shape permanent rules. All live ingestion paths tag "real". */
+  provenance?: "real" | "synthetic";
   views: number;
   avgWatchTime: number;
   completionRate: number;

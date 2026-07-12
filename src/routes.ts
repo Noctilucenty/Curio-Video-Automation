@@ -157,6 +157,11 @@ export function buildRoutes(deps: RouteDeps): Router {
   r.post("/videos/:id/regenerate", async (req, res) => {
     const video = await repo.getVideo(req.params.id);
     if (!video) { res.status(404).json({ error: "video not found" }); return; }
+    if (video.format === "card" && cardsFrozen) {
+      // The freeze guards EVERY pipeline entry point, not just topic creation.
+      res.status(403).json({ error: CARDS_FROZEN_ERROR });
+      return;
+    }
     try {
       if (video.status !== "needs_revision") transition(video, "needs_revision");
     } catch (e) {
@@ -177,6 +182,11 @@ export function buildRoutes(deps: RouteDeps): Router {
   r.post("/videos/:id/edit", async (req, res) => {
     const video = await repo.getVideo(req.params.id);
     if (!video) { res.status(404).json({ error: "video not found" }); return; }
+    if (video.format === "card" && cardsFrozen) {
+      // Manual edit re-renders — that's card generation spend, so it's frozen too.
+      res.status(403).json({ error: CARDS_FROZEN_ERROR });
+      return;
+    }
     if (!video.pkg) { res.status(409).json({ error: "video has no package to edit" }); return; }
     if (!["needs_revision", "ready_for_review", "rejected"].includes(video.status)) {
       res.status(409).json({ error: `cannot edit in status ${video.status}` });
@@ -251,6 +261,7 @@ export function buildRoutes(deps: RouteDeps): Router {
       id: makeId("met"),
       videoId: video.id,
       platform: PLATFORMS.has(platform) ? platform : "tiktok",
+      provenance: "real",
       views: num(b.views),
       avgWatchTime: num(b.avg_watch_time),
       completionRate: Math.max(0, Math.min(1, num(b.completion_rate))),

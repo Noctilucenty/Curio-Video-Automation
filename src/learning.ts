@@ -105,7 +105,10 @@ interface RuleValidationResult {
 export async function latestMetricsByVideo(repo: Repo): Promise<Map<string, PerformanceMetrics[]>> {
   const metrics = await repo.listMetrics();
   const byKey = new Map<string, PerformanceMetrics>();
-  for (const m of [...metrics].sort((a, b) => a.ingestedAt - b.ingestedAt)) {
+  // Provenance filter: synthetic (dev/mock-era) rows never reach learning or
+  // the performance summary — fake high-view examples must not shape rules.
+  const usable = metrics.filter((m) => m.provenance !== "synthetic");
+  for (const m of [...usable].sort((a, b) => a.ingestedAt - b.ingestedAt)) {
     byKey.set(`${m.videoId}::${m.platform}`, m);
   }
   const byVideo = new Map<string, PerformanceMetrics[]>();

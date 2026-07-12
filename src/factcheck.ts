@@ -10,7 +10,13 @@
 //      retention material — a fact-checker with the creative brief in context
 //      starts grading vibes).
 // A failure feeds the rewrite loop exactly like judge feedback; nothing that
-// fails here can reach a renderer.
+// fails here can reach a renderer — including manual edits.
+//
+// HONEST LIMIT: the LLM pass has no retrieval layer or verified source corpus —
+// it reviews claims from model knowledge, so it is a strong claim REVIEWER,
+// not a source-backed fact-checker. Findings it marks "supported" carry the
+// model's citation as a note, not a verified reference. A retrieval-backed
+// corpus is the known upgrade path if factual stakes rise.
 
 import type { VideoPackage } from "./types.js";
 import type { LlmClient } from "./llm.js";
@@ -137,8 +143,9 @@ Rules:
 - Historical/scientific mysteries may remain unresolved — but the FACTS cited must be real
   (dates, names, places, measurements). Fake mystery presented as verified fact = unsupported.
 - Hedged tendencies ("tends to", "can", "often") with a real basis are fine.
-- pass = true ONLY if there are zero contested/unsupported findings and any overclaimed
-  findings are trivial word-level fixes you spell out in "fix".
+- pass = true ONLY if EVERY finding is "supported". Contested, unsupported AND
+  overclaimed findings all block — for overclaimed, spell out the exact
+  replacement wording in "required_fix" so the rewrite can apply it directly.
 Output one prioritized "fix" instruction for the rewrite loop.`;
 
 /**
@@ -183,9 +190,11 @@ export async function factCheckPackage(llm: LlmClient, pkg: VideoPackage): Promi
         requiredFix: String(f?.required_fix ?? ""),
       }))
     : [];
-  // Belt-and-braces: the boolean must agree with the findings. A model that
-  // says pass=true while listing contested/unsupported findings is overruled.
-  const blocking = findings.filter((f) => f.verdict === "contested" || f.verdict === "unsupported");
+  // Belt-and-braces: the boolean must agree with the findings. EVERY
+  // non-supported verdict blocks — including "overclaimed", because an
+  // absolute claim that renders unchanged is precisely the defect this stage
+  // exists to stop. The rewrite loop applies the required fix.
+  const blocking = findings.filter((f) => f.verdict !== "supported");
   const pass = Boolean(raw?.pass) && blocking.length === 0;
   return {
     pass,

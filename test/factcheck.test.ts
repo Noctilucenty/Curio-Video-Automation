@@ -87,4 +87,25 @@ describe("factCheckPackage", () => {
     const result = await factCheckPackage(lyingLlm as any, pkgWith({}));
     expect(result.pass).toBe(false);
   });
+
+  it("OVERCLAIMED findings block too — absolutes never render unchanged", async () => {
+    const overclaimLlm = {
+      model: "stub",
+      async generateJson() {
+        return {
+          pass: true, // model tries to wave it through
+          fix: "soften to a tendency",
+          findings: [{
+            claim: "anchoring drags EVERY judgment",
+            verdict: "overclaimed",
+            issue: "real effect stated as an iron law",
+            required_fix: "write 'can drag your judgment'",
+          }],
+        };
+      },
+    };
+    const result = await factCheckPackage(overclaimLlm as any, pkgWith({}));
+    expect(result.pass).toBe(false);
+    expect(result.findings[0].verdict).toBe("overclaimed");
+  });
 });

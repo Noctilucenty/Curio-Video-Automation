@@ -1,0 +1,15 @@
+{
+  "_readme": "Measured properties of the reference corpus + the failed Curio render. All values machine-measured on 2026-07-12 (methods in data/video-reference-manifest.json). hardCuts030 = scene changes at threshold 0.30/160px (conservative); reviewerCutEstimate = the earlier looser-threshold pass where it differed.",
+  "measuredAt": "2026-07-12",
+  "videos": [
+    { "id": "ref-8-hard-truths", "durationSeconds": 5.04, "resolution": "1080x1920", "fps": 6, "integratedLufs": -14.1, "truePeakDbfs": -3.4, "hardCuts030": 0, "system": "static card" },
+    { "id": "ref-psychology-facts", "durationSeconds": 4.18, "resolution": "720x1280", "fps": 30, "integratedLufs": -14.1, "truePeakDbfs": -3.0, "hardCuts030": 0, "system": "static card" },
+    { "id": "ref-6-sides", "durationSeconds": 5.06, "resolution": "1080x1920", "fps": 24, "integratedLufs": -16.8, "truePeakDbfs": -4.5, "hardCuts030": 0, "system": "static card" },
+    { "id": "ref-five-traits", "durationSeconds": 59.07, "resolution": "720x1280", "fps": 30, "integratedLufs": -9.2, "truePeakDbfs": 1.0, "truePeakNote": "clipping — loud is platform-common but our gate rejects it", "hardCuts030": 0, "system": "face-led identity narration" },
+    { "id": "ref-reverse-psychology", "durationSeconds": 74.33, "resolution": "720x804", "fps": 29.97, "integratedLufs": -14.5, "truePeakDbfs": -0.7, "hardCuts030": 1, "reviewerCutEstimate": 7, "system": "reframed dialogue / deduction clip" },
+    { "id": "ref-ant-experiment", "durationSeconds": 35.13, "resolution": "720x1280", "fps": 30, "integratedLufs": -10.2, "truePeakDbfs": -0.2, "hardCuts030": 5, "reviewerCutEstimate": 9, "system": "participation / visible experiment" },
+    { "id": "ref-military-strategy", "durationSeconds": 86.29, "resolution": "1080x1920", "fps": 30, "integratedLufs": -14.0, "truePeakDbfs": -0.5, "hardCuts030": 49, "reviewerCutEstimate": 57, "avgCutIntervalSeconds": 1.7, "system": "narrative escalation montage" },
+    { "id": "failed-curio-render-v1", "durationSeconds": 21.47, "resolution": "1080x1920", "fps": 30, "integratedLufs": -18.5, "truePeakDbfs": -4.1, "hardCuts030": 0, "system": "text over gradient (REJECTED)" }
+  ],
+  "loudnessRange": { "referencesMin": -16.8, "referencesMax": -9.2, "failedRender": -18.5, "curioPostedWinners": [-17.1, -16.7, -17.1], "gateWindow": [-20, -12] }
+}

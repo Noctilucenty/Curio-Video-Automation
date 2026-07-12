@@ -4,9 +4,20 @@
 // Video rows are reconstructions: honest where we have data, minimal where we
 // don't — the dataset JSON stays the source of truth for full creative detail.
 //
-// Idempotent: rows use fixed ids derived from the experiment id; re-running
-// updates in place. Run: npx tsx tools/import_posted_experiments.ts [dataDir]
+// Update semantics: metric rows are CONTENT-ADDRESSED (id carries a hash of
+// the row's values). Correcting posted-experiments.json produces a new row id
+// with a newer ingestedAt, and learning's latest-per-(video,platform) rule
+// supersedes the stale one — re-running with unchanged data adds nothing.
+//
+// PLATFORM SEPARATION (hard rule): a metrics row is only written when the
+// INSTAGRAM view count is known. Combined IG+FB totals never enter the
+// learning stream — IG engagement counts over a mixed denominator is exactly
+// the corruption the dataset warns about. Experiments missing the split are
+// reported so Leon can pull the number from the insights Engagement tab.
+//
+// Run: npx tsx tools/import_posted_experiments.ts [dataDir]
 
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { JsonFileRepo } from "../src/repository.js";
@@ -19,23 +30,28 @@ function epoch(dateStr: string): number {
   return new Date(`${dateStr}T12:00:00-07:00`).getTime();
 }
 
-/** Prefer IG-only views (engagement rates are IG signals); fall back to the
- * combined total ONLY when the split is missing, exactly as flagged in the
- * dataset. Counts absent from screenshots are derived as IG views x rate and
- * rounded — the dataset marks these derived. */
-function metricsFor(exp: any, videoId: string): PerformanceMetrics {
+/** Trim to a word boundary — reconstructed captions must not cut mid-word. */
+function wordTrim(s: string, max: number): string {
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max + 1);
+  const at = cut.lastIndexOf(" ");
+  return (at > 0 ? cut.slice(0, at) : cut.slice(0, max)).trim();
+}
+
+/** null when the IG split is missing — the caller skips the row and warns. */
+function metricsFor(exp: any, videoId: string): PerformanceMetrics | null {
   const a = exp.analytics;
   const igViews: number | null = a.viewsInstagram;
-  const views = igViews ?? a.viewsTotal;
+  if (igViews == null || !(igViews > 0)) return null;
   const count = (raw: number | undefined, rate: number | null | undefined) =>
-    raw ?? (igViews != null && rate != null ? Math.round(igViews * rate) : 0);
-  return {
-    id: `met_${exp.id.replace(/-/g, "_")}`,
+    raw ?? (rate != null ? Math.round(igViews * rate) : 0);
+  const row = {
     videoId,
-    platform: "reels",
-    surface: igViews != null ? "instagram" : undefined,
+    platform: "reels" as const,
+    surface: "instagram" as const,
+    provenance: "real" as const,
     reach: a.reachInstagram ?? undefined,
-    views,
+    views: igViews,
     avgWatchTime: a.avgWatchTimeSeconds ?? 0,
     completionRate: a.retentionAtEnd ?? 0,
     skipRate: a.skipRate ?? undefined,
@@ -46,8 +62,9 @@ function metricsFor(exp: any, videoId: string): PerformanceMetrics {
     follows: 0,
     profileClicks: 0,
     postedAt: epoch(exp.postedAt),
-    ingestedAt: Date.now(),
-  } as PerformanceMetrics;
+  };
+  const hash = createHash("sha256").update(JSON.stringify(row)).digest("hex").slice(0, 8);
+  return { ...row, id: `met_${exp.id.replace(/-/g, "_")}_${hash}`, ingestedAt: Date.now() };
 }
 
 async function main() {
@@ -58,11 +75,12 @@ async function main() {
     const topicId = `top_${slug}`;
     const videoId = `vid_${slug}`;
     const postedAt = epoch(exp.postedAt);
+    const category = exp.category ?? "uncategorized";
 
     const topic: Topic = {
       id: topicId,
       topic: exp.title,
-      category: "mystery-psychology",
+      category,
       targetPlatform: "reels",
       tone: "calm, premium, mysterious",
       targetLengthSeconds: Math.round(exp.creative.durationSeconds),
@@ -84,15 +102,15 @@ async function main() {
       format: "narrated",
       pkg: {
         topic: exp.title,
-        category: "mystery-psychology",
+        category,
         targetPlatform: "reels",
         hookOptions: [exp.creative.hookWording],
         selectedHook: exp.creative.hookWording,
-        script: `[reconstructed — produced externally in Captions.ai] ${exp.creative.visualTimeline}. Reveal: ${exp.creative.reveal}`,
+        script: `[RECONSTRUCTED — produced externally in Captions.ai; not the actual narration] ${exp.creative.visualTimeline}. Reveal: ${exp.creative.reveal}`,
         sceneDirection: `opening frame: ${exp.creative.openingFrame}. archetype: ${exp.creative.archetype}. audio: ${exp.creative.audio.style} (${exp.creative.audio.integratedLufs} LUFS)`,
         avatarTone: "calm, dark documentary",
         captionLines: [
-          { startHint: 0, endHint: 3, text: exp.creative.hookWording.slice(0, 60), emphasis: "", position: "lower_center", style: "curio_premium" },
+          { startHint: 0, endHint: 3, text: `[reconstructed] ${wordTrim(exp.creative.hookWording, 60)}`, emphasis: "", position: "lower_center", style: "curio_premium" },
         ],
         title: exp.title,
         thumbnailText: exp.title,
@@ -110,16 +128,26 @@ async function main() {
     };
     await (existing ? repo.updateVideo(video) : repo.createVideo(video));
 
-    // Latest-wins metrics: replace-by-fixed-id isn't supported, so only add
-    // when this exact import row isn't already stored.
-    const already = (await repo.listMetrics(videoId)).some((m) => m.id === `met_${slug}`);
-    if (!already) await repo.addMetrics(metricsFor(exp, videoId));
-
-    console.log(`imported ${videoId}  (${exp.title})`);
+    const m = metricsFor(exp, videoId);
+    if (!m) {
+      console.warn(
+        `⚠ ${videoId}: NO metrics row written — Instagram view count missing. ` +
+          `Combined IG+FB totals never enter learning. Get the IG-only view count ` +
+          `from the Reel insights and add analytics.viewsInstagram.`,
+      );
+      continue;
+    }
+    const already = (await repo.listMetrics(videoId)).some((x) => x.id === m.id);
+    if (already) {
+      console.log(`unchanged ${videoId} (${m.id})`);
+    } else {
+      await repo.addMetrics(m);
+      console.log(`imported ${videoId} → ${m.id} (IG views ${m.views}, reach ${m.reach ?? "?"})`);
+    }
   }
 
   repo.flush();
-  console.log("done — posted experiments are now visible to /api/performance/summary and learning runs");
+  console.log("done — real experiments visible to /api/performance/summary and learning runs");
 }
 
 main().catch((e) => {

@@ -139,13 +139,17 @@ export async function finalizeManualEdit(deps: PipelineDeps, videoId: string): P
   const video = await repo.getVideo(videoId);
   if (!video?.pkg) throw new Error(`video ${videoId} has no package to finalize`);
   const calibrationRules = (await repo.listRules(true)).filter((r) => r.category === "calibration");
-  // The human outranks the creative judge, but factual problems must still be
-  // visible on the record — a manual edit can introduce a contested claim.
+  // The human outranks the CREATIVE judge — never the factual gate. A manual
+  // edit that introduces a contested/unsupported claim must not render; it
+  // parks in needs_revision with the findings spelled out for the editor.
   const facts = await factCheckPackage(llm, video.pkg);
   await recordGeneration(repo, video, "factcheck", facts.promptVersion, facts.modelUsed, facts.input, facts.rawOutput);
   if (!facts.pass) {
     const flagged = facts.findings.filter((f) => f.verdict !== "supported").map((f) => f.issue).join("; ");
-    video.reviewNote = [video.reviewNote, `⚠ fact-check flagged: ${flagged}`].filter(Boolean).join(" | ");
+    video.reviewNote = [video.reviewNote, `⛔ fact-check blocked render: ${flagged} — fix: ${facts.fix}`]
+      .filter(Boolean).join(" | ");
+    setStatus(video, "needs_revision");
+    return repo.updateVideo(video);
   }
   const judged = await judgePackage(llm, video.pkg, calibrationRules, video.format ?? "narrated");
   video.judge = judged.scores;

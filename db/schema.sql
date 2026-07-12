@@ -41,7 +41,7 @@ alter table videos add column if not exists applied_rule_ids jsonb;
 create table if not exists prompt_versions (
   id text primary key,
   video_id text not null,   -- video id, or learning run id for kind='learning'
-  kind text not null check (kind in ('package','judge','learning','ingest')),
+  kind text not null check (kind in ('package','judge','factcheck','learning','ingest')),
   prompt_version text not null,
   model text not null,
   input jsonb not null,
@@ -51,7 +51,7 @@ create table if not exists prompt_versions (
 create index if not exists prompt_versions_video_idx on prompt_versions(video_id);
 alter table prompt_versions drop constraint if exists prompt_versions_kind_check;
 alter table prompt_versions add constraint prompt_versions_kind_check
-  check (kind in ('package','judge','learning','ingest'));
+  check (kind in ('package','judge','factcheck','learning','ingest'));
 
 create table if not exists performance_metrics (
   id text primary key,
@@ -73,6 +73,13 @@ create table if not exists performance_metrics (
 );
 create index if not exists performance_metrics_video_idx on performance_metrics(video_id);
 alter table performance_metrics add column if not exists skip_rate real check (skip_rate between 0 and 1);
+-- Platform separation + provenance (2026-07-12): IG and FB must never share a
+-- denominator, and learning excludes synthetic (dev/mock-era) rows.
+alter table performance_metrics add column if not exists surface text
+  check (surface in ('instagram','facebook','tiktok','youtube'));
+alter table performance_metrics add column if not exists reach bigint;
+alter table performance_metrics add column if not exists provenance text
+  check (provenance in ('real','synthetic'));
 
 -- Content rules the generator obeys; learning runs supersede their predecessors.
 -- category 'calibration' rules tune the JUDGE (predicted vs actual), not the generator.

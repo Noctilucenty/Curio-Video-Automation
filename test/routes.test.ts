@@ -200,6 +200,43 @@ describe("api flow", () => {
     expect((await request(app).post("/api/video-topics").send({ topic: "narrated topic" })).status).toBe(201);
   });
 
+  it("the card freeze also guards regenerate and edit — every pipeline entry point", async () => {
+    // build the card BEFORE freezing, then freeze and try the side doors
+    const { app, queue, repo } = await makeApp(null, false);
+    const gen = await request(app).post("/api/videos/generate").send({ topic: "pre-freeze card", format: "card" });
+    const videoId = gen.body.video_id;
+    await queue.drain();
+    expect((await repo.getVideo(videoId))!.status).toBe("ready_for_review");
+
+    const frozen = createApp({
+      config: testConfig(null, true), repo, llm: new MockLlmClient(), renderer: new MockRenderer(),
+      voice: new MockVoice(), post: new MockPostProcessor(),
+    });
+    const re = await request(frozen.app).post(`/api/videos/${videoId}/regenerate`).send({});
+    expect(re.status).toBe(403);
+    const edit = await request(frozen.app).post(`/api/videos/${videoId}/edit`).send({ hook: "new hook" });
+    expect(edit.status).toBe(403);
+  });
+
+  it("manual edits cannot render past the factuality gate", async () => {
+    const { app, queue, repo } = await makeApp();
+    const gen = await request(app).post("/api/videos/generate").send({ topic: "clean topic about tides" });
+    const videoId = gen.body.video_id;
+    await queue.drain();
+    expect((await repo.getVideo(videoId))!.status).toBe("ready_for_review");
+
+    // human introduces a contested claim — re-render must be blocked
+    const edit = await request(app).post(`/api/videos/${videoId}/edit`).send({
+      script: "Ego depletion drains your willpower with every single choice.",
+    });
+    expect(edit.status).toBe(202);
+    await queue.drain();
+
+    const vid = await repo.getVideo(videoId);
+    expect(vid!.status).toBe("needs_revision"); // parked, NOT rendered
+    expect(vid!.reviewNote).toContain("fact-check blocked render");
+  });
+
   it("enforces the admin token on mutations but keeps reads open", async () => {
     const { app } = await makeApp("secret-token");
     expect((await request(app).get("/api/videos")).status).toBe(200);

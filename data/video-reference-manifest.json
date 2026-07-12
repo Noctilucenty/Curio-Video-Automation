@@ -1,0 +1,24 @@
+{
+  "_readme": "Manifest of the reference-video corpus. The video FILES live in samples/ (gitignored — downloaded third-party content, not ours to redistribute); contact sheets in data/video-analysis/contact-sheets/ (local-only, derived from third-party frames). Measured properties are committed in analysis/reference-video-inventory.json; the human-readable audit is docs/curio/VIDEO_REFERENCE_AUDIT.md.",
+  "auditedAt": "2026-07-12",
+  "measurementMethod": {
+    "duration_resolution_fps": "ffprobe",
+    "loudness": "ffmpeg ebur128 (integrated LUFS) + true peak (dBFS)",
+    "hardCuts": "scene-change detection, threshold 0.30 on 160px-scaled frames — CONSERVATIVE: text changes and continuous subject motion are not counted; a looser threshold (reviewer's earlier pass) yields slightly higher counts (e.g. military 57 vs 49). Treat cut counts as ballpark, not exact.",
+    "contactSheets": "24 frames tiled 6x4 per video, data/video-analysis/contact-sheets/<slug>.jpg (local-only)"
+  },
+  "references": [
+    { "id": "ref-8-hard-truths", "ytId": "cgLQdjDG4lc", "title": "8 Hard Truths That Most People Learn Too Late", "file": "samples/YTDown.com_YouTube_8-Hard-Truths-That-Most-People-Learn-Too_Media_cgLQdjDG4lc_001_1080p.mp4", "system": "static card" },
+    { "id": "ref-psychology-facts", "ytId": "rj94C0mZayU", "title": "Psychology Facts That Will Change How You Think", "file": "samples/YTDown.com_YouTube_Psychology-Facts-That-Will-Change-How-Yo_Media_rj94C0mZayU_001_720p.mp4", "system": "static card" },
+    { "id": "ref-6-sides", "ytId": "Yltx_7N2HvY", "title": "Unbelievable Dark Psychology Facts (6 Sides of Male Psychology)", "file": "samples/YTDown.com_YouTube_Unbelievable-Dark-Psychology-Facts-That-_Media_Yltx_7N2HvY_001_1080p.mp4", "system": "static card" },
+    { "id": "ref-five-traits", "ytId": "oP71YZd50l4", "title": "Five Psychology Traits of Genuinely Good People", "file": "samples/YTDown.com_YouTube_Five-psychology-traits-of-genuinely-good_Media_oP71YZd50l4_001_720p.mp4", "system": "face-led identity narration" },
+    { "id": "ref-reverse-psychology", "ytId": "wNRquyawoRE", "title": "Reverse Psychology at the Lowest Level", "file": "samples/YTDown.com_YouTube_Reverse-Psychology-at-the-Lowest-Level_Media_wNRquyawoRE_001_720p.mp4", "system": "reframed dialogue / deduction clip" },
+    { "id": "ref-ant-experiment", "ytId": "lxszTIYbJQI", "title": "Amazing Facts — Red vs Green Ant Experiment", "file": "samples/YTDown.com_YouTube_amazingfacts-facts_Media_lxszTIYbJQI_001_720p.mp4", "system": "participation / visible experiment" },
+    { "id": "ref-military-strategy", "ytId": "THb0k0AugvQ", "title": "Military Strategy (movie recut)", "file": "samples/YTDown.com_YouTube_militarystrategy-psychology-movie_Media_THb0k0AugvQ_001_1080p.mp4", "system": "narrative escalation montage" }
+  ],
+  "comparisonSubject": {
+    "id": "failed-curio-render-v1",
+    "file": "data/videos/localvid_mrhi3u4o_06vj1exa.mp4",
+    "note": "the rejected jamais-vu factory render — the baseline every requirement is derived against"
+  }
+}
