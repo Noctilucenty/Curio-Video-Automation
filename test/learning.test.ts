@@ -4,7 +4,7 @@ import { MockLlmClient } from "../src/llm.js";
 import { MockRenderer } from "../src/heygen.js";
 import { MockVoice } from "../src/voice.js";
 import { MockPostProcessor } from "../src/postprocess.js";
-import { createDraftVideo, runGenerationPipeline } from "../src/pipeline.js";
+import { createDraftVideo, finalizeManualEdit, runGenerationPipeline } from "../src/pipeline.js";
 import { runLearning, engagementScore, ensureSeedRules, LearningDataError, latestMetricsByVideo } from "../src/learning.js";
 import { makeId } from "../src/config.js";
 import { SEED_RULES } from "../src/prompts.js";
@@ -124,6 +124,43 @@ describe("learning payload cohort metadata", () => {
     expect(keys).toContain("reels:instagram");
     expect(keys).toContain("reels:facebook");
     expect(keys).not.toContain("reels");
+
+    // cohort aggregates span the FULL population, not just the extremes:
+    // all 10 scored rows must be counted in each grouping
+    const cohorts = payload.current.cohorts;
+    const v5 = cohorts.by_prompt_version.pkg_v5_one_outcome;
+    expect(v5.n_rows).toBe(10);
+    expect(v5.distinct_videos).toBe(10);
+    expect(typeof v5.avg_engagement).toBe("number");
+    const retention = cohorts.by_primary_outcome.retention;
+    expect(retention.n_rows).toBe(10);
+  });
+
+  it("attributes manually edited packages to the manual_edit cohort", async () => {
+    const repo = new InMemoryRepo();
+    await ensureSeedRules(repo);
+    const ids = await seedVideos(repo, 10);
+    // Simulate a human edit on one video: the manual-edit path records a
+    // kind=package generation with promptVersion manual_edit, superseding
+    // the GPT prompt cohort for that video's future analytics.
+    const edited = (await repo.getVideo(ids[0]))!;
+    await finalizeManualEdit(
+      { repo, llm: new MockLlmClient(), renderer: new MockRenderer(), voice: new MockVoice(),
+        post: new MockPostProcessor(), avatarId: "a", voiceId: "v" },
+      edited.id,
+    );
+    for (const id of ids) {
+      await repo.addMetrics(metrics(id, { views: 10000 }));
+    }
+
+    await runLearning(repo, new MockLlmClient());
+    const rec = (await repo.listGenerations()).find((g) => g.kind === "learning")!;
+    const user = String((rec.input as { user: string }).user);
+    const payload = JSON.parse(user.slice(user.indexOf("{")));
+
+    const cohorts = payload.current.cohorts.by_prompt_version;
+    expect(cohorts.manual_edit?.n_rows).toBe(1);
+    expect(cohorts.pkg_v5_one_outcome?.n_rows).toBe(9);
   });
 });
 

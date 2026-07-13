@@ -316,7 +316,10 @@ export function canonicalSurface(
   return undefined;
 }
 
-function canonicalPlatform(label: string | null | undefined, fallback: Platform): Platform {
+/** Map a free-form platform label ("Instagram", "FB", "TikTok Studio") to the
+ * canonical platform id. Shared with the direct performance route so
+ * "instagram" is never misfiled under the tiktok fallback. */
+export function canonicalPlatform(label: string | null | undefined, fallback: Platform): Platform {
   const normalized = label ? normalize(label) : "";
   if (!normalized) return fallback;
   const direct = PLATFORM_ALIASES[normalized];

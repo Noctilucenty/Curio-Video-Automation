@@ -139,6 +139,11 @@ export async function finalizeManualEdit(deps: PipelineDeps, videoId: string): P
   const video = await repo.getVideo(videoId);
   if (!video?.pkg) throw new Error(`video ${videoId} has no package to finalize`);
   const calibrationRules = (await repo.listRules(true)).filter((r) => r.category === "calibration");
+  // Cohort provenance: the human-edited package supersedes whatever GPT prompt
+  // produced the original. Recording it as the latest kind=package generation
+  // means learning attributes this video's analytics to "manual_edit", never
+  // to a pkg_v* cohort the final content no longer represents.
+  await recordGeneration(repo, video, "package", "manual_edit", "human", { source: "manual edit" }, video.pkg);
   // The human outranks the CREATIVE judge — never the factual gate. A manual
   // edit that introduces a contested/unsupported claim must not render; it
   // parks in needs_revision with the findings spelled out for the editor.

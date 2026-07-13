@@ -32,7 +32,7 @@ async function makeApp(adminToken: string | null = null, cardsFrozen = false) {
 
 describe("api flow", () => {
   it("topic -> generate -> review -> approve -> publish -> performance", async () => {
-    const { app, queue } = await makeApp();
+    const { app, queue, repo } = await makeApp();
 
     // create topic
     const topicRes = await request(app).post("/api/video-topics").send({
@@ -94,11 +94,16 @@ describe("api flow", () => {
     expect(combined.status).toBe(400);
     expect(combined.body.error).toContain("explicit surface");
 
-    // the same numbers WITH a surface are accepted and stored surface-tagged
+    // the same numbers WITH a surface are accepted — and "instagram" as the
+    // platform label must canonicalize to reels, never fall back to tiktok
     const igOnly = await request(app).post(`/api/videos/${videoId}/performance`).send({
       platform: "instagram", views: 196, reach: 160, avg_watch_time: 8, completion_rate: 0.3,
     });
     expect(igOnly.status).toBe(201);
+    const igRow = (await repo.listMetrics(videoId)).find((m) => m.views === 196)!;
+    expect(igRow.platform).toBe("reels");
+    expect(igRow.surface).toBe("instagram");
+    expect(igRow.reach).toBe(160);
   });
 
   it("rejects invalid status transitions with 409", async () => {

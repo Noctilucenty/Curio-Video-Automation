@@ -205,6 +205,8 @@ async function runLearningUnlocked(repo: Repo, llm: LlmClient): Promise<Learning
       top_videos: top.map((s) => describeVideo(s, pkgVersionByVideo)),
       bottom_videos: bottom.map((s) => describeVideo(s, pkgVersionByVideo)),
       platforms: platformAggregates(scored),
+      // Full-population design cohorts — never inferred from the extremes.
+      cohorts: cohortAggregates(scored, pkgVersionByVideo),
     },
     history: priorRuns.slice(0, 3).map((r) => ({
       run_id: r.id,
@@ -321,6 +323,46 @@ function describeVideo(s: ScoredVideo, pkgVersionByVideo: Map<string, string>) {
     shares: s.metrics.shares,
     likes: s.metrics.likes,
     engagement_score: round1(s.score),
+  };
+}
+
+/**
+ * Full-population cohort aggregates: EVERY scored row, grouped by design
+ * cohort (package prompt version, primary outcome). top/bottom examples alone
+ * are the extremes (~20% each) — inferring cohort performance from them is
+ * selection bias, so v4-vs-v5 and retention-vs-shares comparisons read this.
+ */
+function cohortAggregates(scored: ScoredVideo[], pkgVersionByVideo: Map<string, string>) {
+  const describe = (list: ScoredVideo[]) => {
+    const withSkip = list.filter((s) => s.metrics.skipRate != null);
+    const totalViews = list.reduce((acc, s) => acc + s.metrics.views, 0);
+    return {
+      n_rows: list.length,
+      distinct_videos: new Set(list.map((s) => s.video.id)).size,
+      avg_engagement: round1(avg(list.map((s) => s.score))),
+      avg_completion: Math.round(avg(list.map((s) => s.metrics.completionRate)) * 100) / 100,
+      avg_skip_rate: withSkip.length
+        ? Math.round(avg(withSkip.map((s) => s.metrics.skipRate!)) * 100) / 100
+        : null,
+      shares_per_1k_views: totalViews
+        ? round1((list.reduce((acc, s) => acc + s.metrics.shares, 0) / totalViews) * 1000)
+        : 0,
+      saves_per_1k_views: totalViews
+        ? round1((list.reduce((acc, s) => acc + s.metrics.saves, 0) / totalViews) * 1000)
+        : 0,
+    };
+  };
+  const groupBy = (key: (s: ScoredVideo) => string) => {
+    const groups = new Map<string, ScoredVideo[]>();
+    for (const s of scored) {
+      const k = key(s);
+      groups.set(k, [...(groups.get(k) ?? []), s]);
+    }
+    return Object.fromEntries([...groups.entries()].map(([k, list]) => [k, describe(list)]));
+  };
+  return {
+    by_prompt_version: groupBy((s) => pkgVersionByVideo.get(s.video.id) ?? "unknown"),
+    by_primary_outcome: groupBy((s) => s.video.pkg.primaryOutcome ?? "undeclared"),
   };
 }
 

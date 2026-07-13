@@ -247,7 +247,11 @@ export function learningSystemPrompt(): string {
   return `You analyze short-form video performance for Curio so the system improves
 with EVERY analytics drop. The payload contains:
 - current: top-20% and bottom-20% videos (hooks, categories, lengths, caption
-  stats, metrics) plus per-platform aggregates.
+  stats, metrics) plus per-(platform,surface) aggregates, plus "cohorts":
+  FULL-population aggregates by package prompt version and by primary outcome.
+  Judge design cohorts (pkg_v4 vs pkg_v5, retention-first vs shares-first)
+  ONLY from cohorts — the top/bottom lists are the extremes and carry
+  selection bias. Treat small cohort n as noisy and say so.
 - history: summaries of previous learning runs and the rules they issued.
 - rule_validation: for each previously-issued rule, the avg engagement of videos
   generated UNDER that rule vs the overall baseline. Re-issue (strengthened) the

@@ -16,7 +16,7 @@ import { createDraftVideo } from "./pipeline.js";
 import { normalizeCaptions, captionsToSrt, CAPTION_STYLE } from "./captions.js";
 import { PUBLISH_THRESHOLDS } from "./judge.js";
 import { runLearning, LearningDataError, MIN_VIDEOS_FOR_LEARNING, latestMetricsByVideo, engagementScore } from "./learning.js";
-import { canonicalSurface, ingestRawAnalytics } from "./ingest.js";
+import { canonicalPlatform, canonicalSurface, ingestRawAnalytics } from "./ingest.js";
 
 export interface RouteDeps {
   repo: Repo;
@@ -256,11 +256,16 @@ export function buildRoutes(deps: RouteDeps): Router {
       res.status(400).json({ error: "skip_rate must be a number when provided" });
       return;
     }
-    const platform = String(b.platform ?? video.pkg?.targetPlatform ?? "tiktok").toLowerCase() as Platform;
+    // Same canonicalizer as pasted ingestion: "instagram"/"facebook" map to
+    // platform reels (NOT the tiktok fallback) with the surface derived below.
+    const platform = canonicalPlatform(
+      b.platform != null ? String(b.platform) : null,
+      (video.pkg?.targetPlatform ?? "tiktok") as Platform,
+    );
     // IG and FB share platform "reels" — surface keeps their streams apart.
     // The raw platform label is the fallback hint ("instagram" ⇒ surface).
     const surface = canonicalSurface(b.surface) ?? canonicalSurface(b.platform);
-    if ((PLATFORMS.has(platform) ? platform : "tiktok") === "reels" && !surface) {
+    if (platform === "reels" && !surface) {
       res.status(400).json({
         error:
           "reels metrics need an explicit surface (instagram or facebook) — " +
@@ -271,7 +276,7 @@ export function buildRoutes(deps: RouteDeps): Router {
     await repo.addMetrics({
       id: makeId("met"),
       videoId: video.id,
-      platform: PLATFORMS.has(platform) ? platform : "tiktok",
+      platform,
       surface,
       reach: b.reach != null && Number.isFinite(Number(b.reach)) ? num(b.reach) : undefined,
       provenance: "real",
