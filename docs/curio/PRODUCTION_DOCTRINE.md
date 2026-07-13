@@ -68,6 +68,16 @@ master runs `node tools/finalqa.mjs <mp4>` BEFORE going to review. No exceptions
 10. **Every asset enters the license log at acquisition time** (source URL,
     asset id, license, AI-generated flag). No log entry, no timeline.
 
+11. **Transcript-verify every TTS take before building on it.** ElevenLabs
+    multilingual can silently emit seconds of gibberish syllables on an
+    otherwise-200 response (REP-2 rev 4: an em-dash triggered ~3s of mumbled
+    non-words; whisper transcript caught it, the waveform alone did not).
+    Avoid em-dashes in TTS text (use ellipsis or a period). Also: SSML
+    `<break>` times COMPOUND with the voice's natural sentence pauses —
+    measure the take and keep every unengineered gap short enough that no
+    silence-trimming pass is ever needed (REP-2 rev 4: asked 0.3s, got 0.61s;
+    fixed by requesting 0.15s and letting punctuation do the rest).
+
 ## Final-video QA checklist (run on every master, before every review)
 
 Automated by `tools/finalqa.mjs` (deterministic, no LLM):

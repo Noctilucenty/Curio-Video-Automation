@@ -87,7 +87,64 @@ wake — the surface is calm, not featureless); "denser salt water" replaces
 
 ---
 
-## 2-REV3. FINAL script (Codex tone revision 2026-07-14 — supersedes §2)
+## 2-REV4. FINAL script (Codex low-cognitive-load revision 2026-07-13 — supersedes §2-REV3)
+
+Codex verdict on rev 3's master (v4): technically polished but too many
+concepts (Nansen, Arctic, helm, stealing force, two waters, invisible waves)
+— viewer translates nautical/scientific language while following the mystery.
+Rev 4: one idea per sentence, crew introduced immediately, no proper name in
+narration (Nansen + 1893 move to the post caption), no "helm". CLOSER VETO
+RESOLVED: Codex vetoed its own "From the deck, you could see nothing" (too
+absolute — wake ripples are visible); replaced with "From the deck: only calm
+water", which matches frame zero exactly.
+
+> An Arctic ship ran at full power... and barely moved. The crew turned.
+> Looped. Tried everything. But the surface stayed calm. The trap was
+> underneath. Every turn of the propeller fed invisible waves. Sailors
+> called it dead water. Fresh meltwater floated over salt water. From the
+> deck: only calm water.
+
+Narration: narration-v4.mp3, 18.16s measured, pinned voice settings (stability
+.45 / similarity .70 / style .20 / boost / speed 1.04). Leon's pause
+constraint honored: SSML breaks compound with the voice's natural sentence
+pauses, so explicit breaks are minimal (0.15s after "underneath.", 0.35s
+before "dead water") — measured result: the ONLY long pause is the engineered
+reveal beat at 12.27-12.72 (0.45s, bottom of Codex's 0.45-0.55 window); every
+other gap ≤0.37s. Nothing trim-worthy, no dead air. ⚠ TTS note: the em-dash
+in "full power — and" made eleven_multilingual_v2 mumble gibberish for ~3s
+(one bad take, caught by whisper transcript check); ellipsis fixed it. Add to
+doctrine: transcript-verify every take, avoid em-dashes in TTS text.
+"dead" = word 37/50 = 74% by word position (Codex's number); acoustically
+lands 12.72s = 70% of runtime.
+
+Shot map (same 7 looks, frame-quantized to measured acoustic onsets, 545
+frames @ 30fps = 18.167s):
+| look | time | narration |
+|---|---|---|
+| 1 hero anomaly | 0.00-3.27 | "An Arctic ship ran at full power... and barely moved." |
+| 2 course trace | 3.27-5.63 | "The crew turned. Looped. Tried everything." |
+| 3 calm hero hold | 5.63-7.20 | "But the surface stayed calm." |
+| 4 descent | 7.20-8.73 | "The trap was underneath." + 0.37s dread pause |
+| 5 mechanism/propeller | 8.73-12.70 | "Every turn of the propeller fed invisible waves. Sailors called it" + 0.45s silence |
+| 6 full cross-section reveal | 12.70-16.20 | "dead water. Fresh meltwater floated over salt water." (flare +0.35s as the name lands) |
+| 7 hero return (loop) | 16.20-18.17 | "From the deck: only calm water." (quiet, intimate; footer 16.6-17.9) |
+
+Captions for the Captions.ai build (Codex-locked, ONLY these emphasis words;
+captions 5-7 ride the mechanism/reveal section):
+1. "Full power. Barely moving." — **BARELY MOVING**
+2. "They turned. Looped. Tried everything." — **LOOPED**
+3. "But the surface stayed calm." — **STAYED CALM**
+4. "The trap was underneath." — **UNDERNEATH**
+5. "The propeller fed invisible waves." — **INVISIBLE WAVES**
+6. "Sailors called it dead water." — **DEAD WATER**
+7. "Fresh water over salt water." — **FRESH WATER**
+8. "From the deck: calm water." — **CALM WATER**
+
+MASTER: REP-2-pre-captions-master-v5.mp4 — finalqa ALL PASS (-17.1 LUFS,
+TP -2.0, silence beat 12.28s 0.43s <-35dB, no black, loop blurred SSIM 0.972 /
+raw 0.958). Gate: Leon watch → Captions.ai build → Codex pre-post review.
+
+## 2-REV3. Script rev 3 (superseded by 2-REV4 above — closer vetoed by Codex)
 
 Codex verdict on rev 2's master: all production gates pass, but tone was a
 "classroom explanation" vs Third Man's human dread. Rev 3 adds human struggle
