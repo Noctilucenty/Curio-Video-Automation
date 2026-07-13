@@ -123,8 +123,18 @@ treatment as Third Man. No download screen, no list, no engagement bait.
 - Low single-engine thrum under shots 1–2, fading by shot 3.
 - Near-silence beat at ~12.2–12.6s — right before "dead water" lands.
 - One soft, deep boom under the signature (~15.5s). Nothing else.
-- Narrator: same ElevenLabs voice + delivery settings as Third Man
-  (stability .45 / similarity .70 / style .20 / boost on / speed 1.08).
+- Narrator — **determined by the Third Man Captions.ai project, not assumed**
+  (the exported MP4 preserves no voice identity; the configured ElevenLabs
+  voice is NOT proof it was used). Procedure: open the original Third Man
+  project in Captions.ai → duplicate it → BEFORE changing anything, record
+  voice name/ID + settings, caption preset + font, music track + volume,
+  narration volume, transition/pacing settings → keep all project-level
+  settings unchanged → build Dead Water only inside the duplicate.
+  **Fallback if the original project no longer exists:** exact voice matching
+  is impossible from the MP4 alone — use the configured ElevenLabs narrator
+  (stability .45 / similarity .70 / style .20 / boost on / speed 1.08) for
+  ALL THREE replications and document the narrator as a controlled NEW cohort
+  variable, never as a verified Third Man match.
 
 ## 5. Footage sourcing keywords (stock, dark-editorial grade)
 
