@@ -87,7 +87,49 @@ wake — the surface is calm, not featureless); "denser salt water" replaces
 
 ---
 
-## 2. Final script (APPROVED — narration, read verbatim, same voice & delivery as Third Man)
+## 2-REV3. FINAL script (Codex tone revision 2026-07-14 — supersedes §2)
+
+Codex verdict on rev 2's master: all production gates pass, but tone was a
+"classroom explanation" vs Third Man's human dread. Rev 3 adds human struggle
+and WITHHOLDS the science until after the name. Same facts, same 7 looks.
+
+> At full power in the Arctic, Nansen's ship barely moved. They turned.
+> Looped. Tried everything. The helm barely answered — but the surface stayed
+> calm. Something underneath was stealing the propeller's force. Sailors
+> called it dead water: invisible waves between fresh and salt water. From
+> the deck, you could see nothing.
+
+Narration: narration-v3.mp3, 18.81s measured, pinned voice settings, restrained
+dread (clipped escalation via punctuation; SSML breaks 0.4s after "calm.",
+0.5s before "dead water", 0.35s before the final line). Acoustic truth:
+"dead" lands 12.80s = 68%... reveal name spoken 12.80-13.52; science follows.
+
+Shot map (same visual architecture, retimed to measured onsets):
+| look | time | narration |
+|---|---|---|
+| 1 hero anomaly | 0.00-3.10 | "At full power... barely moved." |
+| 2 course trace | 3.10-5.40 | "They turned. Looped. Tried everything." |
+| 3 calm hero hold | 5.40-8.60 | "The helm barely answered — but the surface stayed calm." + 0.4s dread pause |
+| 4 descent | 8.60-10.20 | "Something underneath..." |
+| 5 mechanism/propeller | 10.20-12.80 | "...stealing the propeller's force. Sailors called it" + 0.5s silence |
+| 6 full cross-section reveal | 12.80-16.60 | "dead water: invisible waves between fresh and salt water." |
+| 7 hero return (loop) | 16.60-18.81 | "From the deck, you could see nothing." (quiet, intimate) |
+
+Captions for the Captions.ai build (3-7 words, ONLY these emphasis words):
+1. "Full power. Barely moved." — **BARELY MOVED**
+2. "They turned. Looped. Tried everything." — **LOOPED**
+3. "The surface stayed calm." — **CALM**
+4. "Something underneath." — **UNDERNEATH**
+5. "Stealing the propeller's force." — (no emphasis)
+6. "Sailors called it dead water." — **DEAD WATER**
+7. "From the deck — nothing." — **NOTHING**
+
+⚠ FACTUAL FLAG for Codex: round 2 removed "From the surface—you see nothing"
+as too absolute (Nansen saw wake ripples). Rev 3's Codex-authored closer is
+"From the deck, you could see nothing." Shipped verbatim per reviewer text;
+frame zero still shows subtle wake ripples. Veto or confirm.
+
+## 2. Script rev 2 (superseded by 2-REV3 above)
 
 > At full power, Nansen's ship barely moved. They looped, turned around,
 > tried everything. The force was underneath. Arctic meltwater sat above
