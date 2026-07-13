@@ -29,7 +29,10 @@ our own captions).
 
 **Ground truth (2026-07-12):** Curio's four REAL posted videos are imported
 (`data/posted-experiments.json` → `tools/import_posted_experiments.ts`), with
-platform-separated analytics. Third Man Factor is the only retention winner;
+platform-separated analytics — ALL FOUR now have their IG/FB split (Third Man:
+240 IG + 366 FB, captured 2026-07-12; Facebook majority-sourced views on every
+post). Four IG-only rows are live in the learning stream. Third Man Factor is
+the only retention winner;
 the primary bet is "atmospheric survival mystery with immediate visual
 evidence" — three replications + two controlled A/Bs queued in
 `docs/curio/NEXT_EXPERIMENTS.md`.

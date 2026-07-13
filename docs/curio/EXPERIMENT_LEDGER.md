@@ -49,15 +49,24 @@ rule_action:       # none | created PROVISIONAL | promoted CONFIRMED | rejected
 - caption_style: cream minimal
 - audio_style: restrained dark bed, −17.1 LUFS (measured), LRA 3.1
 - cta: soft signature
-- metrics: views 606 TOTAL (⚠ IG/FB split missing) · IG reach 165 ·
-  avg_watch_time 12s (59.5% of runtime) · skip_rate 0.386 · retention at end ~20% ·
-  likes 16 (8.0%) · comments 2 (1.1%) · shares 2 (1.1%) · saves 2 (1.1%) ·
-  reposts 2 · profile source share 12.3%
+- metrics: views 606 total = **240 IG + 366 FB** (split captured 2026-07-12
+  22:49 from Reel insights — FB supplied 60%, consistent with the other three
+  posts) · reach 165 (shown on the combined summary card — surface ambiguous,
+  kept as IG-reach unverified) · avg_watch_time 12s (59.5% of runtime) ·
+  skip_rate 0.386 · retention at end ~20% (graph estimate) · follows 0 ·
+  likes 16 · comments 2 · shares 2 · saves 2 · reposts 2 (raw counts from the
+  reel header; platform-displayed like rate 8.0% has an undocumented
+  denominator — 16/240 IG views = 6.7%) · view sources: Reels tab 75.8% /
+  profile 12.3% / Explore 6.4% / Stories 2.5% / Feed 2.1%
 - interpretation: the ONLY clear retention winner — skip rate 20.5–34.8pp better
   than every other post; only video with nonzero rates across all engagement
   types. Mechanism (five reinforcing elements): immediate visual evidence +
   immediate stakes + human-shaped mystery + escalating supporting imagery +
   satisfying-but-incomplete explanation (residual uncertainty → replay/comments).
+  The IG split confirms Facebook majority-sourced views on ALL FOUR posts —
+  combined totals overstate IG performance everywhere, permanently justifying
+  the surface-separation gates. follows 0 despite the 12.3% profile source:
+  the reel pulls people to the profile but the profile doesn't convert yet.
 - confidence: medium-high (decisive within n=4, but reach is tiny)
 - rule_action: archetype "atmospheric survival mystery with immediate visual
   evidence" = Curio's PRIMARY bet; 3 mechanism replications queued

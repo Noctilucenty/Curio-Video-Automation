@@ -110,5 +110,6 @@ by ~8–10s. NO extended product card. Vary only the hook:
 - Pin the model snapshot (OPENAI_MODEL=<exact gpt-5.6 snapshot id>) for the
   duration of a cohort so a silent model update can't contaminate it.
 - Compare within archetype, against the Third Man baseline: skip 38.6%,
-  watch ratio 59.5%, like 8.0%, shares/saves/comments ≥1.1%.
+  watch ratio 59.5%, 240 IG views / 165 reached, 16 likes (6.7% of IG views),
+  shares/saves/comments/reposts all ≥2 raw. Compare on the IG stream only.
 - Static cards stay FROZEN until this narrative baseline exists.

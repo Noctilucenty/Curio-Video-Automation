@@ -20,30 +20,72 @@
         "premiseUnderstandableBySeconds": 2,
         "visualTimeline": "footprints → mountains → sailors → polar environments → distant person → struggling survivor → named phenomenon",
         "reveal": "'The Third Man Factor' named at ~70-80% of runtime; supernatural reading NOT fully eliminated (residual mystery)",
-        "audio": { "integratedLufs": -17.1, "lra": 3.1, "style": "restrained dark bed" },
+        "audio": {
+          "integratedLufs": -17.1,
+          "lra": 3.1,
+          "style": "restrained dark bed"
+        },
         "cta": "soft signature",
         "producedWith": "Captions.ai (external — not the factory renderer)"
       },
       "analytics": {
         "viewsTotal": 606,
-        "viewsInstagram": null,
-        "viewsFacebook": null,
-        "splitNote": "IG/FB split MISSING from screenshots — 606 is combined. NO metrics row is imported until Leon pulls the IG-only view count from the Reel insights; rates below are IG signals per his analysis.",
+        "viewsInstagram": 240,
+        "viewsFacebook": 366,
+        "splitNote": "IG/FB split from Leon's 2026-07-12 22:49 Reel-insights screenshots: 240 IG + 366 FB = 606. FB supplied 60% of views — consistent with the other three posts. The importer writes the IG-only stream.",
         "reachInstagram": 165,
         "avgWatchTimeSeconds": 12,
         "watchRatio": 0.595,
         "skipRate": 0.386,
         "retentionAtEnd": 0.2,
         "retentionAtEndProvenance": "estimated from the retention graph shape — approximate, not a platform number",
-        "likes": 16, "comments": 2, "shares": 2, "saves": 2, "reposts": 2,
-        "likeRate": 0.08, "shareRate": 0.011, "saveRate": 0.011, "commentRate": 0.011,
-        "profileSourceShare": 0.123
+        "likes": 16,
+        "comments": 2,
+        "shares": 2,
+        "saves": 2,
+        "reposts": 2,
+        "likeRate": 0.08,
+        "shareRate": 0.011,
+        "saveRate": 0.011,
+        "commentRate": 0.011,
+        "profileSourceShare": 0.123,
+        "reachNote": "165 'Accounts reached' sits on the combined summary card (views card on the same screen shows the 606 total), so the reach surface is AMBIGUOUS — could be IG-only or IG+FB. Kept as reachInstagram per the earlier record, flagged unverified.",
+        "engagementCountsNote": "likes/comments/shares/saves/reposts are the counts shown on the IG reel header; whether FB crosspost interactions are included is unverified. Platform-displayed like rate 8.0% does not equal 16/240 (6.7%) or 16/606 (2.6%) — Meta's rate denominator is undocumented; raw counts are the source of truth here.",
+        "viewSources": {
+          "reels_tab": 0.758,
+          "profile": 0.123,
+          "explore": 0.064,
+          "stories": 0.025,
+          "feed": 0.021
+        },
+        "follows": 0
       },
       "provenance": {
-        "observed": ["durationSeconds", "resolution", "audio (ffmpeg ebur128)", "viewsTotal", "reachInstagram", "avgWatchTimeSeconds", "likes/comments/shares/saves/reposts (insights header)"],
-        "derived": ["watchRatio (avgWatch/duration)"],
-        "estimated": ["retentionAtEnd (graph shape)", "postedAt (graph start)"],
-        "userReported": ["skipRate, rates, profileSourceShare, visual timeline and hook wording (Leon's 2026-07-12 analysis of the video + insights)"]
+        "observed": [
+          "durationSeconds",
+          "resolution",
+          "audio (ffmpeg ebur128)",
+          "viewsTotal",
+          "avgWatchTimeSeconds",
+          "likes/comments/shares/saves/reposts (insights header)",
+          "viewsInstagram (240, views-over-time card 2026-07-12)",
+          "viewsFacebook (366, same card)",
+          "viewSources (top-sources card)",
+          "follows (summary card)"
+        ],
+        "derived": [
+          "watchRatio (avgWatch/duration)"
+        ],
+        "estimated": [
+          "retentionAtEnd (graph shape)",
+          "postedAt (graph start)"
+        ],
+        "userReported": [
+          "skipRate, rates, profileSourceShare, visual timeline and hook wording (Leon's 2026-07-12 analysis of the video + insights)"
+        ],
+        "unverified": [
+          "reachInstagram (165 shown on combined summary card — surface ambiguous)"
+        ]
       },
       "verdict": "ONLY clear retention winner (skip 20.5-34.8pp better than every other post; only video with nonzero shares/saves/reposts/comments)"
     },
@@ -64,7 +106,11 @@
         "premiseUnderstandableBySeconds": 8,
         "visualTimeline": "single ship composition held through most of the hook; floating ship/fog/false horizon later",
         "reveal": "optical illusion (false horizon) — the fascinating idea is delayed",
-        "audio": { "integratedLufs": -16.7, "lra": 4.5, "style": "dark bed" },
+        "audio": {
+          "integratedLufs": -16.7,
+          "lra": 4.5,
+          "style": "dark bed"
+        },
         "cta": "extended product card at end",
         "producedWith": "Captions.ai (external)"
       },
@@ -78,13 +124,33 @@
         "skipRate": 0.591,
         "retentionAtEnd": 0.05,
         "retentionAtEndProvenance": "estimated from the retention graph shape — approximate",
-        "likeRate": 0.063, "shareRate": 0, "saveRate": 0.006, "commentRate": 0
+        "likeRate": 0.063,
+        "shareRate": 0,
+        "saveRate": 0.006,
+        "commentRate": 0
       },
       "provenance": {
-        "observed": ["durationSeconds", "resolution", "audio (ebur128)", "viewsInstagram", "viewsFacebook", "reachInstagram (reviewer screenshot reading)"],
-        "derived": ["viewsTotal (IG+FB)", "watchRatio", "like/share/save counts in the import (IG views x rate, rounded)"],
-        "estimated": ["retentionAtEnd", "postedAt", "premiseUnderstandableBySeconds"],
-        "userReported": ["skipRate, rates, hook wording, timeline (Leon's analysis)"]
+        "observed": [
+          "durationSeconds",
+          "resolution",
+          "audio (ebur128)",
+          "viewsInstagram",
+          "viewsFacebook",
+          "reachInstagram (reviewer screenshot reading)"
+        ],
+        "derived": [
+          "viewsTotal (IG+FB)",
+          "watchRatio",
+          "like/share/save counts in the import (IG views x rate, rounded)"
+        ],
+        "estimated": [
+          "retentionAtEnd",
+          "postedAt",
+          "premiseUnderstandableBySeconds"
+        ],
+        "userReported": [
+          "skipRate, rates, hook wording, timeline (Leon's analysis)"
+        ]
       },
       "verdict": "aesthetic liked (6.3% like rate, 2nd best) but comprehension too slow: ~half the audience gone in the first seconds"
     },
@@ -105,7 +171,12 @@
         "premiseUnderstandableBySeconds": 3,
         "visualTimeline": "multiple distinct scenes (full shot list not yet audited); OPENING scene is the verified generic brain silhouette — the retention leak is the opening, not necessarily the whole edit",
         "reveal": "perfect memory as a burden",
-        "audio": { "integratedLufs": -9.6, "truePeakDbfs": 0.6, "lra": 1.4, "style": "LOUD + CLIPPING — audio normalization failure" },
+        "audio": {
+          "integratedLufs": -9.6,
+          "truePeakDbfs": 0.6,
+          "lra": 1.4,
+          "style": "LOUD + CLIPPING — audio normalization failure"
+        },
         "cta": "soft signature",
         "producedWith": "Captions.ai (external)"
       },
@@ -119,14 +190,33 @@
         "skipRate": 0.677,
         "retentionAtEnd": 0.04,
         "retentionAtEndProvenance": "estimated from the retention graph shape — approximate",
-        "likeRate": 0.032, "shareRate": 0.016, "saveRate": 0.016, "commentRate": 0,
+        "likeRate": 0.032,
+        "shareRate": 0.016,
+        "saveRate": 0.016,
+        "commentRate": 0,
         "exploreSourceShare": 0.236
       },
       "provenance": {
-        "observed": ["durationSeconds", "resolution", "audio incl. clipping true peak (ebur128)", "viewsInstagram", "viewsFacebook", "reachInstagram (reviewer screenshot reading)"],
-        "derived": ["viewsTotal", "watchRatio", "engagement counts in the import (IG views x rate, rounded)"],
-        "estimated": ["retentionAtEnd", "postedAt"],
-        "userReported": ["skipRate, rates, exploreSourceShare, opening-frame description (Leon's analysis)"]
+        "observed": [
+          "durationSeconds",
+          "resolution",
+          "audio incl. clipping true peak (ebur128)",
+          "viewsInstagram",
+          "viewsFacebook",
+          "reachInstagram (reviewer screenshot reading)"
+        ],
+        "derived": [
+          "viewsTotal",
+          "watchRatio",
+          "engagement counts in the import (IG views x rate, rounded)"
+        ],
+        "estimated": [
+          "retentionAtEnd",
+          "postedAt"
+        ],
+        "userReported": [
+          "skipRate, rates, exploreSourceShare, opening-frame description (Leon's analysis)"
+        ]
       },
       "verdict": "topic has save/share pull (1.6% each + 23.6% Explore sampling) but the generic opening lost the sampled audience — REWRITE AND RETEST the concept, don't discard"
     },
@@ -148,7 +238,11 @@
         "premiseNote": "the basic upside-down-ship premise reads within ~2-3s (reviewer correction); the FAILURE was pacing after the premise — slower, less visually progressive first stretch — not premise opacity",
         "visualTimeline": "longer hold on one composition; more atmospheric setup before explanation",
         "reveal": "false horizon, later than v1",
-        "audio": { "integratedLufs": -17.1, "lra": 2.8, "style": "dark bed" },
+        "audio": {
+          "integratedLufs": -17.1,
+          "lra": 2.8,
+          "style": "dark bed"
+        },
         "cta": "product card",
         "producedWith": "Captions.ai (external)"
       },
@@ -162,13 +256,31 @@
         "skipRate": 0.734,
         "retentionAtEnd": 0.03,
         "retentionAtEndProvenance": "estimated from the retention graph shape — approximate",
-        "likeRate": 0.009, "shareRate": 0, "saveRate": 0, "commentRate": 0
+        "likeRate": 0.009,
+        "shareRate": 0,
+        "saveRate": 0,
+        "commentRate": 0
       },
       "provenance": {
-        "observed": ["durationSeconds", "resolution", "audio (ebur128)", "viewsInstagram", "viewsFacebook"],
-        "derived": ["viewsTotal", "engagement counts in the import (IG views x rate, rounded)"],
-        "estimated": ["retentionAtEnd", "postedAt", "premiseUnderstandableBySeconds (reviewer estimate)"],
-        "userReported": ["skipRate, rates, change list (Leon's analysis)"]
+        "observed": [
+          "durationSeconds",
+          "resolution",
+          "audio (ebur128)",
+          "viewsInstagram",
+          "viewsFacebook"
+        ],
+        "derived": [
+          "viewsTotal",
+          "engagement counts in the import (IG views x rate, rounded)"
+        ],
+        "estimated": [
+          "retentionAtEnd",
+          "postedAt",
+          "premiseUnderstandableBySeconds (reviewer estimate)"
+        ],
+        "userReported": [
+          "skipRate, rates, change list (Leon's analysis)"
+        ]
       },
       "verdict": "revision made everything WORSE (skip 59.1%→73.4%, likes 6.3%→0.9%, all sharing to zero): pacing after the premise got slower and less visually progressive; also proof that changing five variables at once teaches nothing"
     }
