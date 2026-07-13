@@ -123,18 +123,36 @@ treatment as Third Man. No download screen, no list, no engagement bait.
 - Low single-engine thrum under shots 1–2, fading by shot 3.
 - Near-silence beat at ~12.2–12.6s — right before "dead water" lands.
 - One soft, deep boom under the signature (~15.5s). Nothing else.
-- Narrator — **determined by the Third Man Captions.ai project, not assumed**
-  (the exported MP4 preserves no voice identity; the configured ElevenLabs
-  voice is NOT proof it was used). Procedure: open the original Third Man
-  project in Captions.ai → duplicate it → BEFORE changing anything, record
-  voice name/ID + settings, caption preset + font, music track + volume,
-  narration volume, transition/pacing settings → keep all project-level
-  settings unchanged → build Dead Water only inside the duplicate.
-  **Fallback if the original project no longer exists:** exact voice matching
-  is impossible from the MP4 alone — use the configured ElevenLabs narrator
-  (stability .45 / similarity .70 / style .20 / boost on / speed 1.08) for
-  ALL THREE replications and document the narrator as a controlled NEW cohort
-  variable, never as a verified Third Man match.
+- Narrator — **RESOLVED 2026-07-13 by inspecting the original Captions.ai
+  projects (web, read-only).** The Third Man narration was NEVER a Captions
+  voice: the account contains three June-29 projects titled "When survivors
+  are about to give up, someone…", and they decompose the pipeline —
+  1. `captions.ai/videos/VBg6RbmyErvv7Bz4gujc` — 0:20 RAW SOURCE import:
+     no captions, no AI Edit. Narration + ambient bed arrived baked into
+     this imported clip.
+  2. `captions.ai/videos/UWeyEWNwABM4PAIan2la` — 0:18, AI Edit style
+     "Hook" (discarded style experiment).
+  3. `captions.ai/videos/KfWKc7wCxIolYhLdGmWu` — 0:20, **the production
+     project** (matches the posted 20.17s export): AI Edit style
+     **"Talking Head"** + caption preset **"Flair"** (Featured, white
+     text / black variant), caption block at **X 540 / Y 1344 px** on the
+     1080×1920 canvas, rotation 0, phrase 1 = full hook sentence
+     ("When survivors are about to give up, someone appears right beside
+     them."), timed 0.140–4.179s. No separate music track in the project.
+  Therefore voice parity is OUR side of the pipeline, not a Captions
+  setting: build the Dead Water source clip with the configured ElevenLabs
+  narrator (stability .45 / similarity .70 / style .20 / boost on /
+  speed 1.08) — documented as the same slot the Third Man source clip's
+  narration occupied. Label honestly: the ElevenLabs voice is presumed
+  (not proven) identical to Third Man's; treat narrator as a controlled
+  cohort variable across ALL THREE replications.
+  **Captions.ai build recipe (recovered, use verbatim):** import finished
+  source clip (1080×1920, narration + bed baked in) → apply AI Edit style
+  "Talking Head" → captions auto-transcribed, preset "Flair" white/black →
+  caption position X 540 / Y 1344 → export. Note: the web editor has no
+  project Duplicate (menu = share link / shortcuts / delete only), so Dead
+  Water is a NEW project following this recipe; the three originals stay
+  untouched.
 
 ## 5. Footage sourcing keywords (stock, dark-editorial grade)
 
