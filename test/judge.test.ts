@@ -7,12 +7,19 @@ import type { LearningRule, VideoPackage } from "../src/types.js";
 const base = {
   hookScore: 9, retentionScore: 8, clarityScore: 9, captionReadability: 9,
   brandFit: 9, viralPotential: 8, factualSafety: 9, overallScore: 9,
+  outcomeVerified: true, outcomeCheck: "retention via the reveal beat",
   problems: [], fix: "",
 };
 
 describe("publish thresholds", () => {
   it("passes when every gated score meets its minimum", () => {
     expect(meetsThresholds(base)).toBe(true);
+  });
+
+  it("fails when the outcome verdict is false or missing — regardless of scores", () => {
+    // perfect numeric scores cannot buy back an unverified mechanism
+    expect(meetsThresholds({ ...base, outcomeVerified: false })).toBe(false);
+    expect(meetsThresholds({ ...base, outcomeVerified: undefined })).toBe(false);
   });
 
   it.each([
@@ -79,11 +86,13 @@ describe("mock judge rubric (offline judge behaves like the real one)", () => {
     expect(scores.outcomeCheck).toContain("survival trained it");
   });
 
-  it("flags a package with no declared outcome moment (one-outcome doctrine)", async () => {
+  it("BLOCKS a package with no declared outcome moment (machine-enforced verdict)", async () => {
     const { scores } = await judgePackage(
       llm,
       pkg({ primaryOutcome: undefined, secondaryOutcome: undefined, outcomeMoment: undefined }),
     );
+    expect(scores.outcomeVerified).toBe(false);
+    expect(scores.pass).toBe(false); // numeric scores can't buy back the gate
     expect(scores.problems.join("; ")).toContain("outcome");
     expect(scores.outcomeCheck).toContain("cannot verify");
   });

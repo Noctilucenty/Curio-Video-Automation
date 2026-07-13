@@ -257,13 +257,22 @@ export function buildRoutes(deps: RouteDeps): Router {
       return;
     }
     const platform = String(b.platform ?? video.pkg?.targetPlatform ?? "tiktok").toLowerCase() as Platform;
+    // IG and FB share platform "reels" — surface keeps their streams apart.
+    // The raw platform label is the fallback hint ("instagram" ⇒ surface).
+    const surface = canonicalSurface(b.surface) ?? canonicalSurface(b.platform);
+    if ((PLATFORMS.has(platform) ? platform : "tiktok") === "reels" && !surface) {
+      res.status(400).json({
+        error:
+          "reels metrics need an explicit surface (instagram or facebook) — " +
+          "combined IG+FB totals never enter learning; send one request per surface",
+      });
+      return;
+    }
     await repo.addMetrics({
       id: makeId("met"),
       videoId: video.id,
       platform: PLATFORMS.has(platform) ? platform : "tiktok",
-      // IG and FB share platform "reels" — surface keeps their streams apart.
-      // The raw platform label is the fallback hint ("instagram" ⇒ surface).
-      surface: canonicalSurface(b.surface) ?? canonicalSurface(b.platform),
+      surface,
       reach: b.reach != null && Number.isFinite(Number(b.reach)) ? num(b.reach) : undefined,
       provenance: "real",
       views: num(b.views),

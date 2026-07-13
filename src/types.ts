@@ -83,9 +83,13 @@ export interface JudgeScores {
   viralPotential: number;
   factualSafety: number;
   overallScore: number;
-  /** The judge's verification of the one-outcome design: names the intended
-   * primary outcome and the exact moment that produces it (or what's missing).
-   * Optional only for scores stored before 2026-07-12. */
+  /** MACHINE-ENFORCED verdict on the one-outcome design: false blocks
+   * publication in meetsThresholds regardless of the numeric scores — the
+   * model voluntarily lowering viral_potential is not trusted. Optional only
+   * for scores stored before 2026-07-12 (never re-gated at runtime). */
+  outcomeVerified?: boolean;
+  /** The judge's justification: names the intended primary outcome and the
+   * exact moment that produces it (or what's missing). */
   outcomeCheck?: string;
   problems: string[];
   fix: string;

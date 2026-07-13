@@ -93,6 +93,40 @@ describe("surface separation", () => {
   });
 });
 
+describe("learning payload cohort metadata", () => {
+  it("carries surface, outcome fields, and package prompt version into the analysis", async () => {
+    const repo = new InMemoryRepo();
+    await ensureSeedRules(repo);
+    const ids = await seedVideos(repo, 10);
+    for (let i = 0; i < ids.length; i++) {
+      await repo.addMetrics(metrics(ids[i], {
+        platform: "reels",
+        surface: i % 2 ? "instagram" : "facebook",
+        completionRate: 0.7 - i * 0.05,
+        views: 10000,
+      }));
+    }
+
+    await runLearning(repo, new MockLlmClient());
+    const rec = (await repo.listGenerations()).find((g) => g.kind === "learning")!;
+    const payload = JSON.parse(String((rec.input as { user: string }).user).slice(String((rec.input as { user: string }).user).indexOf("{")));
+
+    const example = payload.current.top_videos[0];
+    // surface survives into per-video examples — IG and FB stay distinguishable
+    expect(["instagram", "facebook"]).toContain(example.surface);
+    // design-cohort fields: outcome declaration + the prompt that produced it
+    expect(example.primary_outcome).toBe("retention");
+    expect(example.secondary_outcome).toBe("shares");
+    expect(typeof example.outcome_moment).toBe("string");
+    expect(example.package_prompt_version).toBe("pkg_v5_one_outcome");
+    // aggregates group per (platform, surface), never a merged reels bucket
+    const keys = Object.keys(payload.current.platforms);
+    expect(keys).toContain("reels:instagram");
+    expect(keys).toContain("reels:facebook");
+    expect(keys).not.toContain("reels");
+  });
+});
+
 describe("seed rule sync", () => {
   it("deactivates installed seeds that left SEED_RULES and installs the current set", async () => {
     const repo = new InMemoryRepo();

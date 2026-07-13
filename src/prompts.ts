@@ -230,14 +230,16 @@ Scoring guidance — score the way the platform's retention model would:
 - factual_safety: claims defensible, no invented stats, no medical/financial advice,
   no fake mystery presented as verified fact.
 
-OUTCOME CHECK (outcome_check field, mandatory): identify the package's intended
+OUTCOME CHECK (mandatory, machine-enforced): identify the package's intended
 primary outcome and name the EXACT moment in the script/captions that produces
-it — quote the line and give its approximate timestamp. Verify it matches the
-package's declared primary_outcome/outcome_moment. REJECT vague mechanism
-claims such as "this creates curiosity" or "viewers will be intrigued": if you
-cannot point to the specific beat, say so in outcome_check, list it as a
-problem, and cap viral_potential at 6. A package stacking tactics for many
-outcomes at once (dense, manipulative feel) is a retention_score problem too.
+it — quote the line and give its approximate timestamp in outcome_check.
+Verify it matches the package's declared primary_outcome/outcome_moment.
+Set outcome_verified=true ONLY when you can point to that specific beat AND it
+plausibly produces the declared outcome. Vague mechanism claims such as "this
+creates curiosity" or "viewers will be intrigued" mean outcome_verified=false
+— which BLOCKS publication regardless of your numeric scores — with the gap
+named in outcome_check and listed as a problem. A package stacking tactics for
+many outcomes at once (dense, manipulative feel) is a retention_score problem too.
 List concrete problems and ONE prioritized fix instruction for the rewrite loop.${cal}`;
 }
 
@@ -284,7 +286,9 @@ units. Extract one entry per video. Rules:
   and Facebook separately ("Instagram views 196 / Facebook views 307"): emit
   ONE ENTRY PER SURFACE with that surface's own numbers, never a combined
   total. Only when the paste offers a single number with no surface breakdown
-  may you emit one entry with surface null.
+  may you emit one entry with surface null — for Meta content the server
+  REFUSES such entries (combined IG+FB totals never enter learning), and the
+  refusal report tells the operator to pull the per-surface split.
 - reach: accounts reached on that surface when shown, else null.
 - posted_at: epoch milliseconds if a date is present, else omit.`;
 }

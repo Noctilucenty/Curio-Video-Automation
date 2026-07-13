@@ -86,6 +86,19 @@ describe("api flow", () => {
       skip_rate: "not-a-number",
     });
     expect(badSkip.status).toBe(400);
+
+    // reels without an explicit surface = possibly-combined Meta total → refused
+    const combined = await request(app).post(`/api/videos/${videoId}/performance`).send({
+      platform: "reels", views: 503, avg_watch_time: 8, completion_rate: 0.3,
+    });
+    expect(combined.status).toBe(400);
+    expect(combined.body.error).toContain("explicit surface");
+
+    // the same numbers WITH a surface are accepted and stored surface-tagged
+    const igOnly = await request(app).post(`/api/videos/${videoId}/performance`).send({
+      platform: "instagram", views: 196, reach: 160, avg_watch_time: 8, completion_rate: 0.3,
+    });
+    expect(igOnly.status).toBe(201);
   });
 
   it("rejects invalid status transitions with 409", async () => {

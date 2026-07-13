@@ -186,12 +186,24 @@ async function runLearningUnlocked(repo: Repo, llm: LlmClient): Promise<Learning
   const allRules = await repo.listRules();
   const validations = ruleValidation(allRules, scored, baselineAvg);
 
+  // Latest package-generation prompt version per video: the design cohort
+  // (pkg_v4 vs pkg_v5_one_outcome, …) each analyzed video belongs to.
+  const pkgVersionByVideo = new Map<string, string>();
+  const pkgVersionAt = new Map<string, number>();
+  for (const g of await repo.listGenerations()) {
+    if (g.kind !== "package") continue;
+    if (g.createdAt >= (pkgVersionAt.get(g.videoId) ?? -1)) {
+      pkgVersionByVideo.set(g.videoId, g.promptVersion);
+      pkgVersionAt.set(g.videoId, g.createdAt);
+    }
+  }
+
   const payload = {
     current: {
       analyzed: scored.length,
       baseline_avg_engagement: round1(baselineAvg),
-      top_videos: top.map((s) => describeVideo(s)),
-      bottom_videos: bottom.map((s) => describeVideo(s)),
+      top_videos: top.map((s) => describeVideo(s, pkgVersionByVideo)),
+      bottom_videos: bottom.map((s) => describeVideo(s, pkgVersionByVideo)),
       platforms: platformAggregates(scored),
     },
     history: priorRuns.slice(0, 3).map((r) => ({
@@ -282,7 +294,7 @@ async function runLearningUnlocked(repo: Repo, llm: LlmClient): Promise<Learning
   return run;
 }
 
-function describeVideo(s: ScoredVideo) {
+function describeVideo(s: ScoredVideo, pkgVersionByVideo: Map<string, string>) {
   return {
     video_id: s.video.id,
     hook: s.video.pkg.selectedHook,
@@ -290,7 +302,17 @@ function describeVideo(s: ScoredVideo) {
     length_seconds: s.video.pkg.estimatedLengthSeconds,
     caption_lines: s.video.pkg.captionLines.length,
     avg_caption_words: avgWords(s.video.pkg.captionLines.map((l) => l.text)),
+    // Design-cohort metadata: which doctrine/prompt produced this package —
+    // without it, analytics can't compare retention-first vs shares-first
+    // designs or pkg_v4 vs pkg_v5 cohorts.
+    package_prompt_version: pkgVersionByVideo.get(s.video.id) ?? null,
+    primary_outcome: s.video.pkg.primaryOutcome ?? null,
+    secondary_outcome: s.video.pkg.secondaryOutcome ?? null,
+    outcome_moment: s.video.pkg.outcomeMoment ?? null,
     platform: s.metrics.platform,
+    // IG and FB both live on platform "reels" — the surface keeps their
+    // signals distinguishable all the way into the analysis.
+    surface: s.metrics.surface ?? null,
     views: s.metrics.views,
     completion_rate: s.metrics.completionRate,
     skip_rate: s.metrics.skipRate,
@@ -305,9 +327,12 @@ function describeVideo(s: ScoredVideo) {
 function platformAggregates(scored: ScoredVideo[]) {
   const groups = new Map<string, ScoredVideo[]>();
   for (const s of scored) {
-    const list = groups.get(s.metrics.platform) ?? [];
+    // Aggregate per (platform, surface): averaging IG and FB together would
+    // re-merge the streams that storage keeps apart.
+    const key = s.metrics.surface ? `${s.metrics.platform}:${s.metrics.surface}` : s.metrics.platform;
+    const list = groups.get(key) ?? [];
     list.push(s);
-    groups.set(s.metrics.platform, list);
+    groups.set(key, list);
   }
   return Object.fromEntries(
     [...groups.entries()].map(([platform, list]) => [

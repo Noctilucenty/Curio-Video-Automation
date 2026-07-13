@@ -227,16 +227,16 @@ function mockJudge(user: string): unknown {
     (hookScore + retention + clarity + captionReadability + brandFit + viral + factualSafety) / 7,
   );
 
-  // One-outcome check: a declared outcome with a concrete moment passes; a
-  // missing/vague declaration is a problem (mirrors the real judge's rule).
+  // One-outcome check: a declared outcome with a concrete moment verifies; a
+  // missing/vague declaration fails the machine-enforced verdict (mirrors the
+  // real judge's rule — outcome_verified=false blocks pass in meetsThresholds).
   const declaredOutcome = typeof pkg.primary_outcome === "string" ? pkg.primary_outcome : "";
   const declaredMoment = typeof pkg.outcome_moment === "string" ? pkg.outcome_moment : "";
-  const outcomeCheck = declaredOutcome && declaredMoment.length >= 15
+  const outcomeVerified = Boolean(declaredOutcome) && declaredMoment.length >= 15;
+  const outcomeCheck = outcomeVerified
     ? `intended outcome ${declaredOutcome}; produced by: ${declaredMoment}`
     : "no concrete outcome moment declared — cannot verify the mechanism";
-  if (!declaredOutcome || declaredMoment.length < 15) {
-    problems.push("missing/vague primary outcome moment");
-  }
+  if (!outcomeVerified) problems.push("missing/vague primary outcome moment");
 
   return {
     hook_score: hookScore,
@@ -247,6 +247,7 @@ function mockJudge(user: string): unknown {
     viral_potential: viral,
     factual_safety: factualSafety,
     overall_score: overall,
+    outcome_verified: outcomeVerified,
     outcome_check: outcomeCheck,
     problems,
     fix: problems.length

@@ -22,8 +22,9 @@ payoff → natural response.
   claims, anxiety bait, gender stereotypes, manufactured disagreement,
   loss-aversion CTAs.
 - Enforced structurally: package schema requires `primary_outcome` /
-  `secondary_outcome` / `outcome_moment`; the judge must name the exact beat
-  that produces the outcome and rejects vague mechanism claims.
+  `secondary_outcome` / `outcome_moment`; the judge returns a machine-enforced
+  `outcome_verified` verdict — false blocks publication regardless of numeric
+  scores, and vague mechanism claims ("this creates curiosity") fail it.
 - Published analytics — not theory or judge scores — decide whether the
   mechanism worked.
 

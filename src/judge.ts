@@ -21,7 +21,7 @@ export const JUDGE_SCHEMA = {
   required: [
     "hook_score", "retention_score", "clarity_score", "caption_readability",
     "brand_fit", "viral_potential", "factual_safety", "overall_score",
-    "outcome_check", "problems", "fix",
+    "outcome_verified", "outcome_check", "problems", "fix",
   ],
   properties: {
     hook_score: { type: "integer", minimum: 0, maximum: 10 },
@@ -32,8 +32,11 @@ export const JUDGE_SCHEMA = {
     viral_potential: { type: "integer", minimum: 0, maximum: 10 },
     factual_safety: { type: "integer", minimum: 0, maximum: 10 },
     overall_score: { type: "integer", minimum: 0, maximum: 10 },
-    // One-outcome verification: name the intended primary outcome and the
-    // EXACT moment engineered to produce it. Vague mechanism claims fail.
+    // One-outcome verification. outcome_verified is the MACHINE-ENFORCED
+    // verdict (a false blocks publication via meetsThresholds — the model
+    // "voluntarily" lowering viral_potential is not trusted); outcome_check
+    // is the human-readable justification naming the exact moment.
+    outcome_verified: { type: "boolean" },
     outcome_check: { type: "string" },
     problems: { type: "array", items: { type: "string" } },
     fix: { type: "string" },
@@ -46,7 +49,10 @@ export function meetsThresholds(s: Omit<JudgeScores, "pass">): boolean {
     s.captionReadability >= PUBLISH_THRESHOLDS.captionReadability &&
     s.brandFit >= PUBLISH_THRESHOLDS.brandFit &&
     s.viralPotential >= PUBLISH_THRESHOLDS.viralPotential &&
-    s.factualSafety >= PUBLISH_THRESHOLDS.factualSafety
+    s.factualSafety >= PUBLISH_THRESHOLDS.factualSafety &&
+    // One-outcome doctrine is a gate, not advice: an unverified outcome
+    // mechanism blocks publication regardless of the numeric scores.
+    s.outcomeVerified === true
   );
 }
 
@@ -98,6 +104,7 @@ final video; the script field is unused). Judge accordingly:
     viralPotential: int(raw.viral_potential),
     factualSafety: int(raw.factual_safety),
     overallScore: int(raw.overall_score),
+    outcomeVerified: raw.outcome_verified === true,
     outcomeCheck: String(raw.outcome_check ?? ""),
     problems: Array.isArray(raw.problems) ? raw.problems.map(String) : [],
     fix: String(raw.fix ?? ""),

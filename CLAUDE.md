@@ -48,10 +48,14 @@ Separate observations, hypotheses, confirmed rules, rejected rules — always.
   curiosity → evidence → payoff → natural response), not "psychology effects";
   a mechanism must serve the subject naturally, never a forced bias checklist.
   Structural: the package schema requires primary_outcome/secondary_outcome/
-  outcome_moment, and the judge must name the exact beat producing the outcome
-  (vague "creates curiosity" claims are rejected). Published analytics — not
-  theory or judge scores — decide whether the mechanism worked. Full text:
-  ONE_OUTCOME_DOCTRINE in src/prompts.ts.
+  outcome_moment; the judge must name the exact beat producing the outcome and
+  return outcome_verified — a false verdict BLOCKS publication in
+  meetsThresholds regardless of numeric scores (vague "creates curiosity"
+  claims fail the verdict). Learning receives each video's outcome fields,
+  surface, and package prompt version, so v4-vs-v5 and retention-first vs
+  shares-first cohorts are comparable once published analytics exist.
+  Published analytics — not theory or judge scores — decide whether the
+  mechanism worked. Full text: ONE_OUTCOME_DOCTRINE in src/prompts.ts.
 - Factual accuracy over drama: no invented stats, no AI-slop psychology claims,
   no fake mysteries presented as verified fact.
 - Category diversity: don't let generation collapse onto easy psychology/mystery
@@ -71,7 +75,10 @@ When Leon pastes video analytics: `POST /api/performance/ingest {raw}` →
 notes, new rules. Ledger discipline: add one entry per posted video to
 `docs/curio/EXPERIMENT_LEDGER.md` AND to `data/posted-experiments.json`
 (machine copy; import with `npx tsx tools/import_posted_experiments.ts`).
-**Platform-separated is mandatory**: IG views and FB views recorded separately —
-combined totals are not an optimization target. Capture checklist (retention
-curve points, view sources, creative metadata): use
+**Platform-separated is mandatory AND code-enforced**: IG views and FB views
+recorded separately — combined totals are not an optimization target. Both
+ingestion paths REFUSE a reels row without an explicit surface (instagram |
+facebook), and learning aggregates per (platform, surface), so a combined
+Meta total cannot enter the loop even by accident. Capture checklist
+(retention curve points, view sources, creative metadata): use
 `docs/curio/ANALYTICS_CAPTURE_TEMPLATE.md` for every post, no exceptions.

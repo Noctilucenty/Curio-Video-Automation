@@ -288,6 +288,20 @@ describe("ingestRawAnalytics (mock parser)", () => {
     expect(fb.views).toBe(307); // did NOT overwrite the IG row
   });
 
+  it("refuses reels entries without an explicit surface (combined Meta totals)", async () => {
+    const repo = new InMemoryRepo();
+    const video = await publishedVideo(repo, "Combined totals must not enter");
+    // "reels" canonicalizes the platform but identifies no surface — this is
+    // what a combined IG+FB paste looks like after parsing.
+    const report = await ingestRawAnalytics(
+      repo, new MockLlmClient(),
+      `video_id=${video.id} platform=reels views=503 completion_rate=0.4 likes=20 comments=1 shares=2 saves=3`,
+    );
+    expect(report.matched).toHaveLength(0);
+    expect(report.unmatched[0].reason).toContain("explicit surface");
+    expect(await repo.listMetrics(video.id)).toHaveLength(0);
+  });
+
   it("canonicalSurface maps labels and refuses ambiguous ones", () => {
     expect(canonicalSurface("Instagram")).toBe("instagram");
     expect(canonicalSurface("ig reels")).toBe("instagram");

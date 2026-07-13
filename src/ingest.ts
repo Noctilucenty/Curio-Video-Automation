@@ -149,6 +149,19 @@ export async function ingestRawAnalytics(repo: Repo, llm: LlmClient, raw: string
     }
     const { video, how } = found;
     const m = toMetrics(entry, video);
+    // Meta gate: a reels row without an explicit surface is (or may be) a
+    // combined IG+FB total — never a valid optimization target. Refusing with
+    // a reason teaches the operator to pull the per-surface split instead of
+    // silently creating an "unspecified" learning stream.
+    if (m.platform === "reels" && !m.surface) {
+      report.unmatched.push({
+        entry,
+        reason:
+          "reels metrics need an explicit surface (instagram or facebook) — " +
+          "combined IG+FB totals never enter learning; pull the per-surface split from Meta insights",
+      });
+      continue;
+    }
     await repo.addMetrics(m);
     report.matched.push({
       video_id: video.id,
