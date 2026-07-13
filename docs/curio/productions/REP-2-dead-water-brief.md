@@ -47,8 +47,9 @@ wake — the surface is calm, not featureless); "denser salt water" replaces
    Modern confirmation and refinement: two drag regimes — **Nansen drag**
    (constant abnormal slowness) and **Ekman drag** (transient speed
    oscillations from the initial acceleration); the internal waves act "like
-   an undulating conveyor belt" under the hull. Dead water occurs today in
-   all seas where waters of different densities layer.
+   an undulating conveyor belt" under the hull. Dead water can occur today in
+   suitably stratified waters — draft, speed, and stratification conditions
+   must align; layering alone does not guarantee the effect.
 
 ### Verified-fact inventory (everything the script is allowed to claim)
 
@@ -61,7 +62,7 @@ wake — the surface is calm, not featureless); "denser salt water" replaces
 | F5 | Cause: Arctic meltwater layer above denser salt water | Nansen 1897; Ekman 1904; PNAS 2020 |
 | F6 | The propeller's energy feeds internal waves at the boundary between the layers | Ekman 1904; PNAS 2020 |
 | F7 | "Dead water" is the nautical term for the phenomenon | Nansen 1897; Ekman 1904 |
-| F8 | It still occurs today wherever waters of different densities layer | PNAS/CNRS 2020 (present tense) |
+| F8 | It can still occur today in suitably stratified waters (draft, speed, and stratification conditions must align — layering alone doesn't guarantee it) | PNAS/CNRS 2020 |
 
 ### Dramatic wording — flagged, and what grounds it
 
