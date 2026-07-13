@@ -14,7 +14,8 @@ approved-patterns.json.
 4. Named explanation at ~70–80% of runtime
 5. Residual mystery — the name does not fully close the question
 plus: 15–20s runtime, escalating imagery per evidence beat, ≤2s soft signature,
-bed at −16 LUFS (the render gate enforces it).
+final combined mix ≈−17 LUFS integrated / TP ≤−1.5 dBTP — the target is the
+MASTER (voice+bed+fx), never the bed alone (Codex correction 2026-07-13).
 
 Every experiment must be captured per docs/curio/ANALYTICS_CAPTURE_TEMPLATE.md
 (IG and FB views SEPARATED — non-negotiable).

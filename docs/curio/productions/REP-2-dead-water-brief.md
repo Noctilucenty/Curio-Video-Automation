@@ -118,8 +118,12 @@ treatment as Third Man. No download screen, no list, no engagement bait.
 
 ## 4. Audio spec (same treatment as Third Man)
 
-- Ambient dark bed from **frame 0**, mix target **≈−16 LUFS integrated**
-  (Third Man measured −17.1 LUFS, LRA 3.1 — match that feel), true peak ≤−1.5 dBTP.
+- Ambient dark bed from **frame 0**, sitting quietly UNDER the narration —
+  the bed alone has no loudness target. **The loudness target applies to the
+  FINAL COMBINED MIX** (voice + bed + engine + boom): **≈−17 LUFS integrated**
+  (Third Man measured −17.1, LRA 3.1 — match that), true peak **≤−1.5 dBTP**,
+  voice clarity preserved. (Codex correction 2026-07-13: normalizing the bed
+  itself to −16 would overpower the voice or push the export hot.)
 - Low single-engine thrum under shots 1–2, fading by shot 3.
 - Near-silence beat at ~12.2–12.6s — right before "dead water" lands.
 - One soft, deep boom under the signature (~15.5s). Nothing else.
@@ -175,11 +179,33 @@ treatment as Third Man. No download screen, no list, no engagement bait.
 - Files land in `samples/Curio Video Stats/Dead Water/` (local, untracked).
 - **No learning run until all three replications reach the same checkpoint.**
 
-## 7. Gate status
+## 7. Production procedure (Codex-mandated order, 2026-07-13) + gate status
+
+Hard precondition: **rotate the exposed OpenAI + ElevenLabs keys** (replacements
+go straight into local `.env`, never chat). No narration spend before rotation.
+
+1. Generate the approved narration first (ElevenLabs, pinned settings).
+2. **Measure the real narration duration and RETIME the shot boundaries to it.**
+   The 17.5s figure in §3 is an estimate, not a constraint — never force the
+   voice to fit it. Shot boundaries scale proportionally; reveal stays ~70–80%.
+3. Source only licensed/clearly-permitted footage; record **source URL, asset
+   id, and license for every shot** (log lands next to the masters).
+4. Assemble the locked 7-shot 1080×1920 master BEFORE Captions.
+5. Mix narration + bed + engine + near-silence beat + boom into the master
+   (final-mix target per §4). Save this untouched file as the
+   **pre-Captions master**.
+6. Import a COPY into Captions.ai → AI Edit "Talking Head" + Flair captions at
+   X540/Y1344 (recovered Third Man recipe, §4a).
+7. **Verify AI Edit did not reorder/replace/materially retime the locked
+   sequence** — if it did, undo AI Edit and apply Flair captions only.
+8. Export without posting.
 
 - [x] Leon/Codex approve script + timeline — **rev 2 approved 2026-07-13**
-- [ ] Build in Captions.ai (Third Man system: same narrator, typography, pacing)
-- [ ] Export MP4 → loudness + clipping check (−16±4 LUFS, TP ≤−1 dBTP)
-- [ ] MP4 to Codex for pre-post video review (comprehension @2s, progression, captions, facts, audio, reveal timing, Third Man parity)
+- [ ] Credentials rotated (Leon) — **BLOCKING**
+- [ ] Narration generated → shots retimed to measured duration
+- [ ] Footage sourced + license log complete
+- [ ] Pre-Captions master assembled + mixed (final mix ≈−17 LUFS, TP ≤−1.5 dBTP)
+- [ ] Captions build (Talking Head + Flair @ X540/Y1344), sequence-integrity verified
+- [ ] **BOTH MP4s to Codex** (pre-Captions master + Captions export) + asset/license log + settings screenshots — the two-file diff is the review
 - [ ] Post (IG+FB) only after Codex pass
-- [ ] 24h / 72h / 7d captures
+- [ ] 24h / 72h / 7d captures (IG/FB separated)
