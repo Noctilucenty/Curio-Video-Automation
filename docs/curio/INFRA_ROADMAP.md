@@ -58,3 +58,15 @@ licensed stock → ElevenLabs → ffmpeg/Captions → YouTube/Instagram analytic
 - Runway, Luma as wired providers (manual fallback only).
 - Any additional general brainstorming model.
 - Broad competitor scraping via IG.
+
+## Reddit (added 2026-07-14, Codex guidance)
+- Reddit Pro Trends — IMMEDIATE, no-code, weekly: topic discovery, audience
+  wording, recurring questions, controversy signals. Track: unexplained
+  sound, ocean mystery, historical mystery, strange survival, psychological
+  phenomenon, disturbing science, mystery finally solved, impossible
+  coincidence. ALL findings PROVISIONAL until verified against primary
+  sources (NOAA/NASA/papers/archives) before scripting.
+- Reddit Data API — DEFERRED until manual Pro research is a real bottleneck
+  AND Reddit confirms the commercial/internal-analytics use. Constraints if
+  ever wired: OAuth, 100 QPM, delete stored user content within ~48h of
+  user deletion, NO ingestion as permanent training data, no scraping.
