@@ -257,8 +257,38 @@ v9 surgical rebuild (mech1, mech2, hold, reveal, trace2 only):
   PERSISTED (REP-2-pre-captions-master-v9-transcript.json) — text IDENTICAL
   to v8's, "dead" at 12.72s. License log gains the gpt-image plate entry
   (pending since v8).
-- STATUS: awaiting Codex pre-caption review. NOT production-ready until the
-  creative gate passes. Do not enter Captions.ai.
+- STATUS: REJECTED by Codex (boundary clearer, total experience degraded:
+  plate-identity drift, exposure flicker, static machinery, rope-like
+  interface, weaker reveal, ship too small). v9 SHELVED. v8 is the visual
+  baseline again.
+
+---
+
+## v10 (2026-07-13) — MECHANISM-ONLY PREVIEW; no master until Codex passes it
+
+Codex directive after v9: never generate independent W0/W1/W2 state images
+again (photographic identity cannot survive independent generations). Animate
+ONE continuous v8 plate instead, and prove the mechanism in a short low-res
+preview before assembling any 18-second master.
+
+- rep2_mech_preview.py animates cam-master.png with one exposure throughout:
+  hub-measured propeller disc rotating with rotational motion blur; wash
+  particles descending from prop to interface; the interface as a subtle
+  heat-haze refractive displacement band (never a drawn line); at contact the
+  band deforms into a lateral traveling wave whose two crests propagate away
+  from the impact point; restrained static local grading differentiates the
+  layers (cyan/particles above, denser dark below). Camera: rotating-prop
+  close-up → tilt to interface → contact → wave travels → moderately wider
+  full-system frame (machinery stays large).
+- trace2 intermediate scale 0.52 (v8 0.84 / v9 0.34), loop box 720x640: ship
+  recognizable AND crossed route legible.
+- Hardware: single process, threads capped, peak RSS 414MB (<750 cap).
+- Tech note: cv2 5.x remap silently corrupts on float64 maps (numpy 2.x
+  scalar promotion) — all remap maps must be float32.
+- DELIVERABLES: mech-preview-v10.mp4 (540x960 8s), trace2-v10-frame.png,
+  trace2-v10-hold.png (data/productions/REP-2/, local).
+- STATUS: preview awaiting Codex mechanism gate. NO master assembly, no
+  script/narration/mix/hero changes. Do not enter Captions.ai.
 
 ## 2-REV5. FINAL script (Codex external-benchmark rebuild 2026-07-13 — supersedes §2-REV4; MASTER v6)
 
