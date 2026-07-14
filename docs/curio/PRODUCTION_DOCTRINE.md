@@ -184,6 +184,23 @@ master runs `node tools/finalqa.mjs <mp4>` BEFORE going to review. No exceptions
     they are visible in one still and cost a full re-render round when
     caught late (REP-2 v10 trace).
 
+24. **Stills prove composition; only a playable preview proves motion.**
+    Any claim about movement (rotation cues, wake development, wave travel)
+    must be validated by delivering a short decodable clip at review size —
+    a frame strip cannot show whether an implied-rotation cue or a
+    developing wake reads temporally (REP-2 v11: trace frames passed
+    composition while the animated wake failed as "smoke ring"; the
+    restrained specular sweep read as stationary at phone scale). Review
+    verdicts are stored PER COMPONENT (pass/provisional/rejected), never as
+    a global success for the attempt.
+
+25. **Caption-collision test before master assembly.** Overlay the target
+    caption box (Flair anchor X540/Y1344 on 1080x1920 per the Third Man
+    recipe) on the explanatory framings during QA; the mechanism's payoff
+    features (boundary, contact point, crest) must sit above ~62% frame
+    height. REP-2 v11's contact framing put the interface at 66% — inside
+    the band — caught only by this overlay test.
+
 ## Final-video QA checklist (run on every master, before every review)
 
 Automated by `tools/finalqa.mjs` (deterministic, no LLM):

@@ -305,7 +305,30 @@ preview before assembling any 18-second master.
   mobile-scale matte inspection).
 - DELIVERABLES: mech-preview-v11.mp4, trace2-v11-frame.png,
   trace2-v11-hold.png (data/productions/REP-2/, local).
-- STATUS: awaiting Codex mechanism gate. NO master assembly, no
+- STATUS: Codex verdict on v11 — container PASS, rigid-mechanism PASS,
+  mechanism CONDITIONAL PASS, trace FAIL. Per-component ledger recorded
+  (integrity/rigid/single-plate/matte/processing = LOCKED PASS; restrained
+  specular rotation = PROVISIONAL/insufficient at mobile; wide blurred wake
+  = REJECTED as smoke/UI).
+
+### v12 previews (2026-07-13) — rotation cue + trace rebuild + caption QA
+
+- Preview A (2s): specular sweep +65% & narrowed; asymmetric cavitation
+  cluster advancing around the tip radius with trailing streaks; one
+  rotation direction; machinery pixels untouched. Reads at 270x480.
+- Preview B (3s): wake width -45% with age taper, blur cut, blue-white
+  irregular foam with dark gaps, stern-connected origin, crossing = locally
+  re-disturbed old ribbon (no dots), crossed route held ~0.42s, sprite
+  blue-graded + sharpened to the ocean.
+- Caption safety: v11 framing FAILED the overlay test (interface 66% =
+  inside Flair band at Y1344); mech camera keys reframed to ~60% and
+  verified with a temporary caption-box overlay (caption-safety-qa-v12.png).
+- Both previews faststart + ffprobe + full-decode verified; peak RSS 486MB.
+- Doctrine 24-25 locked (playable previews for motion claims + per-component
+  verdicts; caption-collision test pre-master).
+- DELIVERABLES: prop-preview-v12.mp4, trace-preview-v12.mp4,
+  caption-safety-qa-v12.png (data/productions/REP-2/, local).
+- STATUS: awaiting Codex v12 gate. NO master assembly, no
   script/narration/mix/hero changes. Do not enter Captions.ai.
 
 ## 2-REV5. FINAL script (Codex external-benchmark rebuild 2026-07-13 — supersedes §2-REV4; MASTER v6)
