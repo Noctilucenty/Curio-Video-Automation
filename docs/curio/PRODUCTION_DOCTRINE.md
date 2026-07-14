@@ -201,17 +201,24 @@ master runs `node tools/finalqa.mjs <mp4>` BEFORE going to review. No exceptions
     height. REP-2 v11's contact framing put the interface at 66% — inside
     the band — caught only by this overlay test.
 
-26. **You cannot darken near-black — a dark subject must be BACKLIT.** The
-    single most expensive defect of REP-3 v2: the "enormous mass" was drawn as
-    a multiplicative occluder (`frame *= 1 - mask*0.5`) over abyss plate whose
+26. **A subject is only visible if it SEPARATES FROM ITS SURROUND — and you
+    cannot get separation by darkening near-black.** The requirement is local
+    contrast separation; *how* you achieve it is a creative choice. The single
+    most expensive defect of REP-3 v2: the "enormous mass" was drawn as a
+    multiplicative occluder (`frame *= 1 - mask*0.5`) over abyss plate whose
     luma was already ~11/255. Darkening 11 yields 7 — a 3.4 gray-level delta
     that x264 erases entirely at mobile size. Two Codex passes were spent on
-    it. A shape is only visible if it differs from its SURROUND, so to read a
-    dark body you must light the water/haze BEHIND and AROUND it (scatter from
-    a light source already in the scene) and let the body stay black. Adding
-    opacity to an occluder on a dark plate does nothing; adding light next to
-    it does everything. Corollary: never "fix" this by globally brightening the
-    scene — that destroys the dread and still yields no local contrast.
+    it. Once a region is at the floor, adding occluder opacity does nothing;
+    the separation has to come from somewhere else. Options, in rough order of
+    how often they fit: light the medium BEHIND/AROUND the subject (haze
+    scatter from a light already in the scene — what REP-3 v2.1 did); give the
+    subject an edge the eye can trace (rim, refraction, displacement, a
+    disturbance boundary); move the subject to where contrast already exists;
+    or re-key the plate so the subject's region is not at the floor to begin
+    with. Backlighting is ONE solution, not the rule. The rule is: measure the
+    separation (doctrine 27) and do not ship without it. Corollary: never buy
+    separation by globally brightening the scene — that destroys the dread and
+    still yields no *local* contrast.
 
 27. **Legibility is measured on the DELIVERED COMPRESSED FRAMES, never on the
     render.** At 1080×1920 the v2 mass was plainly visible; at the 270×480
@@ -223,21 +230,30 @@ master runs `node tools/finalqa.mjs <mp4>` BEFORE going to review. No exceptions
     implementation is LOCAL ONLY; promote a generalized version into the tracked
     `tools/` next to `finalqa.mjs` when the infrastructure freeze lifts, or the
     next production will inherit this doctrine without the script that enforces
-    it). **Threshold: |core − surround| ≥ 12 gray levels on EVERY
-    frame, ≥14 median.** Calibration: REP-3 v2 = 3.4 median (Codex: "a vague
-    patch" — rejected); v2.1 ships at 14.4 median / 12.8 min / 80-of-80 frames
-    and is plainly pointable. Do not chase a higher number by lifting the whole
-    scene — the lift must stay local to the subject (doctrine 26), and drowning
-    the dread in light fails a different review. A subject you cannot point to
-    without being told where it is has not been rendered, whatever the 1080p
-    frame shows.
+    it). **The gate is: measure it, and a human confirms they can point to the
+    subject unprompted on the compressed frame.** The NUMBER is production-
+    specific — it depends on plate luma, subject size, motion and grain, so
+    there is no universal threshold. REP-3 is a CALIBRATION EXAMPLE, not a
+    standard: v2 = 3.4 median (Codex: "a vague patch" — rejected); v2.1 ships at
+    14.4 median / 12.8 min / 80-of-80 frames and is plainly pointable. Use those
+    as a starting reference for a large soft subject on a near-black plate, and
+    re-derive the acceptance number for any production whose conditions differ
+    (a small fast subject, or one on a bright plate, will need a different
+    figure). Do not chase a higher number by lifting the whole scene — the lift
+    must stay local (doctrine 26), and drowning the dread in light fails a
+    different review. A subject you cannot point to without being told where it
+    is has not been rendered, whatever the 1080p frame shows.
 
-28. **Any glow added around a subject must be ASYMMETRIC.** A halo of uniform
-    strength closes into a ring and instantly reads as sonar/HUD/UI — the exact
-    "bullseye" defect already REJECTED on REP-3 v1's opening pulse. Weight the
-    scatter toward the light source that motivates it (stronger above/toward
-    the beam, dying off below) so it reads as light in haze, not an outline.
-    The mass in v2.1 is lit only where the god-light could plausibly reach it.
+28. **No UNMOTIVATED CLOSED HALOS.** A glow of uniform strength that closes
+    into a complete ring around a subject reads as sonar/HUD/UI — the "bullseye"
+    defect REJECTED on REP-3 v1's opening pulse. The test is motivation, not
+    symmetry: every glow must be traceable to a light source or physical process
+    in the scene, and must fall off the way that source would. A symmetrical
+    glow is perfectly legitimate when the scene motivates it (a point source in
+    fog, a bioluminescent body, a lamp's bloom); an unmotivated ring is UI
+    whatever its shape. REP-3 v2.1's mass is lit only where the god-light could
+    plausibly reach it — asymmetric BECAUSE the light is off to one side and
+    above, not because asymmetry is a rule.
 
 29. **Audit every MODIFIER in a factual claim, not just the claim.** REP-3's
     narration ended "an iceberg cracking apart underwater". The iceberg is
@@ -252,14 +268,21 @@ master runs `node tools/finalqa.mjs <mp4>` BEFORE going to review. No exceptions
     ("underwater microphones", "loudest ever recorded underwater") — a word is
     not banned, a *claim* is.
 
-30. **Fix narration by waveform edit, not re-synthesis.** Removing a word does
-    not require a new TTS take (which would forfeit a pinned, word-perfect,
-    audition-passed narration and restart the whole audition). Find the RMS
-    energy floor between the two words (REP-3: 15.68–15.695s, rms ~0.003
-    between "apart" decaying and "underwater" attacking), cut there, and let the
-    existing fade-out land inside real silence. Freed tail time is not refilled
-    — let the closing motif ring into the loop, and close any bed-duck window
-    with the narration so the ending breathes.
+30. **Prefer a waveform edit over re-synthesis — but ONLY when a clean isolated
+    boundary exists.** Re-synthesising to change one word forfeits a pinned,
+    word-perfect, audition-passed take and restarts the whole audition, so when
+    the edit is clean, cut it. It is clean when the boundary is genuinely
+    isolated: an RMS floor at true silence between the two words, no coarticu-
+    lation across the seam, and (ideally) the cut at a sentence or phrase end.
+    REP-3 v2.1 removed the final word "underwater" at 15.695s, where the take
+    floors to rms ~0.003 between "apart" decaying and "underwater" attacking —
+    a trailing word after a completed phrase, the easiest possible case.
+    **Measure the boundary before assuming it.** If the words run together, the
+    cut falls mid-phrase, prosody would leave the line hanging, or removing the
+    word changes the sentence's intonation contour, then a waveform edit will
+    sound wrong and RE-SYNTHESIS IS THE SAFER CHOICE — re-audition and re-pin
+    rather than ship a seam. Freed tail time is not refilled: let the closing
+    motif ring into the loop, and close any bed-duck window with the narration.
 
 ## Final-video QA checklist (run on every master, before every review)
 
@@ -272,10 +295,15 @@ Automated by `tools/finalqa.mjs` (deterministic, no LLM):
       blurred ≥ 0.90 required
 - [ ] Contact sheet emitted (8 frames)
 
-Dark-subject legibility (doctrine 26–27) — run whenever a beat carries a dark
-or low-contrast subject, on the COMPRESSED mobile clip, not the render:
-- [ ] |core − surround| luma delta ≥12 on every frame, ≥14 median
-      (`tools/rep3_massqa.py` pattern; report the number in the production log)
+Subject/surround separation (doctrine 26–27) — run whenever a beat carries a
+dark or low-contrast subject, on the COMPRESSED mobile clip, not the render:
+- [ ] |core − surround| luma delta measured on every frame and REPORTED in the
+      production log (`tools/rep3_massqa.py` pattern). The pass number is
+      production-specific — derive it, don't inherit it. REP-3 v2.1 (large soft
+      subject, near-black plate) shipped at 14.4 median / 12.8 min and reads;
+      3.4 was rejected as "a vague patch".
+- [ ] A human points to the subject on the compressed frame WITHOUT being told
+      where it is. The measurement supports this check; it does not replace it.
 
 Human/vision checks (the script emits the artifacts; a person signs off):
 - [ ] Contact sheet at MOBILE size: every beat readable, no dead-black beats

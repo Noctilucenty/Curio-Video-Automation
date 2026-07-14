@@ -118,9 +118,48 @@ faststart + full decode after encoder exit; muxed transcript ends "An iceberg
 cracking apart."; caption proof clean (mass's lit crown above the band);
 motion validated as playable clips from the delivered master.
 
-STATUS: awaiting Codex FINAL verdict on REP-3-pre-captions-master-v2.1.mp4
-(+ rep3-v21-dread-mobile.mp4 / rep3-v21-calving-mobile.mp4 motion clips).
-Do not enter Captions.ai. Caption beats (approved, for the Captions pass):
-THE SAME SOUND./3,000 KM APART. · ONE OF THE/LOUDEST EVER RECORDED. ·
-NO ONE KNEW/WHAT MADE IT. · SOMETHING ENORMOUS? · THE BLOOP/WASN'T ALIVE. ·
-ANTARCTIC ICE/CRACKING APART.
+## STATUS: CODEX GO (2026-07-14) — first master in this cycle advanced
+
+Codex independently confirmed on v2.1: the mass is visible at 270×480 and
+progressively enters the composition; it stays ambiguous (no anatomy); the Veo
+fracture visibly causes the audio payoff; the unsupported "underwater" is gone;
+the transcript ends "An iceberg cracking apart."; caption-safe framing, technical
+QA, loop, loudness and factual structure all pass. → **Captions.ai, captions only.**
+
+### Captions.ai gate (full spec: data/productions/REP-3/CAPTIONS-SPEC-v2.1.md)
+
+⚠️ **DO NOT route this through `src/postprocess.ts`.** That integration hardcodes
+`cutFillers: true, cutSilences: true` — it would strip the engineered 0.65s
+silence at 14.81s and desynchronize the 15.45s fracture, i.e. destroy exactly
+what the GO is conditional on. REP-3 is a MANUAL pass in the Captions.ai app
+(the Third Man path). If the API is ever used on a narrated master, `OPERATIONS`
+must be overridden to captions-only first.
+
+Import `REP-3-v2.1-FOR-CAPTIONS.mp4` (byte-identical copy; the master is never
+mutated). Flair preset, white/black variant, anchor X540/Y1344. NO Talking Head
+AI Edit, NO shot reorder/replace, NO silence cutting, filler removal, reframing,
+music, effects or automatic pacing edits. Preserve the 14.81–15.46s silence and
+the 15.45s fracture sync. Export WITHOUT posting.
+
+Caption beats + timings (18.0s timeline; "Antarctica" ends 14.66, silence to
+15.46, final sentence resumes 15.69, crack at 15.45 lands inside the gap):
+
+| # | Caption | In | Out |
+|---|---|---|---|
+| 1 | THE SAME SOUND. / 3,000 KM APART. | 1.85 | 5.75 |
+| 2 | ONE OF THE / LOUDEST EVER RECORDED. | 6.05 | 7.98 |
+| 3 | NO ONE KNEW / WHAT MADE IT. | 8.15 | 9.40 |
+| 4 | SOMETHING ENORMOUS? | 10.10 | 11.70 |
+| 5 | THE BLOOP / WASN'T ALIVE. | 11.80 | 14.70 (held through the Antarctica line) |
+| — | *no caption* | 14.70 | 15.44 (the silence stays bare) |
+| 6 | ANTARCTIC ICE / CRACKING APART. | **15.45** | 17.60 |
+
+**Reveal rule:** `CRACKING APART` must NEVER appear before 15.45. It lands ON the
+crack, not on "NOAA traced it to Antarctica" — that would spoil the payoff.
+
+Verify the export with `tools/rep3_captions_verify.py <export.mp4>`: checks 18.0s
+/540f, the silence survives, the crack is still at 15.45, the export's audio is
+lag-0 / corr≥0.98 against the master (catches any cut, pacing edit, music or
+re-normalisation), and — objectively — that the caption band is empty through the
+silence and new text appears at the crack and not before. Then send BOTH the
+pre-Captions master and the Captions export to Codex.
