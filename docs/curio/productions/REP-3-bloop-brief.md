@@ -72,8 +72,54 @@ and preserved.
   muxed transcript identical to v1; caption proof v2 clean; peak RSS
   <450MB. Veo one-off recorded in the license log.
 
-STATUS: awaiting Codex FINAL verdict on REP-3-pre-captions-master-v2.mp4
-(+ rep3-v2-calving-mobile.mp4 / rep3-v2-dread-mobile.mp4 motion clips).
+STATUS v2: Codex HOLD — Veo calving, crack sync, audio preservation (v1/v2
+audio SHA-256 identical), caption safety and technical QA ACCEPTED and
+LOCKED. Two defects blocked GO → surgical acceptance patch (v2.1).
+
+## v2.1 surgical acceptance patch (2026-07-14)
+
+Two defects, nothing else. No new assets, no script rewrite, no mix redesign,
+no shot changes, no API wiring.
+
+1. **The enormous mass now reads at 270x480** (Codex: "only a vague patch").
+   Root cause, and the reusable lesson (→ doctrine 26/27): the mass was a
+   multiplicative occluder over an abyss plate already at luma ~11/255.
+   Darkening 11 gives 7 — a **3.4 gray-level** delta that x264 erases at
+   mobile size. *You cannot darken near-black.* The fix lights the water
+   BEHIND the body: the existing god-light scatters in the haze around and
+   above it (asymmetric — weighted toward the beam, dying below, so it can
+   never close into a ring, which was v1's rejected sonar-bullseye read), the
+   body is carved deeper, and a restrained crescent catches the lit upper
+   edge. No global brightening. Ambiguity intact — still one blurred ellipse:
+   no anatomy, eyes, fins, tentacles, rings or UI. Same fix on the descent
+   pre-echo shadow.
+   OBJECTIVE GATE (new — tools/rep3_massqa.py, measured on the compressed
+   270x480 clip cut from the DELIVERED master, never the 1080p render):
+   core 15.4 / surround 30.0 / **delta 14.4 median, min 12.8, 80 of 80
+   frames** (v2 = 3.4). Mass travels 100px x / 45px y on a 270-wide frame.
+
+2. **Unsupported final word "underwater" cut** (fact correction). NOAA/PMEL
+   say an iceberg cracked and broke away from an Antarctic glacier; neither
+   says the fracture happened underwater — the sound was *recorded*
+   underwater, a different claim (→ doctrine 29: audit every modifier, not
+   just the claim). Ending is now "...NOAA traced it to Antarctica: an
+   iceberg cracking apart." Done as a clean WAVEFORM edit of the existing
+   narration v2 take — no TTS regeneration (→ doctrine 30) — cut at the
+   15.695s energy floor between "apart" and "underwater". The two other uses
+   of "underwater" (underwater microphones; loudest ever recorded underwater)
+   ARE sourced and are unchanged. Freed tail is not refilled: the bed duck
+   closes with the narration so the closing Bloop pulse rings exposed into
+   the loop. License-log claim map corrected.
+
+QA: finalqa ALL PASS first run (18.00s, 540f, I -17.8 LUFS, TP -3.1, LRA 2.5,
+silence 14.81s/0.65s, no black, loop blurred SSIM 0.976); mix re-measured
+honestly (raw -15.31 → linear gain -2.19 dB → -17.50 LUFS, no compression);
+faststart + full decode after encoder exit; muxed transcript ends "An iceberg
+cracking apart."; caption proof clean (mass's lit crown above the band);
+motion validated as playable clips from the delivered master.
+
+STATUS: awaiting Codex FINAL verdict on REP-3-pre-captions-master-v2.1.mp4
+(+ rep3-v21-dread-mobile.mp4 / rep3-v21-calving-mobile.mp4 motion clips).
 Do not enter Captions.ai. Caption beats (approved, for the Captions pass):
 THE SAME SOUND./3,000 KM APART. · ONE OF THE/LOUDEST EVER RECORDED. ·
 NO ONE KNEW/WHAT MADE IT. · SOMETHING ENORMOUS? · THE BLOOP/WASN'T ALIVE. ·

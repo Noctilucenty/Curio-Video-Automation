@@ -201,6 +201,66 @@ master runs `node tools/finalqa.mjs <mp4>` BEFORE going to review. No exceptions
     height. REP-2 v11's contact framing put the interface at 66% — inside
     the band — caught only by this overlay test.
 
+26. **You cannot darken near-black — a dark subject must be BACKLIT.** The
+    single most expensive defect of REP-3 v2: the "enormous mass" was drawn as
+    a multiplicative occluder (`frame *= 1 - mask*0.5`) over abyss plate whose
+    luma was already ~11/255. Darkening 11 yields 7 — a 3.4 gray-level delta
+    that x264 erases entirely at mobile size. Two Codex passes were spent on
+    it. A shape is only visible if it differs from its SURROUND, so to read a
+    dark body you must light the water/haze BEHIND and AROUND it (scatter from
+    a light source already in the scene) and let the body stay black. Adding
+    opacity to an occluder on a dark plate does nothing; adding light next to
+    it does everything. Corollary: never "fix" this by globally brightening the
+    scene — that destroys the dread and still yields no local contrast.
+
+27. **Legibility is measured on the DELIVERED COMPRESSED FRAMES, never on the
+    render.** At 1080×1920 the v2 mass was plainly visible; at the 270×480
+    crf26 the viewer actually sees, it did not exist. Every dark/subtle subject
+    gets an objective number before review: mean luma of the subject core vs an
+    annulus of its immediate surround, computed on the decoded mobile clip
+    (`data/productions/REP-3/tools/rep3_massqa.py` — geometry is REP-3-specific,
+    the method is not. NOTE: `data/` is gitignored, so that reference
+    implementation is LOCAL ONLY; promote a generalized version into the tracked
+    `tools/` next to `finalqa.mjs` when the infrastructure freeze lifts, or the
+    next production will inherit this doctrine without the script that enforces
+    it). **Threshold: |core − surround| ≥ 12 gray levels on EVERY
+    frame, ≥14 median.** Calibration: REP-3 v2 = 3.4 median (Codex: "a vague
+    patch" — rejected); v2.1 ships at 14.4 median / 12.8 min / 80-of-80 frames
+    and is plainly pointable. Do not chase a higher number by lifting the whole
+    scene — the lift must stay local to the subject (doctrine 26), and drowning
+    the dread in light fails a different review. A subject you cannot point to
+    without being told where it is has not been rendered, whatever the 1080p
+    frame shows.
+
+28. **Any glow added around a subject must be ASYMMETRIC.** A halo of uniform
+    strength closes into a ring and instantly reads as sonar/HUD/UI — the exact
+    "bullseye" defect already REJECTED on REP-3 v1's opening pulse. Weight the
+    scatter toward the light source that motivates it (stronger above/toward
+    the beam, dying off below) so it reads as light in haze, not an outline.
+    The mass in v2.1 is lit only where the god-light could plausibly reach it.
+
+29. **Audit every MODIFIER in a factual claim, not just the claim.** REP-3's
+    narration ended "an iceberg cracking apart underwater". The iceberg is
+    sourced; the fracture is sourced; **"underwater" is not** — NOAA/PMEL say
+    the Bloop was an iceberg cracking and breaking away from an Antarctic
+    glacier, and the sound was *recorded* underwater, which is a different
+    claim from the fracture *occurring* underwater. One unsupported adverb sat
+    on the payoff line through a full review cycle. The claim map in the
+    license log must decompose each sentence to the level of individual
+    qualifiers (where, when, how) and cite each one, or it is not a claim map.
+    Note the same word is legitimate twice earlier in the same script
+    ("underwater microphones", "loudest ever recorded underwater") — a word is
+    not banned, a *claim* is.
+
+30. **Fix narration by waveform edit, not re-synthesis.** Removing a word does
+    not require a new TTS take (which would forfeit a pinned, word-perfect,
+    audition-passed narration and restart the whole audition). Find the RMS
+    energy floor between the two words (REP-3: 15.68–15.695s, rms ~0.003
+    between "apart" decaying and "underwater" attacking), cut there, and let the
+    existing fade-out land inside real silence. Freed tail time is not refilled
+    — let the closing motif ring into the loop, and close any bed-duck window
+    with the narration so the ending breathes.
+
 ## Final-video QA checklist (run on every master, before every review)
 
 Automated by `tools/finalqa.mjs` (deterministic, no LLM):
@@ -211,6 +271,11 @@ Automated by `tools/finalqa.mjs` (deterministic, no LLM):
 - [ ] Loop endpoints: first vs last frame SSIM raw + blurred, both reported;
       blurred ≥ 0.90 required
 - [ ] Contact sheet emitted (8 frames)
+
+Dark-subject legibility (doctrine 26–27) — run whenever a beat carries a dark
+or low-contrast subject, on the COMPRESSED mobile clip, not the render:
+- [ ] |core − surround| luma delta ≥12 on every frame, ≥14 median
+      (`tools/rep3_massqa.py` pattern; report the number in the production log)
 
 Human/vision checks (the script emits the artifacts; a person signs off):
 - [ ] Contact sheet at MOBILE size: every beat readable, no dead-black beats
