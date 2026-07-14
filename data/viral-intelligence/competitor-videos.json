@@ -1,7 +1,65 @@
 {
-  "collectedAt": null,
-  "source": "none yet",
-  "queries": [],
-  "videos": [],
-  "_note": "competitor channel tracking \u2014 fill via vidIQ channelIds sweeps"
+  "collectedAt": "2026-07-13",
+  "source": "vidIQ live sweep via Codex external-benchmark review of REP-2 v5 (rejected) — drove the v6 spec",
+  "queries": ["viral educational shorts benchmarks", "dead water existing coverage"],
+  "videos": [
+    {
+      "id": "w7PGmnhNUMY",
+      "url": "https://www.youtube.com/shorts/w7PGmnhNUMY",
+      "channel": "Zack D. Films",
+      "topic": "grave bell (safety coffins)",
+      "views": 107900000,
+      "likes": 4320000,
+      "status": "PROVISIONAL external evidence — do not promote without Curio analytics",
+      "observations": [
+        "universal fear in the first sentence",
+        "premise visually complete within ~5s",
+        "~8 meaningful visual developments across the runtime",
+        "literal visuals throughout — every sentence is shown, not implied"
+      ]
+    },
+    {
+      "id": "dOn3rgeW1Jg",
+      "url": "https://www.youtube.com/shorts/dOn3rgeW1Jg",
+      "channel": "Zack D. Films",
+      "topic": "Tootsie Rolls in the Korean War",
+      "views": 121700000,
+      "likes": 4570000,
+      "status": "PROVISIONAL external evidence — do not promote without Curio analytics",
+      "observations": [
+        "bizarre first-frame contradiction",
+        "immediate human stakes",
+        "visual change every 2-3 seconds",
+        "multiple payoffs rather than one delayed reveal"
+      ]
+    },
+    {
+      "id": "7UY7tBBdP8E",
+      "url": "https://www.youtube.com/shorts/7UY7tBBdP8E",
+      "channel": "(ocean-physics experiment)",
+      "topic": "stratified-water experiment",
+      "views": 59600000,
+      "breakoutMultiple": 615,
+      "status": "PROVISIONAL external evidence — do not promote without Curio analytics",
+      "observations": [
+        "action begins by ~2s",
+        "impossible-looking payoff around ~5s",
+        "the phenomenon itself creates replay"
+      ]
+    },
+    {
+      "id": "zn4iYYai7uY",
+      "url": "https://www.youtube.com/shorts/zn4iYYai7uY",
+      "channel": "(existing dead-water explainer)",
+      "topic": "dead water",
+      "status": "NEGATIVE CONTROL",
+      "observations": [
+        "cliché opening",
+        "generic stock footage",
+        "disconnected imagery",
+        "late explanation, no visual aha"
+      ]
+    }
+  ],
+  "_note": "Codex doctrine correction captured in VIRAL_PLAYBOOK PROVISIONAL: viral videos provide continuous micro-payoffs while withholding only the final name/interpretation — not a single answer delayed to 75%. Confirmed/denied by REP-1/2/3 published analytics."
 }

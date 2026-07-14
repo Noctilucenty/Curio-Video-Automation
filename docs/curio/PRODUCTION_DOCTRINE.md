@@ -78,6 +78,17 @@ master runs `node tools/finalqa.mjs <mp4>` BEFORE going to review. No exceptions
     silence-trimming pass is ever needed (REP-2 rev 4: asked 0.3s, got 0.61s;
     fixed by requesting 0.15s and letting punctuation do the rest).
 
+12. **Pacing is measured two ways, and a gap is only dead air if BOTH agree.**
+    Whisper word-timestamp deltas overstate gaps (breath and voiced delivery
+    live inside them: REP-2 rev 5's 0.48s "turned→looped" gap contained
+    −17 dB speech — cutting it mangled "looped" into "hooped"); a single
+    silencedetect threshold understates them (breathy gaps ride above −32 dB).
+    Audit BOTH: word-gap deltas for perceived pacing, energy probes
+    (silencedetect −38 dB + windowed volumedetect) for what is actually
+    cuttable. Surgical trims happen only inside measured true-silence spans,
+    cut from the middle, with ~10 ms crossfades — then re-transcribe to prove
+    no word was damaged.
+
 ## Final-video QA checklist (run on every master, before every review)
 
 Automated by `tools/finalqa.mjs` (deterministic, no LLM):

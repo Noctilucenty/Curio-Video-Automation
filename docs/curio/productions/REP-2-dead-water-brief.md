@@ -87,7 +87,83 @@ wake — the surface is calm, not featureless); "denser salt water" replaces
 
 ---
 
-## 2-REV4. FINAL script (Codex low-cognitive-load revision 2026-07-13 — supersedes §2-REV3)
+## 2-REV5. FINAL script (Codex external-benchmark rebuild 2026-07-13 — supersedes §2-REV4; MASTER v6)
+
+Codex REJECTED v5 for production after benchmarking against live viral Shorts
+(Zack D. Films grave-bell 107.9M / Tootsie Rolls 121.7M, ocean-physics 59.6M
+@615×; references logged as PROVISIONAL in data/viral-intelligence/
+competitor-videos.json — NOT promoted to rules). Core correction: viral videos
+provide continuous micro-payoffs while withholding only the final name — v5
+had 4 machine-detected visual changes / 18.2s vs Third Man's 8 / 20.2s.
+
+> In the Arctic, a ship ran at full power... and barely moved. The crew
+> turned. Looped. Tried everything. Still, the surface stayed calm. Something
+> underneath was stopping them. Their own propeller was feeding waves they
+> couldn't see. Sailors called it dead water. Meltwater floated over heavier
+> salt water. Above it, the sea stayed calm.
+
+Narration: narration-v5.mp3/.wav, 17.94s (~178 WPM, in Codex's 170–180
+window), pinned voice settings. HONEST pacing audit (doctrine #12, two
+yardsticks): whisper word-gaps — turned→looped 0.48s (PROVEN voiced clipped
+delivery, −17 dB energy inside the gap; NOT dead air), calm→Something 0.40s
+(true quiet only 0.16s, rest is breath + onset), all others ≤0.38s; energy
+(−38 dB) — every non-reveal true-silence span ≤0.21s. Two surgical trims made
+INSIDE measured true silence only (see→Sailors −0.16s, saltwater→Above
+−0.08s), re-transcribed clean. Reveal collapse: 0.491s pre-AAC → **0.473s
+measured after AAC** (spec 0.46–0.50 ✓). "dead" = 73.4% runtime, word 41/54 =
+76% by position. TTS note: one take discarded (em-dash → 3s gibberish, again;
+whisper caught it).
+
+11-beat shot plan (539 frames @30fps = 17.967s, frame-quantized to acoustic
+onsets; renderer = tools/rep2_scene_v3.swift — unified drawn vessel,
+shaft-attached propeller, navy/gray textured water, NO teal):
+| beat | time | look | narration |
+|---|---|---|---|
+| 1 | 0.00-2.53 | hero: smoke+churn, not moving | "In the Arctic, a ship ran at full power..." |
+| 2 | 2.53-3.27 | TIGHT stern punch-in: prop-wash evidence | "and barely moved." |
+| 3 | 3.27-4.73 | ocean trace: first hard turn | "The crew turned." |
+| 4 | 4.73-6.03 | trace: self-crossing loop | "Looped. Tried everything." |
+| 5 | 6.03-7.97 | calm hero hold (contradiction) | "Still, the surface stayed calm." |
+| 6 | 7.97-9.57 | descent below the waterline | "Something underneath was stopping them." |
+| 7 | 9.57-11.10 | mechanism A: attached prop feeds pulses | "Their own propeller was feeding waves" |
+| 8 | 11.10-12.67 | mechanism B: wave visibly grows per pulse | "they couldn't see. Sailors called it" |
+| 9 | 12.67-13.17 | SILENCE HOLD: static, slowed, dimming | (0.47s acoustic collapse) |
+| 10 | 13.17-16.33 | decisive pullback: full system | "dead water. Meltwater floated over heavier salt water." |
+| 11 | 16.33-17.97 | calm hero return (loop) | "Above it, the sea stayed calm." |
+
+Perceptual-change count: 7 machine-detected scene changes (scdet 0.06; v5 had
+4) + 4 continuous-camera developments (turn→loop, mech phase A→B, hold dim,
+reveal pullback) = 11 beats. Audio-visual sync: three low thumps land exactly
+on the mechanism's pulse arrivals (10.27/11.07/11.87).
+
+Mix v6: STEREO 48kHz (voice centered, decorrelated L/R atmosphere, thumps
+biased slightly right toward the prop). Calm/underneath passage −4 dB; gradual
+rise through the mechanism; boom 0.9 subordinate; voice delivery-shaped per
+Codex direction ("dead water" 0.88, closer 0.80 — switched inside word gaps).
+Measured: −16.9 LUFS, TP −3.7, LRA 2.1 by finalqa's yardstick (v5: 1.3, Third
+Man: 3.1) / 2.8 by ebur128 on the raw mix. FOOTER REMOVED entirely (exit-signal
+risk; the blink-length alternative conflicts with the loop-endpoint rule).
+
+Captions for the Captions.ai build (Codex rev-5 list — per-shot designed, ONE
+amber emphasis per beat, verify each against the action beneath it; beats 5-7
+of the caption list ride mechanism/reveal):
+1. "FULL POWER. / BARELY MOVED." — amber: **BARELY MOVED**
+2. "TURNED. LOOPED. / TRIED EVERYTHING." — amber: **LOOPED**
+3. "THE SURFACE / STAYED CALM." — amber: **STAYED CALM**
+4. "SOMETHING UNDERNEATH / WAS STOPPING THEM." — amber: **UNDERNEATH**
+5. "THEIR OWN PROPELLER..." — amber: **THEIR OWN**
+6. "...FED WAVES / THEY COULDN'T SEE." — amber: **COULDN'T SEE**
+7. "SAILORS CALLED IT / DEAD WATER." — amber: **DEAD WATER**
+8. "MELTWATER OVER / HEAVIER SALT WATER." — amber: **MELTWATER**
+9. "ABOVE IT: / CALM SEA." — amber: **CALM SEA**
+⚠ trace shots keep the course clear of the fixed caption zone (path fitted to
+y 360-1140; captions at Y1344 land on open water).
+
+MASTER: REP-2-pre-captions-master-v6.mp4 — finalqa ALL PASS (−16.9 LUFS,
+TP −3.7, silence beat 12.70s 0.47s <−35dB, no black, loop blurred SSIM 0.972 /
+raw 0.959, stereo verified). GATE: submit to Codex BEFORE captioning.
+
+## 2-REV4. Script rev 4 (superseded by 2-REV5 — v5 master rejected on external benchmark)
 
 Codex verdict on rev 3's master (v4): technically polished but too many
 concepts (Nansen, Arctic, helm, stealing force, two waters, invisible waves)

@@ -129,6 +129,32 @@ strongest evidence tier we have; ledger EXP-202606-30-01 … EXP-202607-06-06):
   engagement (1.6–1.7% ER) — likely poor conversion for a premium brand; low
   priority. _Evidence: The Success Diary channel pattern, 3 videos this month._
 
+**From the Codex external-benchmark sweep (vidIQ live, 2026-07-13 — REP-2 v6
+spec). PROVISIONAL external evidence: none of these is promotable until
+Curio's own publishing analytics confirm them:**
+- **Continuous micro-payoffs while withholding the final name** — viral
+  explainers don't merely delay one answer to ~75%; they deliver new evidence,
+  action, or payoff every 1–3 seconds and withhold only the name/interpretation.
+  _Evidence: Zack D. Films grave-bell (107.9M views, ~8 meaningful visual
+  developments in a short runtime, youtube.com/shorts/w7PGmnhNUMY); Zack
+  Tootsie-Rolls-in-war (121.7M, visual change every 2–3s, multiple payoffs,
+  youtube.com/shorts/dOn3rgeW1Jg). Counted on our own masters: REP-2 v5 had 4
+  machine-detected major changes / 18.2s; v6 rebuilt to 7 machine-detected +
+  4 continuous-camera developments._
+- **Action begins by ~2s; impossible-looking payoff by ~5s; the phenomenon
+  itself creates replay.** _Evidence: ocean-physics experiment short, 59.6M
+  views, 615× breakout (youtube.com/shorts/7UY7tBBdP8E)._
+- **Universal fear / bizarre contradiction in the first sentence, premise
+  visually complete within ~5s, literal visuals throughout.** _Evidence: both
+  Zack D. Films shorts above._
+- **Negative control:** the existing Dead Water explainer
+  (youtube.com/shorts/zn4iYYai7uY) — cliché opening, generic stock,
+  disconnected imagery, late explanation, no visual "aha".
+- **Promotional exit signal risk:** an on-video brand line appearing while the
+  final idea is still landing may read as "content over" and trigger a swipe —
+  REP-2 v6 dropped the footer entirely on this theory. _Curio validation
+  pending (REP-1/2/3 analytics)._
+
 ## REJECTED
 
 **From the four-post analysis (2026-07-12):**
