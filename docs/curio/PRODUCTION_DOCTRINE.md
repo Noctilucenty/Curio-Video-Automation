@@ -162,6 +162,28 @@ master runs `node tools/finalqa.mjs <mp4>` BEFORE going to review. No exceptions
     generic turbulence), and the payoff frame must show the ENTIRE system at
     once, wider and clearer than any frame before it.
 
+21. **A deliverable exists only after it reopens.** After the encoder process
+    exits, ffprobe the file AND fully decode it (`ffmpeg -v error -i X -f
+    null -`); encode MP4s with `-movflags +faststart` so the moov atom leads
+    the file (a tail-moov MP4 truncates into "moov atom not found" for any
+    receiver). A successful render command is not proof of a valid file
+    (REP-2 v10: preview delivered unplayable). Also verify the frame folder
+    holds exactly one numbered sequence — macOS can leave "f0221 2.png"
+    duplicates that contaminate later encodes.
+
+22. **Never pixel-warp rigid machinery.** Remapping/rotating photographed
+    rigid geometry liquefies it — blades ghost, hubs smear (REP-2 v10).
+    Either isolate the moving part onto its own properly-matted layer, or
+    keep the photograph rigid and IMPLY motion: specular sweeps that ride
+    the structure, cavitation/churn particles, directional blur. Hardware
+    geometry must be pixel-identical every frame.
+
+23. **Inspect sprite composites at mobile scale BEFORE animating.** A
+    rectangular matte, a cropped subject, dotted/disconnected effects, or
+    any UI-reading mark (rings, dots, flashes) are instant rejections;
+    they are visible in one still and cost a full re-render round when
+    caught late (REP-2 v10 trace).
+
 ## Final-video QA checklist (run on every master, before every review)
 
 Automated by `tools/finalqa.mjs` (deterministic, no LLM):

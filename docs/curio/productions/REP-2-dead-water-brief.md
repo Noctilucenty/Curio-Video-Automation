@@ -287,7 +287,25 @@ preview before assembling any 18-second master.
   scalar promotion) — all remap maps must be float32.
 - DELIVERABLES: mech-preview-v10.mp4 (540x960 8s), trace2-v10-frame.png,
   trace2-v10-hold.png (data/productions/REP-2/, local).
-- STATUS: preview awaiting Codex mechanism gate. NO master assembly, no
+- STATUS: v10 preview REJECTED by Codex (invalid MP4 — tail moov; prop remap
+  liquefied blades; trace matte/crop/UI-dot/dotted-wake failures). Direction
+  confirmed correct; execution redone in v11.
+
+### v11 preview (2026-07-13) — corrections applied
+
+- Propeller pixels never warped: machinery pixel-rigid; rotation implied by a
+  blade-riding specular sweep + tip cavitation particles.
+- Trace: feathered alpha (no rect matte), no ring/dot (crossing = accumulated
+  foam on the second pass), one continuous soft turbulent wake, footprint-
+  ellipse erase, whole ship in frame with the crossing clear of it (geometry
+  solved numerically), bow-wave bloom compressed.
+- Delivery QA: fresh dirs, single numbered sequence verified, faststart moov,
+  ffprobe + full-decode pass after encoder exit. Peak RSS 455MB.
+- Doctrine 21-23 locked (probe-after-encode, no rigid-machinery warping,
+  mobile-scale matte inspection).
+- DELIVERABLES: mech-preview-v11.mp4, trace2-v11-frame.png,
+  trace2-v11-hold.png (data/productions/REP-2/, local).
+- STATUS: awaiting Codex mechanism gate. NO master assembly, no
   script/narration/mix/hero changes. Do not enter Captions.ai.
 
 ## 2-REV5. FINAL script (Codex external-benchmark rebuild 2026-07-13 — supersedes §2-REV4; MASTER v6)
