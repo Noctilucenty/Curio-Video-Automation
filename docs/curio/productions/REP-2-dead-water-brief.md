@@ -130,6 +130,48 @@ v8 rebuild — every explanatory shot is now a PHOTOGRAPH (doctrine 18):
 - STATUS: awaiting Codex pre-caption review. NOT production-ready until the
   creative gate passes. Do not enter Captions.ai.
 
+---
+
+## MASTER v9 (2026-07-13) — MECHANISM CLARITY; everything approved kept verbatim
+
+Codex on v8: passed medium-replacement + hardware gates, FAILED mechanism
+clarity (4.5/10; publish 6.5). A mute viewer got "propeller churns water,"
+not "meltwater over saltwater creates hidden internal waves that absorb the
+ship's force." LOCKED and untouched: script rev 5, narration-v5,
+mix-v7-final.wav verbatim, silence, no footer, loop, and the v8
+s1-hero/punch/trace1/calm-hero/descent/sting-hero beats.
+
+v9 surgical rebuild (mech1, mech2, hold, reveal, trace2 only):
+- THREE system-state plates (gpt-image-1, edited from plate-master for
+  identity): W0 = calm shimmering density LENS ~1.5 prop diameters below the
+  propeller, lighter particle-rich gray-cyan meltwater above, near-black calm
+  salt water below — hull, prop, both layers, and interface all in ONE frame;
+  W1 = churn cone physically REACHING the interface, first wave hump directly
+  under the prop; W2 = wave grown ~2x, crest traveled astern, whole interface
+  undulating. Natural refraction only — no glow line, no UI.
+- Codex's exact causal sequence: mech1 = prop close-up that pulls DOWN to
+  reveal the boundary (zoompan 2.4→1.32 on W0); mech2 = W0→W1→W2 crossfade
+  chain (flow arrives → wave begins → wave grows); hold = W2 dimmed only
+  -0.03 (readable on a dim phone, v8's crush fixed); reveal = the WIDEST,
+  brightest (+0.035) frame in the video — slow 1.10→1.01 pull-out on the full
+  W2 system plate. The payoff shows the entire cause-and-effect system.
+- Interface sits ~60% frame height in every mech/reveal framing — outside the
+  bottom caption band; captions cannot cover the wave.
+- trace2: the ROUTE is now the subject — ship 0.34 scale (was 0.84 tracked),
+  camera centered on the loop with a gentle 1.10→1.20 push, path completes at
+  72% of the beat so the completed self-crossing loop HOLDS ~11 frames, with
+  a doubly-churned crossing highlight and a time-decaying flash.
+- Hardware: all renders ffmpeg or the two-PNG trace compositor, strictly
+  sequential, -threads 2, peak RSS 620MB max (a 798MB single-process mech2
+  attempt was restructured into segments+xfade at 400MB per the 750MB cap).
+- finalqa ALL PASS: 17.97s, -17.1 LUFS, TP -2.0, silence 12.68s/0.49s, no
+  black, loop SSIM 0.972, 539f exact locked map. Muxed-MP4 transcript
+  PERSISTED (REP-2-pre-captions-master-v9-transcript.json) — text IDENTICAL
+  to v8's, "dead" at 12.72s. License log gains the gpt-image plate entry
+  (pending since v8).
+- STATUS: awaiting Codex pre-caption review. NOT production-ready until the
+  creative gate passes. Do not enter Captions.ai.
+
 ## MASTER v7 (2026-07-13) — Codex creative-gate rebuild; script rev 5 UNCHANGED
 
 Codex REJECTED master v6 at the pre-caption CREATIVE gate (automated QA had
@@ -173,6 +215,48 @@ v7 rebuild (renderer tools/rep2_scene_v4.swift, doctrine lessons 13–17):
   black, loop SSIM 0.972 blurred / 0.960 raw.
 - MUXED-MP4 transcript (whisper-1 on the final container): word-perfect,
   "Sailors called it dead water" intact through the gate (12.14–13.72).
+- STATUS: awaiting Codex pre-caption review. NOT production-ready until the
+  creative gate passes. Do not enter Captions.ai.
+
+---
+
+## MASTER v9 (2026-07-13) — MECHANISM CLARITY; everything approved kept verbatim
+
+Codex on v8: passed medium-replacement + hardware gates, FAILED mechanism
+clarity (4.5/10; publish 6.5). A mute viewer got "propeller churns water,"
+not "meltwater over saltwater creates hidden internal waves that absorb the
+ship's force." LOCKED and untouched: script rev 5, narration-v5,
+mix-v7-final.wav verbatim, silence, no footer, loop, and the v8
+s1-hero/punch/trace1/calm-hero/descent/sting-hero beats.
+
+v9 surgical rebuild (mech1, mech2, hold, reveal, trace2 only):
+- THREE system-state plates (gpt-image-1, edited from plate-master for
+  identity): W0 = calm shimmering density LENS ~1.5 prop diameters below the
+  propeller, lighter particle-rich gray-cyan meltwater above, near-black calm
+  salt water below — hull, prop, both layers, and interface all in ONE frame;
+  W1 = churn cone physically REACHING the interface, first wave hump directly
+  under the prop; W2 = wave grown ~2x, crest traveled astern, whole interface
+  undulating. Natural refraction only — no glow line, no UI.
+- Codex's exact causal sequence: mech1 = prop close-up that pulls DOWN to
+  reveal the boundary (zoompan 2.4→1.32 on W0); mech2 = W0→W1→W2 crossfade
+  chain (flow arrives → wave begins → wave grows); hold = W2 dimmed only
+  -0.03 (readable on a dim phone, v8's crush fixed); reveal = the WIDEST,
+  brightest (+0.035) frame in the video — slow 1.10→1.01 pull-out on the full
+  W2 system plate. The payoff shows the entire cause-and-effect system.
+- Interface sits ~60% frame height in every mech/reveal framing — outside the
+  bottom caption band; captions cannot cover the wave.
+- trace2: the ROUTE is now the subject — ship 0.34 scale (was 0.84 tracked),
+  camera centered on the loop with a gentle 1.10→1.20 push, path completes at
+  72% of the beat so the completed self-crossing loop HOLDS ~11 frames, with
+  a doubly-churned crossing highlight and a time-decaying flash.
+- Hardware: all renders ffmpeg or the two-PNG trace compositor, strictly
+  sequential, -threads 2, peak RSS 620MB max (a 798MB single-process mech2
+  attempt was restructured into segments+xfade at 400MB per the 750MB cap).
+- finalqa ALL PASS: 17.97s, -17.1 LUFS, TP -2.0, silence 12.68s/0.49s, no
+  black, loop SSIM 0.972, 539f exact locked map. Muxed-MP4 transcript
+  PERSISTED (REP-2-pre-captions-master-v9-transcript.json) — text IDENTICAL
+  to v8's, "dead" at 12.72s. License log gains the gpt-image plate entry
+  (pending since v8).
 - STATUS: awaiting Codex pre-caption review. NOT production-ready until the
   creative gate passes. Do not enter Captions.ai.
 

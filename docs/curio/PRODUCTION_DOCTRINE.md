@@ -143,7 +143,24 @@ master runs `node tools/finalqa.mjs <mp4>` BEFORE going to review. No exceptions
     will swap-kill a small machine (REP-2 v8: a 200-frame preload × parallel
     workers froze an 8GB Mac twice). Rules: never preload decoded video; read
     on demand or extract stills first; ONE render process at a time, never
-    parallel; cap threads; profile peak RSS on the first beat before scaling.
+    parallel; cap threads (max 2 on the 8GB machine); prove peak RSS below
+    ~750MB on the first beat before scaling, and treat that cap as a HARD
+    gate — a 48-frame job that profiled at 798MB gets restructured (segments
+    + xfade), not shipped (REP-2 v9). If memory pressure rises mid-render,
+    stop; do not retry blindly.
+
+20. **A composition is only distinct if it gives the viewer NEW INFORMATION.**
+    scdet counting machine cuts is a floor check, not evidence of visual
+    variety — crops and brightness variants of one plate trip the detector
+    while teaching nothing (REP-2 v8: "10 compositions" by scdet, rejected
+    because several were the same plate re-cropped). Judge each beat by what
+    a mute viewer LEARNS from it that the previous beat didn't show; claim
+    distinctness on that basis only. Corollary for explanatory sequences:
+    the causal chain must be spatially explicit — the cause's output must
+    visibly REACH the thing it affects (churn touching the boundary), the
+    effect must be a specific physical change (a lateral traveling wave, not
+    generic turbulence), and the payoff frame must show the ENTIRE system at
+    once, wider and clearer than any frame before it.
 
 ## Final-video QA checklist (run on every master, before every review)
 
