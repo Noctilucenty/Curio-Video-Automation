@@ -19,3 +19,4 @@ samples/
 # User-supplied audio with UNVERIFIED license stays local (registered in
 # assets/audio-assets.json, approved:false until the license is confirmed)
 Sound Effects/
+.secrets/

@@ -53,7 +53,27 @@ speculation, 9-beat pacing.
 REJECTED: lit expanding wavefront (sonar-bullseye read) — bloom+refraction
 only.
 
-STATUS: awaiting Codex review of REP-3-pre-captions-master-v1.mp4.
+STATUS v1: Codex verdict 6/10 — one correction pass required. Static
+zoompan climax REJECTED (crack had no visual cause); ~6s dark middle
+REJECTED (insufficiently evolving). Script/narration/mix/structure praised
+and preserved.
+
+## v2 correction pass (2026-07-14)
+- Calving payoff = one-off Veo 3.1 generation (authorized; not wiring):
+  stressed wall → fracture → slab accelerating → spray eruption, speed-
+  ramped so the fracture onset lands exactly on the 15.45s crack; dusk-navy
+  graded; Veo audio discarded. The crack now has an obvious visual cause.
+- Dread section rebuilt with continuous development: 3-layer parallax
+  marine snow, narrowing/dimming light column, distant crossing shadow,
+  laterally sweeping god-light, and the enormous mass visibly moving and
+  swelling. Validated as PLAYABLE compressed 270x480 clips (doctrine 24),
+  not stills.
+- All else verbatim. finalqa ALL PASS again (identical audio figures);
+  muxed transcript identical to v1; caption proof v2 clean; peak RSS
+  <450MB. Veo one-off recorded in the license log.
+
+STATUS: awaiting Codex FINAL verdict on REP-3-pre-captions-master-v2.mp4
+(+ rep3-v2-calving-mobile.mp4 / rep3-v2-dread-mobile.mp4 motion clips).
 Do not enter Captions.ai. Caption beats (approved, for the Captions pass):
 THE SAME SOUND./3,000 KM APART. · ONE OF THE/LOUDEST EVER RECORDED. ·
 NO ONE KNEW/WHAT MADE IT. · SOMETHING ENORMOUS? · THE BLOOP/WASN'T ALIVE. ·
