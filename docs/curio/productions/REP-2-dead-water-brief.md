@@ -87,6 +87,52 @@ wake — the surface is calm, not featureless); "denser salt water" replaces
 
 ---
 
+## MASTER v7 (2026-07-13) — Codex creative-gate rebuild; script rev 5 UNCHANGED
+
+Codex REJECTED master v6 at the pre-caption CREATIVE gate (automated QA had
+passed — technical compliance only; readiness scored ~5.5/10). Independent
+mobile-frame review: abstract trace line instead of a struggling ship, diagram
+vessel not matching the hero, asterisk-like propeller, near-invisible pulses,
+undifferentiated water layers, reveal that pulls AWAY, "beats" that were
+motion inside one composition, and a cinematic-vs-diagram style break.
+LOCKED and untouched in v7: script rev 5, restrained delivery (narration-v5
+audio reused verbatim), stereo mix concept, measured pre-reveal silence, no
+footer, calm-surface loop ending.
+
+v7 rebuild (renderer tools/rep2_scene_v4.swift, doctrine lessons 13–17):
+- Vessel redrawn to the hero's silhouette signatures: tall central funnel +
+  smoke column, three near-bare masts with crosstrees, pale boat-cover row,
+  long low tonally-shaded hull. Same drawn ship above AND below water.
+- Propeller: hub + three filled blade petals + sweep disc, short visible
+  shaft with strut, shaped rudder. mech1 frames it at quarter-frame height.
+- CONTINUOUS luminous trail prop→boundary (always-connected core + streaming
+  particles); every pulse arrival visibly steps the wave AT the impact point.
+- Density boundary raised to ~200px under the keel (was ~390): cause→effect
+  in one glance.
+- Melt vs salt: lighter cold moving layer (lateral current streaks, light
+  shafts) over near-black static mass (heavy murk band, sparse slow
+  particles).
+- Trace rebuilt: top-down SHIP (hull, funnel dot + smoke smudge, mast dots,
+  bow-wave chevrons) with turbulent wake ribbon + V-wake. Comp A fixed-camera
+  hard 150° turn with outward skid churn; comp B camera-TRACKED self-crossing
+  loop with crossing flash. Two genuinely distinct compositions.
+- Reveal now PUSHES IN to the closest, strongest system view (zoom 1.02→1.45);
+  crest grows at the impact side, reaching toward the prop.
+- 11 beats / 10 distinct compositions (hold is the dimmed silence variant of
+  mech2's framing): hero, stern punch-in, trace-turn, trace-loop, calm hero,
+  descent, prop close-up, wave growth, hold, reveal push-in, calm return.
+- Mix v7 (stereo 48k, synthesized + narration-v5): calm/underneath passage
+  lowered ~2.5dB (voice 0.75 in word-gap switches 5.98/9.44), crescendo to
+  1.0, gate 12.66–13.17, boom 0.9 UNCHANGED, thumps 10.27/11.07/11.87
+  unchanged, 0.88 name / 0.80 closer preserved. LRA 2.9 (v6: 2.1) —
+  honest arc, boom untouched.
+- finalqa ALL PASS: -17.1 LUFS, TP -2.0, silence 12.68s/0.49s <-35dB, no
+  black, loop SSIM 0.972 blurred / 0.960 raw.
+- MUXED-MP4 transcript (whisper-1 on the final container): word-perfect,
+  "Sailors called it dead water" intact through the gate (12.14–13.72).
+- STATUS: awaiting Codex pre-caption review. NOT production-ready until the
+  creative gate passes. Do not enter Captions.ai.
+
 ## 2-REV5. FINAL script (Codex external-benchmark rebuild 2026-07-13 — supersedes §2-REV4; MASTER v6)
 
 Codex REJECTED v5 for production after benchmarking against live viral Shorts

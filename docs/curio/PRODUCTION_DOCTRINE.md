@@ -89,6 +89,38 @@ master runs `node tools/finalqa.mjs <mp4>` BEFORE going to review. No exceptions
     cut from the middle, with ~10 ms crossfades — then re-transcribe to prove
     no word was damaged.
 
+13. **Perceptual consistency: every drawn/diagram version of a real asset must
+    match the footage version's visual signatures.** Not "a ship" — THE ship:
+    same funnel placement, mast rhythm, deck details, proportions. REP-2 v6's
+    simplified black diagram vessel failed the creative gate purely because it
+    didn't read as the hero ship. Extract the hero's 3-4 strongest silhouette
+    signatures from an actual frame and reproduce them.
+
+14. **Mobile causal legibility: a mechanism's cause and effect must be
+    readable at phone size without captions.** The causal chain needs to be
+    physically continuous on screen (REP-2 v7: prop → luminous trail →
+    boundary → wave step), with the effect placed AT the point of impact —
+    v6's discrete near-invisible pulses and a crest growing far from the
+    impact point both broke the chain. Verify on frames downscaled to ≤270px
+    width, not at full res.
+
+15. **Mute comprehension is a gate, not a hope.** Review the contact sheet
+    with the sound off and ask: does each beat add new information, and does
+    the mechanism explain itself? Movement inside an unchanged composition is
+    NOT a new beat. Count genuinely distinct compositions; claims of
+    "N visual changes" must survive a human mute read, not just scdet.
+
+16. **The reveal is the closest, clearest view of the system — never a
+    retreat.** Pulling the camera away at the name-landing (v3-v6) weakens the
+    payoff exactly when attention peaks. The reveal frame should be the single
+    strongest cause-and-effect image in the video.
+
+17. **QA runs on the MUXED deliverable, not the pre-mux stems.** Transcribe
+    the final MP4's audio and diff against the locked script (gates and fades
+    can damage words after the stems were verified); loudness/silence/LRA are
+    re-measured post-AAC. A master is "verified" only in its shipping
+    container.
+
 ## Final-video QA checklist (run on every master, before every review)
 
 Automated by `tools/finalqa.mjs` (deterministic, no LLM):
@@ -110,7 +142,14 @@ Human/vision checks (the script emits the artifacts; a person signs off):
 ## What stays PROVISIONAL (do NOT lock)
 
 Tension progression, reveal-at-75%, loop-ending effectiveness, atmospheric
-survival-mystery archetype — all await REP-1/2/3 published analytics. A video
+survival-mystery archetype — all await REP-1/2/3 published analytics. The
+external viral-benchmark hypotheses (immediate anomaly, new evidence every
+1–3s, continuous micro-payoffs with only the name withheld, literal imagery)
+are logged as PROVISIONAL external evidence in data/viral-intelligence and
+must NOT be promoted to approved Curio rules until our own publishing
+analytics confirm them. Note the contrast with lessons 13–17 above: those are
+objective defect classes (a mismatched vessel is wrong regardless of
+performance); these are performance hypotheses. A video
 can pass every check above and still perform poorly. When the fifth
 performance-labeled video lands, run `POST /api/learning/run` and promote only
 what the numbers support.
