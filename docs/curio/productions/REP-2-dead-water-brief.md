@@ -87,6 +87,49 @@ wake — the surface is calm, not featureless); "denser salt water" replaces
 
 ---
 
+## MASTER v8 (2026-07-13) — MEDIUM REPLACEMENT; script/narration/mix UNCHANGED
+
+Codex rejected v7 at the creative gate: the vector renderer hit its quality
+ceiling ("vector aesthetic ceiling — do not parameter-polish the same
+artwork"). Directive: replace the visual medium. Publish-readiness on v7 ~6/10,
+visual consistency 4.5, premium finish 5. LOCKED and untouched in v8: script
+rev 5, narration-v5 audio, the ENTIRE stereo mix (mix-v7-final.wav reused
+verbatim — audio was scored 8.5), measured 0.49s silence, no footer, loop.
+
+v8 rebuild — every explanatory shot is now a PHOTOGRAPH (doctrine 18):
+- One photoreal underwater cross-section plate generated from the hero frame
+  (gpt-image-1): period hull underside, bronze 4-blade propeller + rudder,
+  silver bubble churn, lighter meltwater over near-black saltwater, internal
+  wave at the boundary. A swollen-wave variant plate gives real boundary
+  deformation. A derived stern close-up plate for the propeller beat. A
+  moonlit overhead ship sprite (recognizable steamer: deck, 3 masts,
+  lifeboats, funnel, bow wave) for the trace.
+- All motion is 2.5D camera work in ffmpeg (zoompan), bounded-memory, one
+  process at a time — NO vector shapes, NO UI glow/rings/fiber-optic trail:
+  · descent = reveal-crane from surface down to hull+prop+two layers
+  · mech1 = push-in on the real propeller + churn
+  · mech2 = calm→swell plate crossfade: the internal wave visibly RISES under
+    the prop as the boundary deforms (cause→effect, physical)
+  · hold = same framing dimmed (silence beat)
+  · reveal = push-IN to the closest, clearest full-system frame (hull, both
+    layers, prop energy, swollen wave simultaneously) — NOT a pullback
+  · trace1/trace2 = overhead miniature ship (the SUBJECT) on a moonlit sea
+    with a continuous turbulent foam wake; comp A hard turn, comp B
+    camera-tracked self-crossing loop
+- Medium unity: above-water hero footage and underwater plates share one
+  Arctic-navy palette and the same vessel character — the cinematic↔diagram
+  break is gone because there is no diagram.
+- finalqa ALL PASS: 17.97s, -17.1 LUFS, TP -2.0, silence 12.68s/0.49s, no
+  black, loop SSIM 0.972. scdet = 10 distinct photographic compositions
+  (Codex floor 8). Muxed-MP4 transcript PERSISTED next to the master
+  (REP-2-pre-captions-master-v8-transcript.json): word-perfect, "dead water"
+  intact at 12.72s.
+- Hardware note (doctrine 19): the first compositor preloaded stock frames and
+  froze the 8GB machine twice; rebuilt on ffmpeg + a memory-trivial two-PNG
+  trace compositor (peak RSS ~500MB, sequential).
+- STATUS: awaiting Codex pre-caption review. NOT production-ready until the
+  creative gate passes. Do not enter Captions.ai.
+
 ## MASTER v7 (2026-07-13) — Codex creative-gate rebuild; script rev 5 UNCHANGED
 
 Codex REJECTED master v6 at the pre-caption CREATIVE gate (automated QA had

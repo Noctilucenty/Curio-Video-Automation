@@ -119,7 +119,31 @@ master runs `node tools/finalqa.mjs <mp4>` BEFORE going to review. No exceptions
     the final MP4's audio and diff against the locked script (gates and fades
     can damage words after the stems were verified); loudness/silence/LRA are
     re-measured post-AAC. A master is "verified" only in its shipping
-    container.
+    container. Persist that transcript next to the master as proof.
+
+18. **When cinematic footage and diagram artwork stay perceptually
+    inconsistent after two review passes, stop polishing the diagram and
+    REPLACE THE MEDIUM.** This is architectural, not a parameter. A drawn/
+    vector renderer and photographic footage are different media; no amount of
+    matte tuning, stroke weight, or palette matching closes a medium gap the
+    eye reads instantly (REP-2 v3→v7: four rounds of vector polish, still
+    rejected for "vector aesthetic ceiling"). The fix is to generate the
+    explanatory shots in the SAME medium as the footage — here, one
+    photoreal cross-section plate generated from the hero frame, reused across
+    descent/mechanism/reveal via 2.5D camera moves (ffmpeg zoompan), real
+    boundary deformation via crossfaded wave-state plates, and physical
+    turbulence from stock bubble/foam — so every shot is a photograph.
+    Corollary: keep generation prompts describing the DESIRED IMAGE only; do
+    not pollute them with this project's rejection history or implementation
+    notes — that is production log material, not prompt material.
+
+19. **Compute must fit the hardware.** Per-frame full-resolution work belongs
+    in a streaming C tool (ffmpeg), not a Python loop that preloads video
+    frames — loading N full-res float32 frames into a list is O(N×25MB) and
+    will swap-kill a small machine (REP-2 v8: a 200-frame preload × parallel
+    workers froze an 8GB Mac twice). Rules: never preload decoded video; read
+    on demand or extract stills first; ONE render process at a time, never
+    parallel; cap threads; profile peak RSS on the first beat before scaling.
 
 ## Final-video QA checklist (run on every master, before every review)
 
