@@ -16,7 +16,7 @@ function testConfig(adminToken: string | null = null, cardsFrozen = false): Conf
     openai: { apiKey: null, model: "mock-llm" },
     heygen: { apiKey: null, avatarId: "av", voiceId: "vo" },
     elevenlabs: { apiKey: null, voiceId: "", modelId: "eleven_multilingual_v2" },
-    captions: { apiKey: null, apiBase: undefined },
+    captions: { apiKey: null, apiBase: undefined, captionTemplateId: undefined, supportsCustomCaptionTiming: false },
   };
 }
 
@@ -56,10 +56,10 @@ describe("api flow", () => {
     expect(vid.body.judge.pass).toBe(true);
     expect(vid.body.render.video_url).toContain("mock.heygen.local");
     // narration + post-process surfaced on the wire, final url points at the
-    // captioned/cleaned deliverable
+    // captioned deliverable (captions only under the default locked_master policy)
     expect(vid.body.audio.status).toBe("completed");
     expect(vid.body.post.status).toBe("completed");
-    expect(vid.body.post.operations).toEqual({ captions: true, cutFillers: true, cutSilences: true });
+    expect(vid.body.post.operations).toEqual({ captions: true, cutFillers: false, cutSilences: false, policy: "locked_master" });
     expect(vid.body.final_video_url).toContain(".captioned.mp4");
 
     // shows up in the review queue

@@ -118,11 +118,19 @@ export interface AudioInfo {
  * "builtin" = the local renderer burned captions itself; nothing to cut
  * because a verbatim TTS read has no fillers or dead silences. */
 export interface PostInfo {
-  provider: "captions_ai" | "mock" | "builtin";
+  provider: "captions_ai" | "mirage" | "mock" | "builtin";
   status: "not_started" | "processing" | "completed" | "failed";
   /** Final deliverable URL (captioned + cleaned). Publish THIS, not render.videoUrl. */
   videoUrl?: string;
-  operations?: { captions: boolean; cutFillers: boolean; cutSilences: boolean };
+  /** The RESOLVED operations that actually ran, persisted with the result.
+   * `policy` records the timeline contract the job was resolved under so a
+   * reviewer can see, after the fact, that a locked master was never trimmed. */
+  operations?: {
+    captions: boolean;
+    cutFillers: boolean;
+    cutSilences: boolean;
+    policy?: "locked_master" | "raw_spoken";
+  };
   error?: string;
 }
 

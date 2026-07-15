@@ -27,7 +27,10 @@ const voice = makeVoice(config.elevenlabs.apiKey, {
   voiceId: config.elevenlabs.voiceId,
   modelId: config.elevenlabs.modelId,
 });
-const post = makePostProcessor(config.captions.apiKey, config.captions.apiBase);
+const post = makePostProcessor(config.captions.apiKey, config.captions.apiBase, {
+  captionTemplateId: config.captions.captionTemplateId,
+  supportsCustomCaptionTiming: config.captions.supportsCustomCaptionTiming,
+});
 
 await ensureSeedRules(repo);
 

@@ -1,6 +1,11 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { ElevenLabsVoice, MockVoice } from "../src/voice.js";
-import { CaptionsAiPostProcessor, MockPostProcessor } from "../src/postprocess.js";
+import {
+  CaptionsAiPostProcessor,
+  MiragePostProcessor,
+  MockPostProcessor,
+  resolveOperations,
+} from "../src/postprocess.js";
 import type { CaptionLine } from "../src/types.js";
 
 afterEach(() => vi.unstubAllGlobals());
@@ -55,8 +60,34 @@ describe("ElevenLabsVoice", () => {
   });
 });
 
-describe("CaptionsAiPostProcessor", () => {
-  it("submits captions+cleanup ops and polls to completion", async () => {
+describe("resolveOperations (timeline policy)", () => {
+  it("locked_master defaults to captions-only with cuts forced false", () => {
+    expect(resolveOperations("locked_master")).toEqual({
+      captions: true, cutFillers: false, cutSilences: false, policy: "locked_master",
+    });
+  });
+
+  it("defaults to locked_master when no policy is given", () => {
+    expect(resolveOperations().policy).toBe("locked_master");
+  });
+
+  it("REJECTS a locked_master request that asks to cut — never silently coerced", () => {
+    expect(() => resolveOperations("locked_master", { cutSilences: true })).toThrow(/locked_master/);
+    expect(() => resolveOperations("locked_master", { cutFillers: true })).toThrow(/locked_master/);
+  });
+
+  it("raw_spoken allows trimming only through explicit opt-in", () => {
+    expect(resolveOperations("raw_spoken")).toEqual({
+      captions: true, cutFillers: false, cutSilences: false, policy: "raw_spoken",
+    });
+    expect(resolveOperations("raw_spoken", { cutFillers: true, cutSilences: true })).toEqual({
+      captions: true, cutFillers: true, cutSilences: true, policy: "raw_spoken",
+    });
+  });
+});
+
+describe("CaptionsAiPostProcessor (legacy, custom-SRT path)", () => {
+  it("submits captions-only under the default locked_master policy", async () => {
     const calls: Array<{ url: string; body: any }> = [];
     let polls = 0;
     vi.stubGlobal("fetch", async (url: string, init: any) => {
@@ -74,7 +105,6 @@ describe("CaptionsAiPostProcessor", () => {
     });
 
     const p = new CaptionsAiPostProcessor("cap-key");
-    // Speed up the poll loop for the test
     const origSetTimeout = globalThis.setTimeout;
     vi.stubGlobal("setTimeout", ((fn: () => void, _ms?: number) => origSetTimeout(fn, 1)) as any);
 
@@ -82,14 +112,49 @@ describe("CaptionsAiPostProcessor", () => {
 
     expect(out.status).toBe("completed");
     expect(out.videoUrl).toBe("https://cdn.captions.ai/final.mp4");
-    expect(out.operations).toEqual({ captions: true, cutFillers: true, cutSilences: true });
+    // The default is captions-only — trimming is OFF for a locked master.
+    expect(out.operations).toEqual({ captions: true, cutFillers: false, cutSilences: false, policy: "locked_master" });
     const submit = calls[0].body;
     expect(submit.videoUrl).toBe("https://cdn.heygen.com/raw.mp4");
-    expect(submit.removeFillerWords).toBe(true);
-    expect(submit.removeSilences).toBe(true);
+    expect(submit.removeFillerWords).toBe(false);
+    expect(submit.removeSilences).toBe(false);
     expect(submit.srt).toContain("Your brain remembers pain");
     expect(submit.captionStyle.animation).toBe("none");
     expect(submit.captionStyle.textColor).toBe("#F5EFE2");
+  });
+
+  it("passes cuts through only under an explicit raw_spoken opt-in", async () => {
+    let submitBody: any;
+    let polls = 0;
+    vi.stubGlobal("fetch", async (url: string, init: any) => {
+      if (url.endsWith("/edit/submit")) {
+        submitBody = JSON.parse(init.body);
+        return new Response(JSON.stringify({ operationId: "op_r" }), { status: 200 });
+      }
+      polls++;
+      return new Response(JSON.stringify({ state: "COMPLETE", url: "https://cdn.captions.ai/raw.mp4" }), { status: 200 });
+    });
+    const origSetTimeout = globalThis.setTimeout;
+    vi.stubGlobal("setTimeout", ((fn: () => void, _ms?: number) => origSetTimeout(fn, 1)) as any);
+    const out = await new CaptionsAiPostProcessor("k").process({
+      videoUrl: "https://x/raw.mp4", captionLines: CAPTIONS, language: "en",
+      policy: "raw_spoken", requestedTrim: { cutFillers: true, cutSilences: true },
+    });
+    expect(out.operations).toEqual({ captions: true, cutFillers: true, cutSilences: true, policy: "raw_spoken" });
+    expect(submitBody.removeFillerWords).toBe(true);
+    expect(submitBody.removeSilences).toBe(true);
+  });
+
+  it("REJECTS a locked_master job that requests trimming — no network call", async () => {
+    let fetched = false;
+    vi.stubGlobal("fetch", async () => { fetched = true; return new Response("{}", { status: 200 }); });
+    const out = await new CaptionsAiPostProcessor("k").process({
+      videoUrl: "https://x/raw.mp4", captionLines: CAPTIONS, language: "en",
+      policy: "locked_master", requestedTrim: { cutSilences: true },
+    });
+    expect(out.status).toBe("failed");
+    expect(out.error).toMatch(/locked_master/);
+    expect(fetched).toBe(false);
   });
 
   it("returns failed (never throws) when the provider errors", async () => {
@@ -104,12 +169,42 @@ describe("CaptionsAiPostProcessor", () => {
     expect(out.status).toBe("failed");
     expect(out.error).toContain("unsupported codec");
   });
+});
 
-  it("mock passes the render through flagged as captioned", async () => {
+describe("MiragePostProcessor (current live contract) — reveal protection", () => {
+  it("REFUSES an auto-caption-only provider on a locked master with a curated track (no upload)", async () => {
+    let fetched = false;
+    vi.stubGlobal("fetch", async () => { fetched = true; return new Response("{}", { status: 200 }); });
+    // supportsCustomCaptionTiming defaults false (public Mirage contract).
+    const p = new MiragePostProcessor("key", undefined, { captionTemplateId: "tmpl_1" });
+    const out = await p.process({
+      videoUrl: "/local/REP-3.mp4", localFilePath: "/local/REP-3.mp4",
+      captionLines: CAPTIONS, language: "en", policy: "locked_master",
+    });
+    expect(out.status).toBe("failed");
+    expect(out.error).toMatch(/CAPABILITY_BLOCKER/);
+    expect(out.operations).toEqual({ captions: true, cutFillers: false, cutSilences: false, policy: "locked_master" });
+    expect(fetched).toBe(false); // refused BEFORE spending an upload/job
+  });
+
+  it("requires a caption_template_id", async () => {
+    const p = new MiragePostProcessor("key", undefined, { supportsCustomCaptionTiming: true });
+    const out = await p.process({
+      videoUrl: "/local/x.mp4", localFilePath: "/local/x.mp4",
+      captionLines: [], language: "en", hasCuratedCaptionTrack: false,
+    });
+    expect(out.status).toBe("failed");
+    expect(out.error).toMatch(/caption_template_id/);
+  });
+});
+
+describe("MockPostProcessor", () => {
+  it("passes the render through flagged as captioned, captions-only", async () => {
     const out = await new MockPostProcessor().process({
       videoUrl: "https://mock.heygen.local/videos/x.mp4", captionLines: CAPTIONS, language: "en",
     });
     expect(out.status).toBe("completed");
     expect(out.videoUrl).toBe("https://mock.heygen.local/videos/x.captioned.mp4");
+    expect(out.operations).toEqual({ captions: true, cutFillers: false, cutSilences: false, policy: "locked_master" });
   });
 });

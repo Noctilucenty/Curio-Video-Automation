@@ -104,7 +104,7 @@ describe("manual rule promotion endpoint", () => {
       openai: { apiKey: null, model: "mock-llm" },
       heygen: { apiKey: null, avatarId: "av", voiceId: "vo" },
       elevenlabs: { apiKey: null, voiceId: "", modelId: "eleven_multilingual_v2" },
-      captions: { apiKey: null, apiBase: undefined },
+      captions: { apiKey: null, apiBase: undefined, captionTemplateId: undefined, supportsCustomCaptionTiming: false },
       renderer: "mock",
     };
   }

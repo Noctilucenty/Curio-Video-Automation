@@ -126,40 +126,53 @@ fracture visibly causes the audio payoff; the unsupported "underwater" is gone;
 the transcript ends "An iceberg cracking apart."; caption-safe framing, technical
 QA, loop, loudness and factual structure all pass. → **Captions.ai, captions only.**
 
-### Captions.ai gate (full spec: data/productions/REP-3/CAPTIONS-SPEC-v2.1.md)
+### Captions gate — AUTOMATED via API (manual-app instruction withdrawn 2026-07-14)
 
-⚠️ **DO NOT route this through `src/postprocess.ts`.** That integration hardcodes
-`cutFillers: true, cutSilences: true` — it would strip the engineered 0.65s
-silence at 14.81s and desynchronize the 15.45s fracture, i.e. destroy exactly
-what the GO is conditional on. REP-3 is a MANUAL pass in the Captions.ai app
-(the Third Man path). If the API is ever used on a narrated master, `OPERATIONS`
-must be overridden to captions-only first.
+Full spec: `data/productions/REP-3/CAPTIONS-SPEC-v2.1.md`. Reusable capability:
+`docs/curio/profiles/locked_master_retention_captions.json` + `src/postprocess.ts`.
 
-Import `REP-3-v2.1-FOR-CAPTIONS.mp4` (byte-identical copy; the master is never
-mutated). Flair preset, white/black variant, anchor X540/Y1344. NO Talking Head
-AI Edit, NO shot reorder/replace, NO silence cutting, filler removal, reframing,
-music, effects or automatic pacing edits. Preserve the 14.81–15.46s silence and
-the 15.45s fracture sync. Export WITHOUT posting.
+Timeline policy = `locked_master`: captions ONLY, trimming structurally disabled
+(`resolveOperations` forces cutFillers/cutSilences false and rejects any cut
+request; the old client's hardcoded `cutFillers/cutSilences: true` is gone).
+Import a byte-identical copy (`REP-3-v2.1-FOR-CAPTIONS.mp4`); the master is never
+mutated.
 
-Caption beats + timings (18.0s timeline; "Antarctica" ends 14.66, silence to
-15.46, final sentence resumes 15.69, crack at 15.45 lands inside the gap):
+**⚠️ Capability blocker (probed 2026-07-14) — REP-3 job NOT yet runnable:**
+- Legacy `api.captions.ai/edit/submit` (custom SRT + trim flags) returns **502**
+  — degraded/deprecated.
+- Live `api.mirage.app/v1/videos/captions` is **auto-transcription only** (a
+  `caption_template_id` over audio-generated captions; no custom SRT, no reveal
+  timing, no trim flags). Auto-captioning REP-3 would dump the transcript and
+  spoil the reveal — the client REFUSES this (`CAPABILITY_BLOCKER`) rather than
+  silently falling back.
+- No active `CAPTIONS_API_KEY` in `.env` (a rejected key is commented out).
 
-| # | Caption | In | Out |
-|---|---|---|---|
-| 1 | THE SAME SOUND. / 3,000 KM APART. | 1.85 | 5.75 |
-| 2 | ONE OF THE / LOUDEST EVER RECORDED. | 6.05 | 7.98 |
-| 3 | NO ONE KNEW / WHAT MADE IT. | 8.15 | 9.40 |
-| 4 | SOMETHING ENORMOUS? | 10.10 | 11.70 |
-| 5 | THE BLOOP / WASN'T ALIVE. | 11.80 | 14.70 (held through the Antarctica line) |
-| — | *no caption* | 14.70 | 15.44 (the silence stays bare) |
-| 6 | ANTARCTIC ICE / CRACKING APART. | **15.45** | 17.60 |
+To run: (1) valid Mirage `CAPTIONS_API_KEY` + `MIRAGE_CAPTION_TEMPLATE_ID` in
+`.env`; (2) confirm the account exposes custom caption timing → set
+`MIRAGE_CUSTOM_CAPTION_TIMING=1`. If the account is auto-caption-only, exact
+reveal timing is unavailable (the real blocker) and REP-3 needs the manual path.
+
+Caption track (8 beats, hook split into two screens; "Antarctica" ends 14.66,
+silence 14.81–15.46, final sentence resumes 15.69, crack 15.45 inside the gap;
+SRT: `data/productions/REP-3/rep3-captions-v2.1.srt`):
+
+| # | Caption | In | Out | Emphasis |
+|---|---|---|---|---|
+| 1 | THE SAME SOUND. | 0.15 | 2.55 | SAME SOUND |
+| 2 | 3,000 KM APART. | 2.55 | 5.75 | 3,000 KM |
+| 3 | ONE OF THE / LOUDEST EVER RECORDED. | 6.05 | 7.98 | LOUDEST |
+| 4 | NO ONE KNEW / WHAT MADE IT. | 8.15 | 9.40 | NO ONE KNEW |
+| 5 | SOMETHING ENORMOUS? | 10.10 | 11.70 | ENORMOUS |
+| 6 | THE BLOOP / WASN'T ALIVE. | 11.80 | 14.70 (held through the Antarctica line) | WASN'T ALIVE |
+| — | *no caption* | 14.70 | 15.44 (bare — tension) | — |
+| 7 | ANTARCTIC ICE / CRACKING APART. | **15.45** | 17.60 | CRACKING APART |
 
 **Reveal rule:** `CRACKING APART` must NEVER appear before 15.45. It lands ON the
-crack, not on "NOAA traced it to Antarctica" — that would spoil the payoff.
+crack, not on "NOAA traced it to Antarctica" — that would spoil the payoff. First
+caption is up by 0.15s (no dead captionless opening).
 
 Verify the export with `tools/rep3_captions_verify.py <export.mp4>`: checks 18.0s
-/540f, the silence survives, the crack is still at 15.45, the export's audio is
-lag-0 / corr≥0.98 against the master (catches any cut, pacing edit, music or
-re-normalisation), and — objectively — that the caption band is empty through the
-silence and new text appears at the crack and not before. Then send BOTH the
-pre-Captions master and the Captions export to Codex.
+/540f, silence survives, crack still at 15.45, export audio lag-0 / corr≥0.98 vs
+the master (catches any cut/pacing edit/music/re-normalisation), and that the
+caption band is empty through the silence with new text at the crack, not before.
+Then send BOTH the master and the export to Codex.

@@ -1,0 +1,70 @@
+{
+  "profile": "locked_master_retention_captions",
+  "version": 1,
+  "created": "2026-07-14",
+  "purpose": "Reusable caption pass for a FINISHED master whose timeline is sacred (engineered silences, synced payoffs). Captions only; nothing about the video's audio or pacing may change. This is a production capability, not a REP-3 workaround — retrieve it (plus validated caption doctrine) before any future caption job instead of re-reading production history.",
+
+  "timeline_policy": "locked_master",
+  "operations": { "captions": true, "cutFillers": false, "cutSilences": false },
+  "guarantees": {
+    "direct_file_upload": "Multipart upload of the local MP4 (<=50MB, 9:16). No temp hosting.",
+    "captions_only": "resolveOperations() forces cutFillers/cutSilences false and REJECTS any request that asks to cut.",
+    "no_timeline_or_audio_modification": "Verified post-export: export audio must be lag-0 and correlation >=0.98 vs the master.",
+    "low_cognitive_caption_validation": "2-6 words/screen, one idea/screen, max 2 lines, one 1-3 word emphasis phrase.",
+    "reveal_spoiler_prevention": "An answer caption must not appear before its visual/audio payoff; blank screens allowed.",
+    "post_export_structural_verification": "tools/rep3_captions_verify.py pattern (duration/frames, silence survival, payoff onset, audio identity, band-empty-through-silence, reveal timing)."
+  },
+
+  "provider": {
+    "current_live": "Mirage (api.mirage.app)",
+    "endpoint": "POST /v1/videos/captions (multipart: video + caption_template_id)",
+    "poll": "GET /v1/videos/{id}  (QUEUED|PROCESSING|COMPLETE|FAILED|CANCELLED)",
+    "download": "GET /v1/videos/{id}/content (302 redirect to file)",
+    "auth": "x-api-key header",
+    "max_upload": "50MB, formats MP4/MOV, 9:16",
+    "legacy": "api.captions.ai /edit/submit + /poll accepted a custom SRT + trim flags but returned HTTP 502 on 2026-07-14 (degraded/deprecated).",
+    "capability_gate": "Mirage public contract is AUTO-TRANSCRIPTION ONLY (no custom SRT, no reveal timing, no trim flags). For a locked_master with a curated caption track, an auto-caption-only provider is REFUSED (CAPABILITY_BLOCKER) — never silently fall back to auto captions. Set MIRAGE_CUSTOM_CAPTION_TIMING=1 only if the account is provisioned for custom caption timing."
+  },
+
+  "code": {
+    "module": "src/postprocess.ts",
+    "policy_fn": "resolveOperations(policy, requested) — the one place trimming can be enabled; throws on a locked_master cut request",
+    "guard_fn": "revealProtectionBlocker(req, ops, supportsCustomCaptionTiming)",
+    "provider_class": "MiragePostProcessor (current) / CaptionsAiPostProcessor (legacy)",
+    "config_env": ["CAPTIONS_API_KEY", "CAPTIONS_API_BASE", "MIRAGE_CAPTION_TEMPLATE_ID", "MIRAGE_CUSTOM_CAPTION_TIMING"],
+    "verifier": "data/productions/*/tools/rep3_captions_verify.py (generalize into tracked tools/ when infra freeze lifts)"
+  },
+
+  "caption_design": {
+    "primary_outcome": "retention",
+    "secondary_outcome": "shares",
+    "do_not_stack": "Do NOT separately optimize likes/saves/comments. Shares come from the surprising story, not 'send this' / comment bait / save prompts.",
+    "words_per_screen": "2-6",
+    "ideas_per_screen": 1,
+    "max_lines": 2,
+    "emphasis": "exactly one phrase of 1-3 words, by WEIGHT+SCALE only (cream stays cream)",
+    "placement": "stable lower-center, clear of platform UI and the evidence in frame",
+    "forbidden": ["bounce", "karaoke", "emoji", "colored-word overload", "constant animation", "transcript dump"],
+    "timing": "show important text just before / as its spoken beat lands; first caption up by ~0.25s (no dead captionless opening)",
+    "blank_screens": "allowed for tension",
+    "reveal": "never show the answer in text before the visual/audio payoff"
+  },
+
+  "verify_thresholds": {
+    "duration_frames": "exact (e.g. 18.00s / 540f) — any change means a cut ran",
+    "audio_lag_ms": 0,
+    "audio_correlation_min": 0.98,
+    "designed_silence": "must survive",
+    "payoff_onset": "unchanged (detect as first departure from the silence floor, not steepest rise)",
+    "band_empty_through_silence": true,
+    "reveal_caption": "appears at the payoff, never before"
+  },
+
+  "analytics_binding": {
+    "attach_at": ["24h", "72h", "7d"],
+    "primary": ["three_second_hold", "avg_watch_duration", "completion", "replay"],
+    "secondary_diagnostics": ["shares_or_sends_per_reach", "saves", "comments", "likes"],
+    "promotion_rule": "Promote a creative caption strategy only when REPEATED Curio analytics support it — one video cannot rewrite the strategy.",
+    "failure_rule": "On underperformance, record WHICH component failed (hook split, blank beat, emphasis, turnover rate) — do not reject the whole format. Next production starts from the strongest validated profile and changes ONE controlled variable."
+  }
+}

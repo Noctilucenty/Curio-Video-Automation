@@ -59,10 +59,11 @@ describe("generation pipeline", () => {
     expect(done.audio?.status).toBe("completed");
     expect(done.audio?.assetId).toBeTruthy();
     expect(renderer.lastRequest?.audioAssetId).toBe(done.audio?.assetId);
-    // Captions.ai step produced the final deliverable (captions + cuts)
+    // Caption step produced the final deliverable — captions ONLY under the
+    // default locked_master policy (no trimming), resolved ops persisted.
     expect(done.post?.status).toBe("completed");
     expect(done.post?.videoUrl).toContain(".captioned.mp4");
-    expect(done.post?.operations).toEqual({ captions: true, cutFillers: true, cutSilences: true });
+    expect(done.post?.operations).toEqual({ captions: true, cutFillers: false, cutSilences: false, policy: "locked_master" });
     // package + factcheck + judge recorded with prompt versions
     const gens = await repo.listGenerations(done.id);
     expect(gens.map((g) => g.kind).sort()).toEqual(["factcheck", "judge", "package"]);

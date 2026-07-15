@@ -14,7 +14,12 @@ export interface Config {
   cardsFrozen: boolean;
   heygen: { apiKey: string | null; avatarId: string; voiceId: string };
   elevenlabs: { apiKey: string | null; voiceId: string; modelId: string };
-  captions: { apiKey: string | null; apiBase: string | undefined };
+  captions: {
+    apiKey: string | null;
+    apiBase: string | undefined;
+    captionTemplateId: string | undefined;
+    supportsCustomCaptionTiming: boolean;
+  };
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
@@ -49,6 +54,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     captions: {
       apiKey: env.CAPTIONS_API_KEY?.trim() || null,
       apiBase: env.CAPTIONS_API_BASE?.trim() || undefined,
+      // Mirage (current live contract) caption style template id.
+      captionTemplateId: env.MIRAGE_CAPTION_TEMPLATE_ID?.trim() || undefined,
+      // Set true ONLY if the account is provisioned for custom caption timing
+      // (not in the public Mirage contract). Governs locked-master reveal
+      // protection: false => auto-caption-only => a curated locked master is refused.
+      supportsCustomCaptionTiming: env.MIRAGE_CUSTOM_CAPTION_TIMING === "1",
     },
   };
 }

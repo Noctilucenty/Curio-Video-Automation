@@ -59,3 +59,20 @@ alongside the posted file.
 
 Without the creative metadata, we know WHICH video won but not which
 production decision caused it — capture both or the experiment is wasted.
+
+## Caption-config binding (for videos using a caption profile)
+
+Bind analytics to the EXACT caption configuration used (profile id + any
+deviations), captured at 24h / 72h / 7d, so a caption strategy is judged on
+evidence, not taste:
+- Caption profile: (e.g. `locked_master_retention_captions`)
+- Primary (retention): 3-second hold, average watch duration, completion, replay
+- Secondary diagnostics: shares/sends per reach, saves, comments, likes
+- Which PROVISIONAL caption strategies this video tested (split hook, blank
+  tension beat, emphasis style, turnover rate) — one controlled variable ideally
+Promotion rule: promote a caption strategy from PROVISIONAL → LOCKED only when
+REPEATED Curio analytics support it; one video cannot rewrite the strategy. On
+underperformance, record WHICH caption component failed and change one variable
+from the strongest validated profile — do not reject the whole format. (See
+`docs/curio/profiles/locked_master_retention_captions.json` and the evidence-
+tiered caption doctrine in PRODUCTION_DOCTRINE.md.)

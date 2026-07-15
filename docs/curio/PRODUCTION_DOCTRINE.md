@@ -284,6 +284,71 @@ master runs `node tools/finalqa.mjs <mp4>` BEFORE going to review. No exceptions
     rather than ship a seam. Freed tail time is not refilled: let the closing
     motif ring into the loop, and close any bed-duck window with the narration.
 
+## Captioning a locked master (doctrine 31–34)
+
+The reusable capability lives in `src/postprocess.ts` + the profile
+`docs/curio/profiles/locked_master_retention_captions.json`. Before a caption
+job, retrieve THAT profile and the validated caption doctrine below — not the
+whole production history. REP-3's specific timestamps/wording stay in its brief;
+what follows is the transferable principle.
+
+31. **A finished master is captions-ONLY; trimming is structurally disabled, not
+    just unchecked.** A locked master's silences and pacing are load-bearing
+    (engineered pauses, payoff sync). The integration resolves every job under a
+    timeline policy: `locked_master` forces filler/silence removal false and
+    REJECTS any request that asks to cut (never silently coerced); `raw_spoken`
+    allows trimming only by explicit opt-in. Never rely on a provider/dashboard
+    default — Curio's old client hardcoded `cutFillers/cutSilences: true`, which
+    would have destroyed exactly the structure a reviewer just approved. The
+    resolved operations are persisted with the result so the no-trim guarantee
+    is auditable after the fact.
+
+32. **Never silently fall back to auto-transcription.** If the caption provider
+    can only auto-generate captions from the audio (no custom track, no reveal
+    timing — e.g. the current Mirage `/v1/videos/captions` contract), running it
+    on a curated locked master would dump the transcript and spoil the designed
+    reveal. Refuse with a capability blocker and report it; auto-captions are
+    acceptable ONLY for a video that never had curated wording or a protected
+    reveal. Probe account capability before spending a production job.
+
+33. **Reveal protection is a hard rule.** A caption that states the answer must
+    never appear before its visual/audio payoff. Hold the prior caption or show
+    a bare screen through the pre-payoff beat; intentional blank screens are a
+    tension tool, not a gap to fill. Verify it objectively on the export (the
+    caption band is empty through the designed silence; the answer caption's
+    first pixels land at the payoff, not before), not by eyeballing the render.
+
+34. **Captions maximize comprehension + retention; shares come from the story.**
+    Primary outcome retention, secondary shares, and do NOT separately stack
+    tactics for likes/saves/comments — a surprising, legible story earns the
+    share without "send this," comment bait, or save prompts. Density rules that
+    make captions readable at a glance: 2–6 words per screen, one idea per
+    screen, max two lines, exactly one 1–3 word emphasis phrase (by weight+scale,
+    never loud color), stable lower-center, first caption up by ~0.25s. These are
+    LOCKED (objective legibility); which creative strategies win is not — see below.
+
+## Caption doctrine (evidence-tiered)
+
+Objective technical facts are LOCKED immediately; creative caption strategies
+stay PROVISIONAL until repeated Curio analytics support them (one video cannot
+rewrite the strategy). On underperformance, record WHICH component failed and
+change one controlled variable from the strongest validated profile — do not
+reject the whole format.
+
+- **LOCKED** (objective): trim flags disabled for a locked master; full timeline
+  preservation (export audio lag-0, correlation ≥0.98 vs master); first caption
+  by ~0.25s; maximum caption density (≤6 words / ≤2 lines / one emphasis phrase);
+  reveal timing enforced; post-export structural verification is mandatory.
+- **PROVISIONAL** (await analytics — bind to the exact caption config at 24h/72h/
+  7d: 3s hold, avg watch, completion, replay; shares/sends per reach; saves/
+  comments/likes as secondary diagnostics): split-hook captions (two short
+  screens vs one), the intentional blank tension beat before a payoff, the
+  weight+scale emphasis style, and caption turnover rate.
+- **REJECTED** (proven defective): a captionless opening of ~1.85s (dead first
+  beat); transcript-dump captions; answer text shown before the payoff; automatic
+  silence trimming on a finished master; excessive animation (bounce/karaoke);
+  optimizing every engagement action (likes+saves+comments+shares) simultaneously.
+
 ## Final-video QA checklist (run on every master, before every review)
 
 Automated by `tools/finalqa.mjs` (deterministic, no LLM):
