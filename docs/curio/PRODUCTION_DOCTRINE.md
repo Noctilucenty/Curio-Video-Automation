@@ -284,7 +284,7 @@ master runs `node tools/finalqa.mjs <mp4>` BEFORE going to review. No exceptions
     rather than ship a seam. Freed tail time is not refilled: let the closing
     motif ring into the loop, and close any bed-duck window with the narration.
 
-## Captioning a locked master (doctrine 31–34)
+## Captioning a locked master (doctrine 31–38)
 
 The reusable capability lives in `src/postprocess.ts` + the profile
 `docs/curio/profiles/locked_master_retention_captions.json`. Before a caption
@@ -326,6 +326,39 @@ what follows is the transferable principle.
     screen, max two lines, exactly one 1–3 word emphasis phrase (by weight+scale,
     never loud color), stable lower-center, first caption up by ~0.25s. These are
     LOCKED (objective legibility); which creative strategies win is not — see below.
+
+35. **In the Captions.ai app, the preset defaults ARE the benchmark parity.**
+    The Flair preset as it ships (size 96, large active-word display) is what
+    the posted Third Man winner used. Never let "fit"/"shrink"/"never crop"
+    instructions rewrite preset sizes — the editor installs them as persistent
+    skills that silently scale every caption down (REP-2's export rendered ~4×
+    under benchmark while the agent reported "font 86 applied"). Fix overflow
+    by wrapping, and fix a broken style by REMOVING the accumulated skills and
+    restoring preset defaults. Size is judged only by a side-by-side frame
+    parity test against a posted benchmark export at identical crop/zoom —
+    never by "looks clean" on a single render.
+
+36. **Captions.ai edits go through the editor's built-in AI chat; verify on
+    exported frames.** The style-editor modal Apply chain is lossy/unreliable
+    (X is a CENTER coordinate; "Size constraint width" clips glyph edges
+    mid-scroll). One chat instruction = one atomic change list, and every
+    accepted change is verified on frames extracted from a fresh EXPORT — the
+    editor preview and the agent's own confirmation text both lie.
+
+37. **Captions.ai exports re-normalize audio (observed −14.0 LUFS uniform
+    gain).** Always re-measure the export, re-level with the video stream
+    copied (`-c:v copy -af volume=…`), and re-run the full QA gate plus the
+    structural verify against the master. Disclose the leveling step in the
+    review packet.
+
+38. **The production log is the only source of truth for WHICH master gets
+    captioned/published.** Parallel sessions advance the same production;
+    conversation context (including compaction summaries) goes stale without
+    looking stale. REP-2's captions build was executed flawlessly on a master
+    the log had already superseded — with a caption line the reviewer had
+    vetoed. Before any captions/publish step: read the log's latest entry and
+    verify the file IS that master (duration + content anchors), regardless of
+    what the chat history says is canonical.
 
 ## Caption doctrine (evidence-tiered)
 
