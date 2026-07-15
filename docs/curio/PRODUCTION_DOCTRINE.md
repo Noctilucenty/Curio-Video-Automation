@@ -327,29 +327,36 @@ what follows is the transferable principle.
     never loud color), stable lower-center, first caption up by ~0.25s. These are
     LOCKED (objective legibility); which creative strategies win is not — see below.
 
-35. **In the Captions.ai app, the preset defaults ARE the benchmark parity.**
-    The Flair preset as it ships (size 96, large active-word display) is what
-    the posted Third Man winner used. Never let "fit"/"shrink"/"never crop"
-    instructions rewrite preset sizes — the editor installs them as persistent
-    skills that silently scale every caption down (REP-2's export rendered ~4×
-    under benchmark while the agent reported "font 86 applied"). Fix overflow
-    by wrapping, and fix a broken style by REMOVING the accumulated skills and
-    restoring preset defaults. Size is judged only by a side-by-side frame
-    parity test against a posted benchmark export at identical crop/zoom —
-    never by "looks clean" on a single render.
+35. **[SCOPED: Third Man/Captions-app Flair parity only.] When the goal is
+    reproducing the posted Third Man benchmark in the Captions.ai app, the
+    Flair preset defaults (size 96, large active-word display) ARE the
+    benchmark.** Never let "fit"/"shrink"/"never crop" instructions rewrite
+    preset sizes — the editor installs them as persistent skills that silently
+    scale every caption down (REP-2's export rendered ~4× under benchmark
+    while the agent reported "font 86 applied"); fix overflow by wrapping and
+    fix a broken style by removing the accumulated skills and restoring preset
+    defaults, judged by side-by-side frame parity at identical crop/zoom.
+    This is a PARITY procedure, not a Curio caption rule: whether this caption
+    look performs for Curio stays PROVISIONAL until replication analytics.
 
-36. **Captions.ai edits go through the editor's built-in AI chat; verify on
+36. **[Captions.ai-app workaround, not universal doctrine.] Inside that app,
+    edits go through the editor's built-in AI chat and are verified on
     exported frames.** The style-editor modal Apply chain is lossy/unreliable
     (X is a CENTER coordinate; "Size constraint width" clips glyph edges
-    mid-scroll). One chat instruction = one atomic change list, and every
-    accepted change is verified on frames extracted from a fresh EXPORT — the
-    editor preview and the agent's own confirmation text both lie.
+    mid-scroll). One chat instruction = one atomic change list; verify every
+    accepted change on frames extracted from a fresh EXPORT — the editor
+    preview and the agent's own confirmation text both lie. The general
+    principle that IS universal lives in #21/#27: verify on the delivered
+    artifact, never on a tool's self-report.
 
-37. **Captions.ai exports re-normalize audio (observed −14.0 LUFS uniform
-    gain).** Always re-measure the export, re-level with the video stream
-    copied (`-c:v copy -af volume=…`), and re-run the full QA gate plus the
-    structural verify against the master. Disclose the leveling step in the
-    review packet.
+37. **Measure every export; relevel only if required.** Locked rule: after any
+    third-party render/export, re-measure integrated loudness and true peak
+    on the delivered file and correct only when out of spec, releveling with
+    the video stream copied (`-c:v copy -af volume=…`) and re-running the full
+    QA gate + structural verify vs the master; disclose any leveling in the
+    review packet. (Observed evidence, not a universal claim: the REP-2
+    Captions.ai app export came back at −14.0 LUFS uniform gain. One export
+    proves that one export — not that the app "always renormalizes.")
 
 38. **The production log is the only source of truth for WHICH master gets
     captioned/published.** Parallel sessions advance the same production;

@@ -176,3 +176,17 @@ Verify the export with `tools/rep3_captions_verify.py <export.mp4>`: checks 18.0
 the master (catches any cut/pacing edit/music/re-normalisation), and that the
 caption band is empty through the silence with new text at the crack, not before.
 Then send BOTH the master and the export to Codex.
+
+### Captions gate ADDENDUM (2026-07-15) — Creatomate path EXECUTED, sandbox PASS
+
+The Mirage capability blocker is moot: per Leon/Codex the captions-only proof
+ran on **Creatomate** (`POST /v1/renders`, custom `source` JSON — supplied
+exact caption timing, zero transcription). The 8-beat track above was encoded
+as absolute-timed text elements (beat 7 hardcoded at 15.45). Verifier FULL
+PASS on the export: 18.00s/540f, silence beat intact, crack 15.45s, audio
+lag +0ms / corr 0.9983, loudness identical to master, caption band empty
+through the silence, first caption pixels at the crack. One caveat: the free
+trial forces render_scale 0.25 (270x480 sandbox export); a paid plan renders
+the same payload at native 1080x1920. Script:
+`data/productions/REP-3/tools/rep3_creatomate_captions.py` (key =
+CREATOMATE_API_KEY in .env). Details: production-log.md.
