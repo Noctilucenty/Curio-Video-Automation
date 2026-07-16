@@ -454,6 +454,18 @@ Objective defects (wrong regardless of performance), same class as lessons 13–
 - Reusable Captions.ai app configuration lives in
   `docs/curio/profiles/locked_master_retention_captions.json`. Retention/tension HYPOTHESES
   (punch-in shot variety, event-driven mix, the 3-layer loop trap) live in VIRAL_PLAYBOOK.md.
+- **AUDIO-FIRST APPROVAL GATE (LOCKED, Leon 2026-07-16).** Before spending on ANY paid asset
+  (footage/image/Veo/edit/captions), approve the audio at the cheapest stage:
+  (1) finalize + fact-check the script; (2) generate <=2 continuous narration takes,
+  autonomously select the strongest, save the lossless WAV master; (3) ALWAYS deliver a
+  clickable `narration-preview.mp3` (narration only) and STOP for approval; (4) after
+  narration approval, build the full audio story (narration + bed + engineered silence +
+  tension progression + SFX) as a WAV master and deliver `audio-story-preview.mp3`, STOP for
+  approval; (5) only after the audio story passes may PAID VISUAL GENERATION begin. MP3s are
+  review copies ONLY — never the production master (keep lossless WAV masters). Every delivery
+  includes clickable file:// links to both MP3s (as available) and reports: duration, spoken
+  WPM, reveal timestamp + %, engineered-silence duration, integrated LUFS, true peak, and
+  whether the semantic loop works. Purpose: catch script/voice problems before Veo/Gemini spend.
 - **AUDIO CANNOT BE SELF-JUDGED (LOCKED constraint).** Claude cannot hear the output — the
   narration's emotional prosody ("one thought" vs "a list") and the bed's organic feel are
   NOT verifiable by the model. Measure objective proxies only (duration, loudness/TP, silence,
