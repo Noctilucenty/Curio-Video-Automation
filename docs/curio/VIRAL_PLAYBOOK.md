@@ -228,3 +228,10 @@ Curio's own publishing analytics confirm them:**
   per-event layer bumps "feel assembled". (c) Edit with MOTIVATED cuts (eyes move -> reaction
   -> gaze -> hands -> look-down -> memory), not a relevant-shot list; a mute viewer should feel
   one moment unfolding. Dissolves only for memory/disappearance.
+- **A SOURCED, SPECIFIC anomaly beats a generic definition (v5 lesson, PROVISIONAL).** "Some
+  people with dementia briefly return" explains a phenomenon; "a man asked for a cigarette and
+  a beer, sang for 45 minutes, went to bed, and was dead by morning" is an unforgettable story
+  (Third-Man architecture: specific person -> impossible event -> escalating evidence ->
+  disturbing consequence -> named reveal -> unanswered mystery). Build from the strongest
+  DOCUMENTED case, disclose its evidence class (caregiver-reported, not clinical), invent
+  nothing (no names/dialogue/medical detail/time spans).
