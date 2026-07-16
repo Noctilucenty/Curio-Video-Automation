@@ -454,3 +454,9 @@ Objective defects (wrong regardless of performance), same class as lessons 13–
 - Reusable Captions.ai app configuration lives in
   `docs/curio/profiles/locked_master_retention_captions.json`. Retention/tension HYPOTHESES
   (punch-in shot variety, event-driven mix, the 3-layer loop trap) live in VIRAL_PLAYBOOK.md.
+- **AUDIO CANNOT BE SELF-JUDGED (LOCKED constraint).** Claude cannot hear the output — the
+  narration's emotional prosody ("one thought" vs "a list") and the bed's organic feel are
+  NOT verifiable by the model. Measure objective proxies only (duration, loudness/TP, silence,
+  pause variation between words, layer envelopes) and route the SUBJECTIVE audio verdict to a
+  human ear or an audio-capable judge. Never claim an emotional/tonal audio pass from
+  intentions; state the limit and defer that call.

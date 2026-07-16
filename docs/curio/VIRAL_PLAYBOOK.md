@@ -219,3 +219,12 @@ Curio's own publishing analytics confirm them:**
   TTS take), visual (freeze-frame endpoint == frame 0), audio (unresolved-but-musical tail).
 - REJECTED: warm sentimental bedside (healthcare-ad); wide-room opening; static label captions;
   reversed human motion; rolling single-phrase captions (Prism-One) for low-cognitive edits.
+- **Emotional CONTINUITY (v4 lesson, PROVISIONAL):** technical correctness != a felt moment.
+  (a) Write the script as ONE escalating thought, not sentence-fact-cards — em-dashes + gerund
+  flow ("recognizing…, remembering…, even old jokes") keep the rise unbroken; uniform ~0.13s
+  sentence gaps read as a list. Pick the TTS take with the FEWEST boundary pauses (most
+  connected) — pause variation is the only measurable proxy for "one thought". (b) Bed must be
+  ONE continuous foundation from frame 0 with SMOOTHLY crossfaded swells + a recurring motif —
+  per-event layer bumps "feel assembled". (c) Edit with MOTIVATED cuts (eyes move -> reaction
+  -> gaze -> hands -> look-down -> memory), not a relevant-shot list; a mute viewer should feel
+  one moment unfolding. Dissolves only for memory/disappearance.
