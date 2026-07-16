@@ -431,3 +431,26 @@ performance); these are performance hypotheses. A video
 can pass every check above and still perform poorly. When the fifth
 performance-labeled video lands, run `POST /api/learning/run` and promote only
 what the numbers support.
+
+## Narrative-video engine — production-defect rules (LOCKED, added 2026-07-16, Terminal Lucidity)
+Objective defects (wrong regardless of performance), same class as lessons 13–17:
+- **Local ffmpeg has NO `drawtext`/`subtitles`(libass).** Burn text via Captions.ai, or a
+  Pillow RGBA PNG frame-sequence + `overlay`. (qtrle alpha round-trip is unreliable.)
+- **`-shortest` masks A/V length mismatch.** Force exact per-segment frame counts
+  `round(sec*fps)` (`-frames:v N`) so beats stay synced and totals are deterministic.
+- **Seamless visual loop = FREEZE-FRAME endpoint.** Crossfade the tail into a frozen copy of
+  the EXACT frame 0, then hold that frame for the final 2–3 frames. Crossfading into the
+  *moving* opening fails (subject has moved). NEVER reverse human footage (backward
+  blinks/breathing are artifacts).
+- **Measure the loop with WINDOWED SSIM on the TRUE decoded frame 0 vs frame N-1**
+  (`select='eq(n\,0)'` / `select='eq(n\,N-1)'`). A global-SSIM formula OVERESTIMATES (reported
+  0.996 when the real windowed value was ~0.94). Report only true-endpoint windowed SSIM;
+  target ≥0.95 (a preview may ship slightly under, but the native export must re-measure).
+- **Captions.ai NORMALIZES audio on export** (loudness + mono→stereo). Re-mux the master
+  audio back (`-map 0:v -map 1:a -c:v copy`) to hold the −16 LUFS / TP ≤ −1.5 gate.
+- **Judge only what a MUTE 270×480 viewer sees + what the final muxed audio says** — not
+  intentions/notes. A beat counts only if the viewer can name what changed without the caption.
+  Do not self-assign scores; verify against the decoded file.
+- Reusable Captions.ai app configuration lives in
+  `docs/curio/profiles/locked_master_retention_captions.json`. Retention/tension HYPOTHESES
+  (punch-in shot variety, event-driven mix, the 3-layer loop trap) live in VIRAL_PLAYBOOK.md.

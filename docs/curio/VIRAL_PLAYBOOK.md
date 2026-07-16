@@ -202,3 +202,20 @@ Curio's own publishing analytics confirm them:**
   stakes + invisible presence + dark atmosphere + audio interruption + loop.
 - Internet-mystery (Dead Internet) works only with instant visual clarity.
 - Maintain the category quota from CURIO_MASTER_CONTEXT — no psychology-only feeds.
+
+## Narrative-CU technique — PROVISIONAL (added 2026-07-16, Terminal Lucidity; not promoted until analytics)
+- **Behavioral evidence in CLOSE-UP, not states.** A beat = something a mute viewer can name
+  (unfocused eyes→focus arriving; hand clasp; focus LEAVING via progressive head-droop;
+  reaction shots). Darkening/zoom/repeated-pose are NOT beats. Prove recognition with a
+  motivated POV (gaze→object→reaction), not an isolated insert.
+- **Punch-in for shot variety.** Final is 270-wide, source 720-wide → 2.6× headroom → crop
+  real footage for full-res close-ups (zero morph, identity locked). Two source clips read as
+  two setups; interleave face-CU / hands / photo / reaction so new info lands most cuts.
+- **Tension = EVENTS, not grade.** Event-driven bed: add one harmonic layer per returned-
+  ability beat, strip them through the withdrawal, hard-collapse to real silence before the
+  name. Avoid synthetic rising sine sweeps at the end (read as weird) — use warm consonant
+  fades (harmonics of the drone).
+- **Loop trap (3 layers):** semantic (last line re-arms the first, generated in ONE continuous
+  TTS take), visual (freeze-frame endpoint == frame 0), audio (unresolved-but-musical tail).
+- REJECTED: warm sentimental bedside (healthcare-ad); wide-room opening; static label captions;
+  reversed human motion; rolling single-phrase captions (Prism-One) for low-cognitive edits.

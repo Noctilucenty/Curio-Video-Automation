@@ -26,6 +26,27 @@
     "capability_gate": "Mirage public contract is AUTO-TRANSCRIPTION ONLY (no custom SRT, no reveal timing, no trim flags). For a locked_master with a curated caption track, an auto-caption-only provider is REFUSED (CAPABILITY_BLOCKER) — never silently fall back to auto captions. Set MIRAGE_CUSTOM_CAPTION_TIMING=1 only if the account is provisioned for custom caption timing."
   },
 
+  "captions_ai_app_automation": {
+    "added": "2026-07-16",
+    "why": "API path is DEAD (CAPTIONS_API_KEY empty; api.captions.ai 502; Mirage auto-transcribe-only + wrong style). The reusable path is the logged-in captions.ai WEB APP via browser automation. file_upload accepts the local project path.",
+    "steps": [
+      "Home -> Edit dropdown -> Captions mode (NOT 'Edit/Add a polished edit' = the AI editor, forbidden).",
+      "Upload the local clean master (file_upload to the hidden input; select its color swatch to enable Apply).",
+      "Review screen: VERIFY 'AUTO TRIM: Trim filler and silences' toggle is OFF; click 'Create project' (NOT 'Skip and apply all recommendations').",
+      "Export HD / 24 fps (match source) / Smart HDR off.",
+      "RE-MUX the master audio back under the export (Captions.ai normalizes loudness + mono->stereo)."
+    ],
+    "style": {
+      "chosen": "Flair (elegant serif, DISCRETE word-pop; dignified). Search it in the style picker.",
+      "discrete_vs_rolling": "Prism/Cove/Quintessence are ROLLING single-phrase (words accumulate/collide, no silence gap, title contamination) -> BANNED for low-cognitive/silence-protected edits. Verify discreteness by SCRUBBING (old group gone before next pops), NOT by the phrase object (all styles store the whole transcript as one phrase).",
+      "grouping": "Uniform Words-per-line/Character-count auto-segmentation ORPHANS sentence tails (single words). Fix requires VARIABLE 2-4 word grouping. VERIFIED 2026-07-16: Captions.ai CANNOT do this — manual transcript line breaks are STRIPPED; fast-list commas are below any pause threshold so word-caps cross clauses; char-caps orphan 3-4 word clauses; long comma-free sentences and lists have conflicting needs. For low-cognitive/silence-protected edits needing EXACT variable groups, use the CUSTOM Pillow engine (data/productions/*/tools/tl_captions_final.py: word-timed groups, one warm-cream active word, Baskerville serif, silence-protected, composited on the clean master) instead of Captions.ai.",
+      "font_size": "Third Man mobile benchmark ~90-96 at 1080x1920 reference; verify legibility at 270x480 (thin serif can read too small).",
+      "position": "lower-center, clear of faces/hands; max 2 lines.",
+      "emphasis": "one active warm/cream word."
+    },
+    "caption_requirements": "each phrase independent 2-4 words (never 1 unless the reveal token); old words gone before next; no captions during engineered silence; reveal caption clears before the loop-tail caption; loop-tail clears before the endpoint hold."
+  },
+
   "code": {
     "module": "src/postprocess.ts",
     "policy_fn": "resolveOperations(policy, requested) — the one place trimming can be enabled; throws on a locked_master cut request",
