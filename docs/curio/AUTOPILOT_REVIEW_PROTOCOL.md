@@ -186,6 +186,19 @@ approval:
 
 Requirements:
 
+- **Complexity is a failure surface.** The default Curio short uses at most one
+  high-risk generated human-action clip. Build the remaining story from clean
+  object/environment plates, diagrams, silhouettes, or licensed footage with
+  controlled local motion. More API spend never justifies more identities,
+  anatomy, props, or scene changes.
+- Use a generated video clip only when motion itself carries the fact. If a
+  still plate plus a push, reveal, mask, or simple physical animation teaches
+  the beat, prefer that lower-risk construction.
+- Validate the hero clip internally at phone size before making any additional
+  video-generation call. This is producer QA, not another Leon approval gate.
+- Six separately generated human scenes are not a default production plan.
+  Exceed one human-action clip only when the brief proves that each extra action
+  is indispensable and provides a continuity/identity-control method.
 - Every shot teaches the mute viewer something new.
 - Crops and punch-ins are shot grammar, not new story beats.
 - Chain generated clips from the preceding clip's accepted end frame when scene

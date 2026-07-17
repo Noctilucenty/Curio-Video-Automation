@@ -519,3 +519,14 @@ Objective defects (wrong regardless of performance), same class as lessons 13–
 - **Phone-size frame-zero check (LOCKED):** verify the opening contradiction reads at 270px on
   the actual graded frame — a grade that looks moody at 720p can bury the premise at feed size
   (v1 fix: brightness +0.006 / gamma 1.02 lift, loop SSIM re-verified after regrade).
+- **Visual-complexity budget (LOCKED, Harrison Okene v1 rejection, Leon
+  2026-07-17):** API cost is not the main reason to minimize generations; every
+  generated human clip adds independent anatomy, identity, object, geography,
+  and factual-failure risk. Default to ONE hero human-action clip, then clean
+  object/environment plates, silhouettes, diagrams, or licensed footage with
+  restrained local motion. Generate motion only when motion carries the fact.
+  REJECTED: batching six human-heavy Veo clips before validating the hero. The
+  result showed a held hand instead of a grab-back, a decades-old-looking wreck
+  after 60 hours, and a bareheaded survivor moving through open water instead
+  of the documented diving helmet. Stronger models must buy selection and
+  restraint, not more scenes.

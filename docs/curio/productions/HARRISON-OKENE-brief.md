@@ -169,28 +169,32 @@ hard defect.
 Deliver MP3, WAV, loop×2, stems, and measurements per
 `AUTOPILOT_REVIEW_PROTOCOL.md`.
 
-## 7. Visual direction (after complete audio approval)
+## 7. Visual direction (simplified after v1 rejection)
 
-Target one coherent wreck and rescue team:
+Use the clean Third-Man principle: one impossible human action, then simple
+evidence. Do not build a six-clip human continuity chain.
 
-- **0–3s:** diver POV; hand suddenly grabs back—hero generation and frame-zero
-  contradiction;
-- **3–7s:** exterior establishes the same upside-down tugboat at depth;
-- **7–12s:** same Harrison in the trapped-air space, water at chest height,
-  discovered by the diver's light;
-- **12–16s:** pressure/decompression danger becomes visually understandable
-  without fake UI or a generic gauge montage;
-- **16–19s:** transfer toward a diving bell and pressure-safe rescue;
-- **loop:** diver light/darkness returns naturally to the reaching hand.
+- **0–3s — only Veo human-action clip:** diver POV inside a freshly sunk modern
+  industrial wreck. A motionless hand suddenly closes around the diver's wrist.
+  The actual grab-back—not an already-held grip—must read at 270×480.
+- **3–6s — still plate:** a recently capsized 2013 tugboat at roughly 100 feet,
+  animated only with a slow push and restrained particles. Fresh damage and
+  paint; no coral, barnacles, heavy growth, archaeological wreck, or decades of
+  sediment.
+- **6–11s — designed cross-section plate:** hull, trapped-air pocket, waterline,
+  and one small anonymous silhouette. Reveal the air pocket with controlled
+  light/mask motion; no generated face or repeated Harrison identity.
+- **11–15s — pressure plate:** the sealed air pocket/bell relationship and the
+  distant surface make the second danger understandable. Prefer one clean
+  physical composition over fake UI, gauges, or another human scene.
+- **15–19s — object payoff:** modern pressurized diving bell connected to a
+  decompression chamber; hatch/pressure-seal motion only. No bareheaded person
+  swimming through open water. Return through darkness/diver light to the hero
+  frame for the loop.
 
-The hand-grab must be sudden, dynamic, anatomically clean, and readable at
-270×480. It is not allowed to become a static illustration like the vidIQ
-outlier's climax.
-
-Maintain consistent identity, clothing, wreck geometry, water level, diver gear,
-lighting, and screen direction. Chain accepted clips where continuity matters.
-Crops do not count as beats. Generate a focused insert if a causal state is
-missing.
+Visual generation budget: one Veo clip plus three or four strong image plates.
+Animate plates locally. A second video clip requires a demonstrated fact that a
+plate cannot communicate.
 
 No gore, bodies, feeding animals, supernatural imagery, fake sonar/rings, or
 unlicensed archival material. If visuals are generated, disclose them as a
