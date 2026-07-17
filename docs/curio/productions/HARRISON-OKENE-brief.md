@@ -2,8 +2,9 @@
 
 Status: **TOPIC APPROVED by Leon, 2026-07-17; script direction drafted by Codex
 for independent artifact review.**
-Next gate: two ElevenLabs v3 narration MP3s. Do not generate the bed or visuals
-until the narration passes by ear. Audio-first work may proceed in parallel, but
+Next gate: producer locks the strongest ElevenLabs v3 take using the scored
+rubric, then builds the complete audio story. Do not generate visuals until that
+audio story passes. Audio-first work may proceed in parallel, but
 do not interrupt, modify, or block the active CPR production.
 
 One-outcome declaration: **retention primary, shares secondary.**
@@ -136,7 +137,14 @@ Before delivery:
 - self-rank both takes for comprehension, continuity, tension, naturalness, and
   payoff authority.
 
-Return clickable MP3 links and one decisive recommendation. Stop at this gate.
+Return clickable MP3 links and one decisive recorded selection, then proceed.
+
+Standing selection rule (Leon, 2026-07-17): the producer makes the decision and
+does not ask Leon to choose between takes. Apply the protocol's hard gates and
+100-point rubric, record the winner, and proceed directly to the audio story.
+For the existing v2 pair, v2-A is the objective leader because it meets the WPM
+band with zero resets; select it unless an actual audio-capable listen exposes a
+hard defect.
 
 ## 6. Audio-story direction (after narration approval)
 

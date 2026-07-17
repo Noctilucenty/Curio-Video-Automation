@@ -44,12 +44,15 @@ the conflict cannot recur.
   later verdict must still inspect the producer's exact artifact independently.
 - Does not edit production code or generate the video unless Leon explicitly
   authorizes that work. Documentation may be updated when explicitly requested.
-- Never certifies tone, loop quality, or emotional continuity from metrics alone;
-  route subjective audio judgments to Leon's ear while reporting objective data.
+- Never certifies tone, loop quality, or emotional continuity from metrics alone.
+  Use the strongest available audio-capable judge for actual listening; metrics
+  are supporting evidence. Escalate to Leon only when a high-risk ambiguity
+  remains unresolved.
 
-### Owner/human ear — Leon
+### Owner — Leon
 
-- Chooses business direction and resolves genuinely subjective tone/voice calls.
+- Chooses business direction and resolves genuinely subjective tone/voice calls
+  only when the producer cannot resolve them with an audio-capable judge.
 - Approves irreversible actions and posting.
 - Is not a manual editor in the automation loop. Routine visual/caption choices
   belong to the producer and its self-review.
@@ -140,10 +143,21 @@ No paid visuals before the audio story passes.
 - Produce at most two continuous MP3 takes, self-rank them, recommend one, and
   provide clickable links. Judge comprehension, pronunciation, continuity,
   tension, naturalness, and payoff authority—not WPM alone.
+- **The producer chooses the take.** Do not ask Leon to compare routine A/B
+  narration. Reject any take with wrong wording, audible tag leakage, a material
+  artifact, unresolved name pronunciation, clipping, or an unmotivated reset.
+  Score remaining takes: comprehension/prosodic continuity 35, tension and
+  naturalness 25, first-three-second hook authority 20, payoff authority 15,
+  and timing/cadence 5. Require at least 80/100. Within three points, choose the
+  simpler, more continuous read. If neither passes, regenerate; do not delegate
+  the selection back to Leon.
+- Preserve and link both candidates for audit, record the score and rationale,
+  lock the winner, and proceed directly to the complete audio story. A routine
+  narration comparison is no longer a human-visible stop.
 
 ### Complete audio story
 
-After narration selection, build the bed, event-driven sound design, reveal
+After autonomous narration selection, build the bed, event-driven sound design, reveal
 collapse, and loop. Deliver:
 
 - MP3 preview;
@@ -154,8 +168,9 @@ collapse, and loop. Deliver:
   measurements.
 
 Tension comes from accumulating audible events and state changes, not a flat
-drone. A loop seam must pass both measurement and a human-ear audition. Do not
-flatten the opening hook merely to optimize a seam number.
+drone. A loop seam must pass measurement and an audio-capable listening audit;
+escalate only an unresolved seam to Leon. Do not flatten the opening hook merely
+to optimize a seam number.
 
 ## 6. Fast visual production mode
 
@@ -292,9 +307,11 @@ rules require analytics under the playbook's promotion standard.
 For a selected topic, human-visible phases are intentionally limited:
 
 1. approved concept/script;
-2. audio-first phase with two separate stops:
-   - narration ear stop; no bed/SFX/loop before approval;
-   - complete audio-story ear stop; no paid visuals before approval;
+2. audio-first phase:
+   - producer self-selects and locks narration using the scored rubric, then
+     builds the bed/SFX/loop without asking Leon to choose a take;
+   - complete audio-story review remains the single pre-visual audio stop; no
+     paid visuals before it passes;
 3. complete low-resolution audiovisual preview;
 4. final captioned/native pre-post package.
 

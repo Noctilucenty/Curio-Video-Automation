@@ -457,21 +457,22 @@ Objective defects (wrong regardless of performance), same class as lessons 13–
 - **AUDIO-FIRST APPROVAL GATE (LOCKED, Leon 2026-07-16).** Before spending on ANY paid asset
   (footage/image/Veo/edit/captions), approve the audio at the cheapest stage:
   (1) finalize + fact-check the script; (2) generate <=2 continuous narration takes,
-  autonomously select the strongest, save the lossless WAV master; (3) ALWAYS deliver a
-  clickable `narration-preview.mp3` (narration only) and STOP for approval; (4) after
-  narration approval, build the full audio story (narration + bed + engineered silence +
-  tension progression + SFX) as a WAV master and deliver `audio-story-preview.mp3`, STOP for
-  approval; (5) only after the audio story passes may PAID VISUAL GENERATION begin. MP3s are
+  autonomously select the strongest with the scored rubric in
+  `AUTOPILOT_REVIEW_PROTOCOL.md`, save the lossless WAV master, and preserve clickable links
+  to both candidates for audit; (3) do NOT stop to ask Leon to choose routine takes — lock the
+  winner and build the full audio story (narration + bed + engineered silence + tension
+  progression + SFX) as a WAV master; (4) deliver `audio-story-preview.mp3` as the single
+  pre-visual audio review; (5) only after the audio story passes may PAID VISUAL GENERATION begin. MP3s are
   review copies ONLY — never the production master (keep lossless WAV masters). Every delivery
   includes clickable file:// links to both MP3s (as available) and reports: duration, spoken
   WPM, reveal timestamp + %, engineered-silence duration, integrated LUFS, true peak, and
   whether the semantic loop works. Purpose: catch script/voice problems before Veo/Gemini spend.
-- **AUDIO CANNOT BE SELF-JUDGED (LOCKED constraint).** Claude cannot hear the output — the
-  narration's emotional prosody ("one thought" vs "a list") and the bed's organic feel are
-  NOT verifiable by the model. Measure objective proxies only (duration, loudness/TP, silence,
-  pause variation between words, layer envelopes) and route the SUBJECTIVE audio verdict to a
-  human ear or an audio-capable judge. Never claim an emotional/tonal audio pass from
-  intentions; state the limit and defer that call.
+- **AUDIO NEEDS AN ACTUAL LISTENING PATH (LOCKED constraint).** A text-only producer cannot
+  hear emotional prosody or the bed's organic feel. Use the strongest available audio-capable
+  judge for the listening component and objective proxies for duration, loudness/TP, silence,
+  pause variation, and layer envelopes. Never invent a tonal verdict from intentions. If no
+  audio-capable judge is available, choose narration by the hard gates/scored proxies and
+  escalate only a material unresolved pronunciation or artifact risk — not a routine A/B pick.
 - **NO inert post-speech tail; the semantic re-hook must land AT replay (Terminal Lucidity
   v6→v6.2, Leon 2026-07-16).** Sizing the runtime to force a reveal % left 1.65s of dead bed after
   the last word — Leon judged this inert tail LIKELY to hurt retention (no retention analytics were
