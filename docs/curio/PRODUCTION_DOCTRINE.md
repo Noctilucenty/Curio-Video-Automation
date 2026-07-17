@@ -493,3 +493,28 @@ Objective defects (wrong regardless of performance), same class as lessons 13–
   gap/crossfade/processing between them, to audition the real end→beginning seam, and (b) a
   low-resolution audiovisual loop — then route the seam verdict to a human ear. Report the measured
   seam RMS gap as the objective proxy.
+- **Loop-seam level fix constraints (CPR v1, 2026-07-17):** measure the restart gap at
+  50/100/200/300ms windows; target ~2–4 dB perceptual, never flatten the hook to chase ±1 dB.
+  When limiting a lifted tail, HARD-re-cap the gain curve AFTER smoothing (smoothing leaks
+  neighbors' gains over the ceiling) and leave ~2 dB of inter-sample margin below the sample
+  ceiling (a −1.9 dBFS sample ceiling still measured −1.2 dBTP true peak; −3.6 dBFS held −1.6).
+  REJECTED: rhythmic pickup beats that quicken into the seam when the script premise is "no
+  pulse" — an accelerating thump pattern reads as a heartbeat and contradicts the story.
+- **Chained-seed continuity (LOCKED, CPR build 2026-07-17):** for multi-clip Veo scenes, seed
+  clip N+1 from clip N's LAST FRAME (not the shared reference) — same patient/team/room/light/
+  positions, no pose resets. For a focused INSERT, seed from a 9:16 CROP of an existing frame
+  (region of interest) — identity carries through the crop.
+- **Crops are shot grammar, not beats (LOCKED, Leon guardrail 2026-07-17):** a punch-in of
+  already-shown motion never counts as story development. If a causal state is missing (e.g.
+  "compressions resume → awareness returns"), GENERATE a focused insert for it rather than
+  stretching or re-cropping weak footage.
+- **AV-causality sync (LOCKED, CPR v1):** the visual cause must land where the AUDIBLE cause
+  lands. The locked audio's event map (thump stop/resume, collapse, reveal) dictates the edit —
+  e.g. visible compressions may NOT resume while the bed's thumps are still stopped.
+- **Veo overshoots directed motion late in the clip (CPR-D):** a prompt asking for "slight
+  purposeful hand movement" delivered it in 0–4.5s, then escalated to a raised rigid forearm
+  (possession-adjacent imagery). Inspect every clip and prefer EARLY windows; never assume the
+  whole 8s is usable.
+- **Phone-size frame-zero check (LOCKED):** verify the opening contradiction reads at 270px on
+  the actual graded frame — a grade that looks moody at 720p can bury the premise at feed size
+  (v1 fix: brightness +0.006 / gamma 1.02 lift, loop SSIM re-verified after regrade).
