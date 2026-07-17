@@ -472,3 +472,24 @@ Objective defects (wrong regardless of performance), same class as lessons 13–
   pause variation between words, layer envelopes) and route the SUBJECTIVE audio verdict to a
   human ear or an audio-capable judge. Never claim an emotional/tonal audio pass from
   intentions; state the limit and defer that call.
+- **NO inert post-speech tail; the semantic re-hook must land AT replay (Terminal Lucidity
+  v6→v6.2, Leon 2026-07-16).** Sizing the runtime to force a reveal % left 1.65s of dead bed after
+  the last word — Leon judged this inert tail LIKELY to hurt retention (no retention analytics were
+  captured for this video) and confirmed it harmed the LOOP. Size the piece so the final word ends
+  near the end, allow only a short breath (<~0.4s), then loop. Reveal % is a HEURISTIC, not a
+  target: an honest later reveal (~84%) beats padding — never add filler to hit a percentage.
+- **Loop-seam LEVEL match (±1 dB), not just "no click".** A sample-level no-click is insufficient:
+  the opening room tone was 12.7 dB louder than the faded tail floor — an audible restart JUMP.
+  Fix by an EASED crossfade of the final ~150–200ms into the VOICE-FREE opening ambient (the first
+  ~0.30s, before narration begins) so the end lands within ±1 dB of the opening — never a sudden
+  gain step, never by lengthening the tail. Objective proxy: RMS(final 100ms) vs RMS(opening 0.30s).
+- **Editing a LOCKED audio tail stays byte-EXACT before the edit point.** Work in int16 (a
+  ÷32768 then ×32767 float round-trip flips ±1 on nearly every sample), keep everything before the
+  tail identical, and VERIFY with `np.array_equal`. Never re-normalize the whole file to fix a tail.
+- **Captions clear the instant the final word ends, and the visual return-to-opening crossfade is
+  already UNDERWAY during that word** — not a dead hold that then cuts.
+- **MANDATORY loop audition before approval (LOCKED, Leon 2026-07-16).** The seam cannot be
+  self-heard, so deliver (a) a `*-loopx2.mp3` = two BYTE-IDENTICAL copies back-to-back with no
+  gap/crossfade/processing between them, to audition the real end→beginning seam, and (b) a
+  low-resolution audiovisual loop — then route the seam verdict to a human ear. Report the measured
+  seam RMS gap as the objective proxy.

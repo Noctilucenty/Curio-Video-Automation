@@ -28,6 +28,31 @@ payoff → natural response.
 - Published analytics — not theory or judge scores — decide whether the
   mechanism worked.
 
+## First-frame preflight (2026-07-16 — split by evidence tier; Dead Water EXP-202607-16-07 confirming Third Man)
+
+Every video passes this BEFORE production. Curio's own posts are unanimous on the OPENING:
+the only retention winner (Third Man) put the anomaly on frame zero; every loser (Boat
+v1/retry, Can't Forget, Dead Water) opened on context / atmosphere / generic imagery and
+lost ~half the audience in the first ~3s.
+
+**CONFIRMED by repeated Curio results (do these):**
+1. Frame zero SHOWS or STATES the contradiction — not location, date, or atmosphere.
+2. The viewer understands what is impossible essentially immediately (~1.5s).
+3. The opening premise is a complete, low-cognitive thought of ~4–8 words.
+4. Preserve mystery by withholding the EXPLANATION or NAME — never the premise.
+5. Evaluate Instagram and Facebook SEPARATELY at 24h / 72h / 7d — never a combined total
+   (FB has supplied ~60–89% of plays on every post).
+
+**PROVISIONAL — strong hypotheses, NOT yet confirmed by Curio's own repeated analytics:**
+6. Visible evidence or a meaningful state change by ~2s.
+7. A new clue / escalation / consequence roughly every 1.5–2.5s.
+8. The payoff produces social currency — a concrete fact the viewer can repeat to someone
+   else. (Dead Water's factual payoff coincided with 0 sends/saves/comments, but its weak
+   opening also shrank the audience that reached the payoff, so the cause is unproven.)
+
+**Discipline:** no single result globally promotes an aesthetic or caption style — one post
+is a data point, not a rule (promotion needs Curio's own repeated analytics).
+
 ## CONFIRMED (multiple independent results, incl. Curio's own)
 
 **From Curio's OWN posted results** (2026-07-12 four-post analysis — the
@@ -46,6 +71,15 @@ strongest evidence tier we have; ledger EXP-202606-30-01 … EXP-202607-06-06):
 - Combined IG+FB views are NOT a valid optimization target — FB supplied most
   views on 3/4 posts while the engagement rates are IG signals.
   Platform-separated analytics are mandatory (enforced in the capture template).
+- **Second confirming data point — Dead Water (EXP-202607-16-07, captured
+  2026-07-16):** a context-first opening ("IN THE ARCTIC" + a mostly-static
+  beautiful ship) again lost ~45% of viewers by ~3s (skip 58.5%), then the curve
+  stabilized after ~7-9s — the subject held the stayers, the opening lost the
+  scrollers. IG 224 ≈ Third Man's 240 while FB supplied 89% of the 2,073 combined
+  plays (NO IG breakout), and every high-intent action (share/save/comment/
+  repost/follow) was 0. Reconfirms: immediate anomaly > context; combined totals
+  mislead; plays/likes ≠ retention or social currency. (Source file unverified —
+  closest local match REP-2-captions-export-v3-leveled.mp4.)
 
 **Hooks**
 - Reveal the entire mystery/tension in line one, ≤12 words. Never open with
@@ -170,6 +204,19 @@ Curio's own publishing analytics confirm them:**
 - **Unnormalized or clipping audio** (Can't Forget: −9.6 LUFS, +0.6 dBTP true
   peak). Renders are now loudnorm'd to −16 LUFS/−1.5 dBTP and hard-fail outside
   integrated [−20, −12] LUFS or above −0.9 dBTP (assertLoudness).
+
+**From the Dead Water post (2026-07-16, EXP-202607-16-07):**
+- **Context-first openings** — leading with location / date / atmosphere ("IN THE
+  ARCTIC") before the anomaly is on screen (skip 58.5%; ~45% gone by ~3s).
+- **Beautiful-but-static imagery as the scroll-stop mechanism** — premium stills
+  do not stop cold viewers; they only help the ones who already stayed (the curve
+  stabilizes only after ~7-9s).
+- **Reading a Facebook-heavy combined total as Instagram validation** — 2,073
+  combined (FB 89%) hid an IG result of 224 (≈ Third Man's 240) with every
+  high-intent action at 0.
+- (Zero shares/saves/comments is an OBSERVED fact but NOT a confirmed cause —
+  "payoff lacked social currency" stays PROVISIONAL (see the first-frame preflight);
+  the weak opening also shrank the audience that reached the payoff.)
 
 - **Out-of-range audio, silent OR whisper-quiet** (card v1 shipped silent −inf;
   card v2 passed a binary −55 dB gate at an inaudible −45.6 LUFS): binary

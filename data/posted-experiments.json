@@ -1,7 +1,8 @@
 {
   "_readme": "Ground truth for every video Curio has actually POSTED — creative metadata + platform-separated analytics, matched to Instagram insights screenshots on 2026-07-12. This file is the durable machine copy; docs/curio/EXPERIMENT_LEDGER.md is the human trail. Import with: npx tsx tools/import_posted_experiments.ts (content-addressed rows; corrections here supersede stale rows via latest-wins). RULES: combined IG+FB view totals are NOT an optimization target; a metrics row is only imported when viewsInstagram is known. Every experiment carries a `provenance` block separating observed / derived / estimated / user-reported values — treat estimated values as approximate.",
-  "collectedAt": "2026-07-12",
-  "source": "Instagram Reel insights screenshots (samples/Curio Video Stats/*) + ffprobe/ebur128 measurements of the posted files + reviewer screenshot readings (Codex, 2026-07-12)",
+  "collectedAt": "2026-07-16",
+  "collectedAtNote": "original four-post batch collected 2026-07-12; Dead Water (posted-deadwater) screenshots added 2026-07-16",
+  "source": "Instagram Reel insights screenshots (samples/Curio Video Stats/* collected 2026-07-12; Dead Water reel screenshots 2026-07-16) + ffprobe/ebur128 measurements of the posted / closest-match local files + reviewer screenshot readings (Codex, 2026-07-12 and 2026-07-16)",
   "experiments": [
     {
       "id": "posted-third-man",
@@ -283,6 +284,112 @@
         ]
       },
       "verdict": "revision made everything WORSE (skip 59.1%→73.4%, likes 6.3%→0.9%, all sharing to zero): pacing after the premise got slower and less visually progressive; also proof that changing five variables at once teaches nothing"
+    },
+    {
+      "id": "posted-deadwater",
+      "title": "Dead Water (In the Arctic)",
+      "category": "strange-science",
+      "postedAt": "2026-07-16",
+      "postedAtProvenance": "inferred from the views graph beginning Jul 16; exact posting time unverified",
+      "capturedAt": "2026-07-16",
+      "platform": "instagram+facebook-crosspost",
+      "sourceFile": "unverified",
+      "sourceFileNote": "Closest LOCAL visual match is data/productions/REP-2/REP-2-captions-export-v3-leveled.mp4. v1/v2/v3 (each with a -leveled variant) share the same underlying master, duration (18.833s / 1080x1920@30), and imagery, but their CAPTION treatments (sizes / leveling) are NOT visually identical, so the exact posted export CANNOT be determined without upload evidence. Screenshot runtime (~18s) corroborates the REP-2 family (18.83s) but does not confirm any single file.",
+      "creative": {
+        "archetype": "atmospheric strange-science mystery; CONTEXT-FIRST opening (location/atmosphere before the anomaly)",
+        "durationSeconds": 18.83,
+        "durationProvenance": "observed on the local closest-match REP-2 exports (18.833s); screenshot showed ~18s. Posted-file duration unverified.",
+        "resolution": "1080x1920@30",
+        "resolutionProvenance": "observed on local REP-2 exports; posted-file unverified",
+        "openingFrame": "atmospheric Arctic ship + 'IN THE ARCTIC' title card — geographic/atmospheric CONTEXT, not the anomaly",
+        "hookWording": "'In the Arctic…' location/context framing; the impossible premise (a ship mysteriously halted — 'dead water') is NOT stated at frame zero",
+        "premiseUnderstandableBySeconds": null,
+        "premiseNote": "the contradiction (what is impossible) is not presented at frame zero — the opening leads with location + a mostly-static beautiful ship. User verdict: context, not anomaly.",
+        "visualTimeline": "conservative reconstruction from the UNVERIFIED local REP-2 family (not confirmed as the posted file): 'IN THE ARCTIC' title over an atmospheric ship in ice -> held / slow ship-in-fog compositions -> the ship stalled and held motionless -> captioned explanation of the 'dead water' internal-wave phenomenon near the end. Exact shot list and timing unverified.",
+        "visualTimelineProvenance": "derived from the local closest-match REP-2 exports — UNVERIFIED as the posted file",
+        "reveal": "'dead water' phenomenon (a ship slowed/held by sub-surface internal waves) — factual payoff; whether it carried social currency is unproven",
+        "audio": {
+          "integratedLufs": -17.1,
+          "lra": 1.8,
+          "truePeakDbfs": -5.1,
+          "provenance": "observed on the LOCAL closest-match REP-2-captions-export-v3-leveled.mp4 via ffmpeg ebur128 — UNVERIFIED as the posted file",
+          "style": "atmospheric dark bed"
+        },
+        "cta": "unverified",
+        "producedWith": "Captions.ai (external) — REP-2 family"
+      },
+      "analytics": {
+        "viewsTotal": 2073,
+        "viewsInstagram": 224,
+        "viewsFacebook": 1849,
+        "splitNote": "IG 224 (10.8%) + FB 1849 (89.2%) = 2073. Facebook supplied ~89.2% of plays. The combined total is NOT a creative win and NOT an optimization target; the IG stream is the creative signal and the importer writes IG-only. IG's 224 ≈ Third Man's 240 → NO Instagram reach breakout.",
+        "reachAccounts": 162,
+        "reachScopeNote": "'162 accounts reached' — platform scope AMBIGUOUS (may be IG-only while 2073 is IG+FB). Do NOT compute views-per-account-reached from these screenshots. Recorded as reachAccounts (surface unverified), NOT as reachInstagram.",
+        "avgWatchTimeSeconds": 8,
+        "watchRatio": 0.425,
+        "watchRatioProvenance": "derived 8s / 18.83s (local family duration) = 0.425; plausible range 0.425-0.444 because Instagram displays only a rounded 0:18",
+        "skipRate": 0.585,
+        "retentionCurve": {
+          "at2_5to3s": 0.55,
+          "at5to7s": 0.40,
+          "at9to10s": 0.30,
+          "atEnd18s": 0.24,
+          "provenance": "estimated from the retention graph shape — approximate, not platform numbers"
+        },
+        "retentionAtEnd": 0.24,
+        "retentionAtEndProvenance": "estimated from graph shape (~23-25%); midpoint 0.24",
+        "likes": 9,
+        "comments": 0,
+        "shares": 0,
+        "saves": 0,
+        "reposts": 0,
+        "likeRate": 0.006,
+        "shareRate": 0,
+        "saveRate": 0,
+        "commentRate": 0,
+        "repostRate": 0,
+        "engagementCountsNote": "Raw counts on the IG reel header: 9 likes; 0 comments/shares/saves/reposts. Displayed rates: like 0.6%, share/save/comment/repost 0.0%. The PLATFORM SCOPE of these engagement counts/rates AND of the average-watch figure is NOT explicitly labeled (IG-only vs IG+FB) — treat the scope as unverified. Meta's rate denominator is undocumented; do NOT recompute the displayed 0.6% from 9/224 (which would give 4.0%). Raw counts are the source of truth. EVERY high-intent action (share/save/comment/repost/follow) is ZERO.",
+        "viewSources": {
+          "reels_tab": 0.872,
+          "explore": 0.096,
+          "stories": 0.014,
+          "profile": 0.005,
+          "feed": 0.005
+        },
+        "viewSourcesNote": "87.2% Reels-tab + 9.6% Explore = mostly COLD distribution → the opening-hook failure is a genuine audience verdict on NEW viewers, not an existing-follower artifact.",
+        "follows": 0
+      },
+      "provenance": {
+        "observed": [
+          "viewsTotal (2073), viewsInstagram (224), viewsFacebook (1849) — views-over-time card",
+          "reachAccounts (162, scope ambiguous)",
+          "avgWatchTimeSeconds (8)",
+          "skipRate (58.5% — directly shown on the supplied screenshot)",
+          "likes (9); comments/shares/saves/reposts (0)",
+          "displayed rates (like 0.6%; share/save/comment/repost 0.0%)",
+          "viewSources (top-sources card)",
+          "follows (0)",
+          "duration/resolution/audio of the LOCAL closest-match REP-2 file ONLY (not confirmed as the posted file)"
+        ],
+        "derived": [
+          "IG/FB split percentages (10.8% / 89.2%)",
+          "watchRatio (8 / 18.83; range 0.425-0.444)",
+          "visualTimeline (reconstructed from the unverified local REP-2 family)"
+        ],
+        "estimated": [
+          "retentionCurve and retentionAtEnd (graph shape)",
+          "postedAt (inferred from the views-graph start; exact time unverified)"
+        ],
+        "userReported": [
+          "'opening is context not anomaly' analysis, component verdicts, capturedAt (Leon/Codex 2026-07-16)"
+        ],
+        "unverified": [
+          "sourceFile — exact posted export (closest local match: REP-2-captions-export-v3-leveled.mp4)",
+          "platform scope of engagement counts/rates and of avgWatchTime — IG-only vs IG+FB not labeled",
+          "reachAccounts surface — IG-only vs combined"
+        ]
+      },
+      "verdict": "NOT a creative win despite 2,073 combined plays: FB supplied ~89%, IG only 224 (≈ Third Man's 240 → no IG reach breakout), and every high-intent action = 0. Retention pins the failure to the OPENING: ~45% gone by ~3s, then the curve stabilizes (~7-9s onward) → the subject was not the problem, the context-first scroll-stop was. Improved avg viewing DEPTH over the older boat posts but did NOT solve their shared opening problem. REJECTED (causal, repeated evidence): context-first opening, static beauty as scroll-stop, combined-total-as-success. OBSERVED FACT: every high-intent action (share/save/comment/repost/follow) was 0. PROVISIONAL inference (NOT causally proven — the opening failure also shrank the audience that reached the payoff): the payoff may not have produced enough repeatable/social value. NOT REJECTED: the Dead Water topic. vs Third Man (240 IG / 38.6% skip / ~59.5% watch / real shares+saves+comments) → Dead Water (224 IG / 58.5% skip / ~42.5% watch / zero high-intent)."
     }
   ]
 }

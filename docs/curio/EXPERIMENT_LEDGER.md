@@ -123,6 +123,47 @@ rule_action:       # none | created PROVISIONAL | promoted CONFIRMED | rejected
 - rule_action: REJECTED — "lengthening a weak format" and "changing hook,
   duration, visuals, pacing and CTA simultaneously in a retry".
 
+## EXP-202607-16-07 — Dead Water / "In the Arctic" (Instagram + FB crosspost)
+
+- date: ~2026-07-16 (inferred from the views-graph start; exact posting time unverified)
+- platform: instagram (crossposted to Facebook)
+- topic: "dead water" — a ship mysteriously slowed/held by sub-surface internal waves (strange-science)
+- length_seconds: ~18 (screenshot); local closest-match REP-2 exports = 18.83s / 1080x1920@30
+- source_file: **UNVERIFIED** — closest local visual match `REP-2-captions-export-v3-leveled.mp4`.
+  v1/v2/v3 (+ -leveled) share the same underlying master, duration, and imagery, but their caption
+  treatments are NOT visually identical; the exact posted export is undeterminable without upload
+  evidence
+- opening_frame: atmospheric Arctic ship + "IN THE ARCTIC" title — geographic/atmospheric CONTEXT,
+  NOT the anomaly (the impossible premise is not on screen at t=0)
+- hook_wording: "In the Arctic…" location framing; the "dead water" contradiction arrives late
+- visual_mechanic: mostly-static beautiful ship composition; slow context-first setup
+- audio_style: atmospheric bed — −17.1 LUFS / LRA 1.8 / peak −5.1 dBFS (measured on the LOCAL
+  closest-match file ONLY; UNVERIFIED as the posted file)
+- metrics: **IG 224 + FB 1849 = 2073 combined** (FB 89.2% — combined total is NOT a win) ·
+  accounts reached 162 (scope ambiguous — do NOT use as a per-account denominator) · avg_watch 8s
+  (~42.5% of 18.83s; range 42.5–44.4% since IG shows only a rounded 0:18) · skip_rate 0.585
+  (directly shown on the screenshot) · retention ~55%@~3s → ~40%@5-7s → ~30%@9-10s → ~23-25%@end
+  (graph estimates) · likes 9 (0.6% displayed) · comments/shares/saves/reposts 0 · follows 0 ·
+  view sources: Reels tab 87.2% / Explore 9.6% / Stories 1.4% / Profile 0.5% / Feed 0.5%
+- interpretation: NOT a creative win despite 2,073 combined plays. IG 224 ≈ Third Man's 240 → no IG
+  reach breakout; every high-intent action (share/save/comment/repost/follow) = 0. The retention
+  curve pins the failure to the OPENING: ~45% gone by ~3s, then it stabilizes (~7-9s onward) → the
+  subject wasn't the problem, the context-first scroll-stop was. Mostly COLD traffic (87.2% Reels +
+  9.6% Explore) makes this a genuine new-viewer verdict, not a follower artifact. Improved viewing
+  DEPTH over the older boat posts (skip 58.5% vs 59.1/73.4%) but did NOT solve their shared opening
+  problem. Every high-intent action was zero. PROVISIONAL interpretation: the payoff may not have
+  created enough repeatable/social value, but the weak opening also reduced the audience that
+  reached it. vs Third Man (240 IG / 38.6% skip / ~59.5% watch / real shares+saves+comments).
+- confidence: medium (n small; source file unverified; retention values are graph estimates)
+- rule_action: REJECTED (causal, repeated evidence) — context-first opening (location/date/
+  atmosphere before the anomaly); static beauty as the scroll-stop mechanism; combined IG+FB total
+  as an IG creative signal. OBSERVED — every high-intent action was 0. PROVISIONAL (not causally
+  proven; the opening failure also shrank the audience reaching the payoff) — the payoff may lack
+  repeatable/social value; atmospheric stills may aid retention AFTER the premise lands (the later
+  curve is stable). NOT REJECTED — the Dead Water topic (failed at scroll-stop + outcome conversion,
+  not subject interest). Promoted the first-frame contradiction-hook preflight to the playbook
+  (CONFIRMED vs PROVISIONAL items split there).
+
 ## EXP-202607-02 — Jamais vu / MIRROR (factory local render v1, unpublished)
 
 - date: 2026-07-12
