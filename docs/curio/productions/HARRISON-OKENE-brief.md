@@ -98,6 +98,15 @@ not permission to copy narration, captions, visuals, music, or archive footage.
 > him into a pressurized bell. He spent two more days decompressing before he
 > could step outside.
 
+**LOCKED-AS-SPOKEN NOTE (2026-07-17, producer):** the narration Leon locked
+(take v2-A, per his direct instruction) speaks the script exactly as Leon
+pasted it: *"Harrison Okene was alive… one hundred feet down… breathing
+trapped air."* The "alive at one hundred feet," phrasing above entered this
+brief in a post-generation edit and does NOT match the locked audio (both are
+51 words; same verified facts). The locked take governs. If "at one hundred
+feet" is actually preferred, narration must be REGENERATED and re-auditioned —
+flag to Leon before any such regen.
+
 Exactly 51 words. Expected duration: roughly 18–20 seconds at a natural
 155–165 WPM. Do not pad to hit a reveal percentage.
 
