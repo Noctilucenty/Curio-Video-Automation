@@ -8,7 +8,11 @@ OpenAI = brain · ElevenLabs = voice · local ffmpeg = renderer · this DB = mem
 2. `docs/curio/VIRAL_PLAYBOOK.md` — confirmed/provisional/rejected rules.
 3. `docs/curio/CONTENT_ENGINE_STATE.md` — pipeline + where live counts come from.
 4. `data/viral-intelligence/` — structured trend findings (vidIQ + analytics).
-5. **Before any video PRODUCTION work**: `docs/curio/PRODUCTION_DOCTRINE.md` —
+5. `docs/curio/AUTOPILOT_REVIEW_PROTOCOL.md` — mandatory producer/reviewer
+   roles, approval gates, audio-first workflow, speed policy, artifact handoff,
+   and learning discipline. Read it before researching, scripting, generating,
+   reviewing, captioning, exporting, or ingesting analytics for a video.
+6. **Before any video PRODUCTION work**: `docs/curio/PRODUCTION_DOCTRINE.md` —
    locked production-quality lessons (REP-2's four review rounds). MANDATORY:
    every finished master runs `node tools/finalqa.mjs <mp4>` and passes ALL
    automated checks BEFORE going to any reviewer. Production-defect lessons
