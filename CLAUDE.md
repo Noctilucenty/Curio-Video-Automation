@@ -41,8 +41,12 @@ Renders: ONE process, ≤2 threads, RSS <750MB hard cap (see PRODUCTION_DOCTRINE
 
 ## Hard rules
 - Model: newest full-strength GPT — currently the `gpt-5.6` alias (flagship
-  gpt-5.6-sol). Leon's call 2026-07-12: best quality over cost; never mini/nano
-  for content decisions. (The main curio app's card engine keeps its own model
+  gpt-5.6-sol). Leon's call 2026-07-12: best reasoning quality; never mini/nano
+  for content decisions. This does NOT authorize unlimited visual-generation
+  spend: as of 2026-07-17, Veo is not the default and multi-clip Veo batches are
+  rejected. Use Seedance-2 via vidIQ for at most one indispensable hero-motion
+  clip, then `gpt-image-1` plates/licensed stock plus local animation unless a
+  brief explicitly justifies another provider. (The main curio app's card engine keeps its own model
   rule.) Reasoning is routed per task (src/llm.ts PURPOSE_REASONING): xhigh for
   fact-check, high for generation/judging/learning, low for parsing;
   deterministic checks (loudness, schema, caption limits) stay in CODE, never

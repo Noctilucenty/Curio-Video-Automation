@@ -5,8 +5,8 @@ Rule: do NOT wire overlapping providers in parallel (no Veo+Runway+Luma
 comparison loop). One primary per capability; fallbacks stay manual.
 
 Target stack:
-`vidIQ + YouTube/TikTok discovery → strongest reasoning model → Veo or
-licensed stock → ElevenLabs → ffmpeg/Captions → YouTube/Instagram analytics
+`vidIQ + YouTube/TikTok discovery → strongest reasoning model → licensed stock /
+gpt-image-1 plates / at most one Seedance hero → ElevenLabs → ffmpeg/Captions → YouTube/Instagram analytics
 → evidence ledger`
 
 ## 1. YouTube Data + Analytics APIs — HIGHEST PRIORITY
@@ -26,14 +26,20 @@ licensed stock → ElevenLabs → ffmpeg/Captions → YouTube/Instagram analytic
 - LEON PREREQS: IG Business/Creator account linked to a Facebook Page; Meta
   developer app; long-lived access token.
 
-## 3. Google Veo 3.1 (via Gemini API) — primary video generator
-- ONLY for hero shots stock can't provide: impossible historical scenes,
-  coherent underwater events, specific physical actions, consistent
-  recurring subjects.
-- Narration + real source audio stay OUTSIDE generated clips.
-- Runway = manual fallback if a specific shot fails. Luma: not wired.
+## 3. Controlled hero-motion generation — Seedance default, Veo exceptional
+- Current default for an indispensable hero-motion shot: Seedance-2 through the
+  live vidIQ connector, one proof clip before any continuation.
+- Default remainder: `gpt-image-1` plates, licensed stock, and local animation.
+- Veo 3.1 is NOT the factory default. Harrison v1 showed obvious AI appearance,
+  human/object hallucination, and high per-second cost across six clips. Use it
+  only as an explicitly justified exception for a non-human/object event that
+  simpler construction cannot teach.
+- Never batch multiple paid motion generations before the hero passes mobile
+  inspection. Narration and real source audio stay outside generated clips.
+- Runway and Luma remain manual fallbacks, not wired providers.
 - Docs: ai.google.dev/gemini-api/docs/veo
-- LEON PREREQS: Gemini API key with billing enabled.
+- Provider credentials/credits are checked only after the brief passes the
+  visual-complexity gate.
 
 ## 4. Shutterstock API — licensed production footage
 - Search/license/download with preserved asset IDs → license log becomes
@@ -55,6 +61,7 @@ licensed stock → ElevenLabs → ffmpeg/Captions → YouTube/Instagram analytic
   access is granted.
 
 ## Explicitly deferred / rejected for now
+- Veo as a default or multi-clip human-scene generator.
 - Runway, Luma as wired providers (manual fallback only).
 - Any additional general brainstorming model.
 - Broad competitor scraping via IG.

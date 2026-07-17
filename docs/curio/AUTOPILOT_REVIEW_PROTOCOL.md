@@ -191,6 +191,9 @@ Requirements:
   object/environment plates, diagrams, silhouettes, or licensed footage with
   controlled local motion. More API spend never justifies more identities,
   anatomy, props, or scene changes.
+- For the current factory, Seedance-2 via vidIQ is the preferred one-clip hero
+  motion path. Veo is an exception, not a default. A provider change never
+  expands the one-clip complexity budget.
 - Use a generated video clip only when motion itself carries the fact. If a
   still plate plus a push, reveal, mask, or simple physical animation teaches
   the beat, prefer that lower-risk construction.

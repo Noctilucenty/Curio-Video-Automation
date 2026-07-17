@@ -174,7 +174,8 @@ Deliver MP3, WAV, loop×2, stems, and measurements per
 Use the clean Third-Man principle: one impossible human action, then simple
 evidence. Do not build a six-clip human continuity chain.
 
-- **0–3s — only Veo human-action clip:** diver POV inside a freshly sunk modern
+- **0–3s — only generated human-action clip:** Seedance-2 via vidIQ, not Veo.
+  Diver POV inside a freshly sunk modern
   industrial wreck. A motionless hand suddenly closes around the diver's wrist.
   The actual grab-back—not an already-held grip—must read at 270×480.
 - **3–6s — still plate:** a recently capsized 2013 tugboat at roughly 100 feet,
@@ -192,9 +193,11 @@ evidence. Do not build a six-clip human continuity chain.
   swimming through open water. Return through darkness/diver light to the hero
   frame for the loop.
 
-Visual generation budget: one Veo clip plus three or four strong image plates.
-Animate plates locally. A second video clip requires a demonstrated fact that a
-plate cannot communicate.
+Visual generation budget: one Seedance-2 clip plus three or four strong
+`gpt-image-1` plates. Animate plates locally. A second video clip requires a
+demonstrated fact that a plate cannot communicate and explicit reviewer approval.
+Do not reuse any Veo/Veo-Fast frame from v1–v3, including the void, bell, or
+chamber crops; the approved audio is the only retained production asset.
 
 No gore, bodies, feeding animals, supernatural imagery, fake sonar/rings, or
 unlicensed archival material. If visuals are generated, disclose them as a

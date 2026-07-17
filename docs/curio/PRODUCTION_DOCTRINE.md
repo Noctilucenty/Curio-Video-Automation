@@ -530,3 +530,12 @@ Objective defects (wrong regardless of performance), same class as lessons 13–
   after 60 hours, and a bareheaded survivor moving through open water instead
   of the documented diving helmet. Stronger models must buy selection and
   restraint, not more scenes.
+- **Veo default rejected; Seedance hero-only (LOCKED, Leon 2026-07-17):** Veo's
+  six-clip Harrison pass looked conspicuously AI-generated, hallucinated rescue
+  objects/physics, and depleted prepaid credits quickly. Do not use Veo as the
+  factory default or rebuild a whole story with another video provider. For an
+  indispensable human-action hook, generate ONE Seedance-2 proof through vidIQ,
+  validate the decoded motion at 270px, and allow at most one targeted retry.
+  Finish with `gpt-image-1` plates/licensed stock and local animation. If two
+  hero attempts fail, fall back to a designed still/animation rather than
+  provider-hopping or batching.
