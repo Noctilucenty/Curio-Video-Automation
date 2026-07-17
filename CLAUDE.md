@@ -24,6 +24,17 @@ in TREND_INTELLIGENCE, and only reach `approved-patterns.json` / the rules DB
 after Curio's own posted results (or ≥2 independent outliers) support them.
 Separate observations, hypotheses, confirmed rules, rejected rules — always.
 
+## This machine (8GB Mac) — run heavy processes ONE AT A TIME
+Uncapped Node balloons into swap and macOS SIGKILLs it (exit 137) with no
+error output — repeated tsc/vitest deaths on 2026-07-14 cost an hour. The repo
+scripts are now hardened: `npm run typecheck` / `npm test` / `npm run build`
+carry `NODE_OPTIONS='--max-old-space-size=1408'`, tsconfig is `incremental`
+(cache in node_modules/.cache), and vitest.config.ts forces a single forked
+worker with no file parallelism. USE THE NPM SCRIPTS, not bare `npx tsc`/`npx
+vitest`. Never run two of tsc/vitest/ffmpeg-render at once; check for other
+sessions' node processes (`ps aux | grep node`) before starting a heavy one.
+Renders: ONE process, ≤2 threads, RSS <750MB hard cap (see PRODUCTION_DOCTRINE).
+
 ## Hard rules
 - Model: newest full-strength GPT — currently the `gpt-5.6` alias (flagship
   gpt-5.6-sol). Leon's call 2026-07-12: best quality over cost; never mini/nano

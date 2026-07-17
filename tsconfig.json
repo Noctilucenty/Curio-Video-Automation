@@ -5,6 +5,8 @@
     "moduleResolution": "NodeNext",
     "outDir": "dist",
     "strict": true,
+    "incremental": true,
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

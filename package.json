@@ -6,10 +6,10 @@
   "description": "Curio short-form video automation: OpenAI = brain, HeyGen = renderer, DB = memory + learning loop",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "NODE_OPTIONS='--max-old-space-size=1408' tsc -p tsconfig.json",
     "start": "node dist/src/server.js",
-    "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "test": "NODE_OPTIONS='--max-old-space-size=1408' vitest run",
+    "typecheck": "NODE_OPTIONS='--max-old-space-size=1408' tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "express": "^5.2.1"
