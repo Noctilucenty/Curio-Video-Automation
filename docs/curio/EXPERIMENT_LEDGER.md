@@ -200,3 +200,87 @@ rule_action:       # none | created PROVISIONAL | promoted CONFIRMED | rejected
   licensed bed, structural SILENCE GATE on every render). Strategy note:
   static cards = SECONDARY save-format; atmospheric mystery narrative remains
   Curio's PRIMARY format bet.
+
+---
+
+## EXP-202607-18-01 — HARRISON OKENE (posted Reel) — analytics ingest
+- source_identity: posted imagery matches `data/productions/HARRISON-OKENE/preview-okene-v3.mp4`
+  with HIGH confidence. Screenshot shows captions NOT present in that local source →
+  the exact uploaded captioned export is **UNVERIFIED**. Do NOT identify v5 as posted.
+- do_not_modify: the posted Harrison video is frozen. No rebuild, no repost.
+
+### OBSERVED (from supplied screenshots — platform-separated, mandatory)
+- Combined views: 4,174  (NOT an optimization target)
+- **Instagram views: 176**
+- **Facebook views: 3,998**
+- Skip rate: 36.5%   (better than Third Man's 38.6%)
+- Average watch time: 13 s
+- Accounts reached: 113 — **platform scope AMBIGUOUS**
+- Likes 20 · Comments 0 · Reposts 0 · Shares 0 · Saves 0 · Follows 0
+- IG traffic: Reels tab 85.5% · Explore 8.1% · Stories 2.9% · Feed 2.9%
+- IG retention curve (screenshot-ESTIMATED): ~75% @2s, ~55% @4s, ~45% @7s,
+  ~35% @12s, ~33% at end
+
+### DERIVED
+- Facebook supplied ~95.8% of combined plays.
+- Avg-watch ratio ≈ 66.2% against the matching local runtime 19.633s; IG displays a
+  rounded 0:19 → preserve a plausible range ~66–68%.
+- **Do NOT compute** views-per-account or engagement rates from combined totals —
+  the platform scope of reach / avg watch / engagement surfaces is not labeled.
+
+### Interpretation — the THREE GATES
+| Gate | Result |
+|---|---|
+| Scroll-stop | PASS (36.5% skip, best yet) |
+| Retention | PASS/partial (66% avg watch, ~33% end) |
+| **Advocacy** (send/save/comment/follow) | **FAIL — all zero** |
+Instagram tested it in discovery (85.5% Reels tab + 8.1% Explore) and it stopped
+people. Zero high-intent actions LIKELY CONTRIBUTED to the plateau at 176 — but this
+is PROVISIONAL, not proven: visual quality (visible AI artifacts), audience matching,
+and the possibility that a 270x480 source was uploaded are plausible contributors too. Facebook ran a much larger distribution test (3,998) but also
+produced zero advocacy → exposure, not audience advocacy.
+Possible additional constraint (NOT concluded): the matching v3 source is only
+270×480; if a low-res file was uploaded, IG de-prioritizes low-resolution Reels.
+Posted export unverified → possibility only.
+
+### rule_action
+Format is worth repeating; the Veo execution is not. See VIRAL_PLAYBOOK
+(CONFIRMED/PROVISIONAL/REJECT) and PRODUCTION_DOCTRINE (visual-credibility +
+transferable-payoff rules) — no duplicate document created.
+
+### CHECKPOINT 2 — 2026-07-19 (time-series; checkpoint 1 above is PRESERVED, not superseded)
+The post is LIVE and actively growing on Facebook. DO NOT edit/delete/rebuild/
+repost/boost/disturb it.
+- **Facebook views: 26,165** (was 3,998 on 2026-07-18 → ~6.5× in ~1 day)
+- **Instagram views: 178** (was 176 → +2; the IG non-follower test plateaued)
+- Combined: 26,343 (NOT an optimization target). Facebook now supplies ~99.3%.
+- **Reactions: 153** (was 20 likes on the IG header at checkpoint 1). Platform
+  scope of the 153 figure is AMBIGUOUS (FB-dominant likely given the view split)
+  → NOT written to the IG learning stream.
+- Displayed shares / saves / reposts / comments / follows: still ZERO.
+- CAVEAT (Facebook Help Center): FB counts a Reel "view" at **1 ms** of playback
+  — 26,165 FB views are NOT 26,165 meaningful watches. Only FB-native retention
+  can grade watch quality, and we do not have it yet (see below).
+- **FB-native insights: BLOCKED.** META_ACCESS_TOKEN confirmed expired
+  2026-07-14 14:00 PDT (Graph API OAuthException 190/463 re-tested 2026-07-19).
+  Waiting on Leon to renew with pages_show_list + pages_read_engagement +
+  read_insights and select the Curio Page. Until then NO FB reach, 3s views,
+  watch time, retention, completion, follower split, recommendation sources,
+  native shares/comments, or Page follows exist in our records — and IG-scoped
+  retention/reach/watch-time MUST NOT be used to explain FB distribution.
+
+### UPLOAD IDENTITY — verification run 2026-07-19 (remains UNVERIFIED)
+- Leon confirmed the posted Reel **starts with the glitchy (Veo) hand** →
+  frame-zero matches the **v3 lineage** (local `preview-okene-v3.mp4`,
+  270×480@30, 19.633 s), NOT v4/v5's designed two-state grab.
+- The only local captioned exports are v5-based and are RULED OUT by frame-zero
+  comparison: repo v5 captioned family + the Captions.ai export found at
+  `~/Downloads/a_hand_inside_the_wreck…_20260717_1717.mp4` (1080×1920@30,
+  19.633 s — v5 imagery; SSIM vs v5 0.97 at t=3 s, vs v3 0.87; frame-0 visual
+  match to v5).
+- No captioned v3 export exists on this machine (Downloads, iCloud Drive,
+  samples/ swept). The exact uploaded captioned MP4 was NOT obtained →
+  **posted-export identity stays UNVERIFIED**; posted resolution and audio
+  loudness unknown (if captioned via the Captions.ai app without re-mux, audio
+  is likely renormalized to ≈ −13.3 LUFS; the 270×480 source-resolution
+  hypothesis for IG suppression stays a hypothesis).

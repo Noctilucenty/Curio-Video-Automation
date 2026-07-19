@@ -1,5 +1,20 @@
 # Production doctrine (LOCKED) + final-video QA (MANDATORY)
 
+> **LIVING DOCUMENT — LAST UPDATED 2026-07-19.**
+> This doctrine is always learning and REPLACING, but **date does not decide truth.**
+> SUPERSESSION RULE: *New evidence supersedes an older rule ONLY when it is
+> demonstrably stronger, or when Leon explicitly changes a standing product
+> decision. Date breaks ties only WITHIN the same evidence tier; it never
+> outranks LOCKED/CONFIRMED evidence.* When replacing a rule, record: the
+> replaced rule, the replacement, the reason, the evidence, and the date.
+> Every reviewer round (Codex/Leon) is RECORDED immediately, but recording is
+> NOT promotion — a new observation enters as PROVISIONAL and only becomes
+> LOCKED/CONFIRMED under the playbook's promotion standard. Preserve
+> CONFIRMED / PROVISIONAL / REJECTED discipline at all times.
+> Current rules 1-55 (+ addenda 43a/46a). Latest round recorded: Codex
+> BRINE-POOL v3 caption repair + one-line-opening proof (2026-07-18).
+
+
 Distilled from REP-2 Dead Water's four review rounds (2026-07-13/14). These are
 **production-quality lessons**: the defects they prevent are objectively wrong
 (a broken matte or false silence is a bug, not a taste question), so they lock
@@ -303,7 +318,13 @@ what follows is the transferable principle.
     resolved operations are persisted with the result so the no-trim guarantee
     is auditable after the fact.
 
-32. **Never silently fall back to auto-transcription.** If the caption provider
+32. **[SUPERSEDED 2026-07-18 -> #53 (Captions.ai requirement)] Never silently fall back
+    to auto-transcription.** SUPERSEDING RULE: see **#53** below (the actual
+    Captions.ai requirement). #45 is tool HONESTY and is a different rule. What
+    survives from #32: never silently substitute a tool, and always disclose caption
+    limitations.
+    ORIGINAL TEXT FOLLOWS (historical):
+32-orig. **Never silently fall back to auto-transcription.** If the caption provider
     can only auto-generate captions from the audio (no custom track, no reveal
     timing — e.g. the current Mirage `/v1/videos/captions` contract), running it
     on a curated locked master would dump the transcript and spoil the designed
@@ -539,3 +560,249 @@ Objective defects (wrong regardless of performance), same class as lessons 13–
   Finish with `gpt-image-1` plates/licensed stock and local animation. If two
   hero attempts fail, fall back to a designed still/animation rather than
   provider-hopping or batching.
+
+## Autopilot production rules (LOCKED, added 2026-07-18)
+From the posted Harrison Reel (EXP-202607-18-01) + the BRINE-POOL v1 NO-GO.
+These are producer-side rules; violating them fails creative QA even when every
+automated check passes. **Technical QA passing is NOT creative approval.**
+
+39. **A COMPLETE visible contradiction or piece of evidence on frame zero.** The
+    anomaly must be understandable immediately, without narration and without
+    waiting. Require physical MOTION only when motion itself carries the fact —
+    Third Man proves a static but instantly-legible anomaly also works. What is
+    CONFIRMED is frame-zero comprehension; "must be a moving event" is NOT.
+
+40. **Visual credibility beats visual ambition.** Prefer, in order: real/licensed
+    footage → controlled compositing → designed still motion → ONE tightly
+    constrained generated hero shot. Never batch generated human action.
+    **No generated hand/contact/face scene ships unless anatomy, object continuity
+    and contact physics are inspected at MOBILE size at least every 0.25s** — a
+    contact sheet is not an inspection. Harrison's posted footage fused fingers,
+    intersected a wrist through a wall, and morphed the vessel; darkness hid it at
+    feed speed but it is not production quality.
+
+41. **Deliver genuine 1080×1920 sources. Never upload/upscale a 270×480 preview
+    master.** Low-resolution Reels are explicitly de-prioritized by IG.
+
+42. **A new clue or consequence every ~1.5–2.5s. No beat may idle 4–5s.** A slow
+    push on the SAME still is not a new clue (extends doctrine 20).
+    **One plate carries at most ~2 beats** — N distinct claims need N distinct
+    images or a genuinely new framing that teaches something new.
+
+43. **RUNTIME IS LOCKED FIRST, then the script is written to it.**
+    word_budget = target_seconds x MEASURED_voice_WPM / 60.
+    LESSON: BRINE v2 assumed 165 WPM and wrote 42 words for a 15s target; the voice
+    actually delivered **144.9 WPM** → 17.39s (out of spec). eleven_v3 has NO speed
+    control, so the ONLY lever is word count. Measure the voice's real WPM on the
+    actual script, then re-cut words and regenerate. Never ship out-of-spec runtime.
+
+44. **The FACT GATE is a QUALIFIER gate.** Copy the source's hedge verbatim —
+    "some", "can", "barely", "most". Strengthening a hedge is a REJECT even when the
+    gist is true, and the producer may NOT label such a clause VERIFIED.
+    (BRINE v1: source "does not EASILY mix" → script "never mixes"; caption deleted
+    "most" → "NEVER COME BACK"; "fall in and it can kill you" implied proven HUMAN
+    lethality when the evidence concerns marine animals.) Captions must carry the
+    same qualifiers as the narration — a caption may not be stronger than the VO.
+
+45. **Tool honesty.** Never describe output as produced by a tool that was not used
+    (BRINE v1 rendered custom Arial cards and called them "Nova-style"). If a
+    required tool cannot meet a spec, say so and stop — do not substitute silently.
+
+46. **Silence must have motion under it.** A deliberate pause only builds tension if
+    the IMAGE is changing; silence over a static plate reads as a stall and risks
+    abandonment. Cap pre-reveal silence at ~0.35–0.50s.
+
+47. **The payoff must be a TRANSFERABLE SENTENCE.** End on something a viewer can
+    repeat to another person ("the rescue itself could have killed him"), not
+    procedural closure ("he spent two more days decompressing"). Advocacy — sends,
+    saves, comments — is the gate that buys distribution; watch time alone does not.
+    Judge every video on three separate gates: **scroll-stop / retention / advocacy.**
+
+### Addenda to rules 43 & 46 (measured 2026-07-18, BRINE-POOL v2)
+- **43a — voice WPM is NOT constant; iterate empirically.** Same voice, same topic:
+  42 words → 144.9 WPM (17.39s); 36 words → 132.7 WPM (16.28s); 35 words with
+  tighter punctuation ("sinks, barely mixing" instead of "sinks... barely mixing")
+  → 143.8 WPM (14.60s). Ellipses and long sentences slow eleven_v3 measurably.
+  Budget words from the LAST measured WPM, regenerate, and re-measure — do not
+  trust a single estimate.
+- **46a — MEASURED silence != inserted silence.** A 0.40s insert measured 0.728s
+  because the bed's drone envelope ramped back too slowly after the gate. Always
+  `silencedetect` the FINAL master and tune the bed's return so the measured span
+  matches the spec; the insert length alone is not the deliverable's silence.
+
+## Autopilot rules 48–51 (LOCKED, added 2026-07-18 from the BRINE-POOL v2 NO-GO)
+
+48. **Distinct FILES are not distinct BEATS.** Variety is measured by what the
+    viewer LEARNS per beat, never by counting cuts or plate filenames. If two
+    plates read as "the same subject from a slightly different angle", they are
+    ONE beat. BRINE v2 shipped 8 cuts across 3 plates that all communicated
+    "a circular pool" for the first 8.5s — rejected. When a stretch needs a new
+    idea, change the SUBJECT or the VIEWPOINT CLASS (e.g. top-down pool ->
+    side-view density boundary), not the crop.
+
+49. **Preserving a locked asset perfectly can preserve its DEFECTS.** Audio
+    correlation 1.0000 proves the audio is UNCHANGED — it is not a quality
+    signal and must never be presented as one. Re-audition the loop seam on every
+    build: measure open-vs-end RMS at 50/100/200/300ms and level-match to ~2–4 dB
+    (100ms+). BRINE v2 carried a 17.5 dB @50ms / 10.1 dB @100ms restart jump
+    while reporting "corr 1.0000" as a pass.
+
+50. **Never compress a script past its antecedents.** Trimming words to hit a
+    runtime budget must remove whole IDEAS, never the grammatical spine.
+    "Their water is so dense with salt it sinks" -> "So dense with salt it sinks"
+    saved 3 words and orphaned the clause; the narration then read as disconnected
+    facts instead of one escalating revelation.
+
+51. **The opening caption must be a COMPLETE THOUGHT on frame zero.** Not the
+    first fragment of a sentence that completes a second later. If the caption
+    tool starts at the first spoken word, the opening card must be authored so the
+    contradiction is whole immediately (e.g. "LAKES BENEATH / THE OCEAN"), because
+    the image alone may not carry it (v2's opening read as "a dark crater").
+
+## Rule 52 (LOCKED 2026-07-18) — Captions.ai grouping is NOT punctuation-aware
+Captions.ai splits caption cards by only three levers: **words per line**,
+**character count**, and **pause seconds**. NONE of them respect sentence
+punctuation. Empirically proven on BRINE-POOL v3 across three configurations:
+- pause 0.40 + char 10  -> cross-sentence runs AND 3-line cards
+- words/line 2 + char 22 -> clean 2-line cards, no orphans, but STILL cross-sentence
+- pause 0.10             -> splits at nearly every word = single-word ORPHANS
+Root cause: pause-splitting can only find a sentence end if the NARRATION contains a
+gap large enough. A continuous eleven_v3 read (0 resets, max word gap ~0.107s) has
+no such gap, so sentence-aligned grouping is IMPOSSIBLE in the app.
+
+**THE FIX IS UPSTREAM, IN THE NARRATION:** if captions must break on sentences,
+generate the VO with real inter-sentence pauses (~0.35-0.45s, e.g. an explicit
+break/ellipsis at each sentence end), then set Captions.ai `Pause seconds` just
+below that value. Decide this BEFORE locking audio — it cannot be fixed at the
+caption stage. Otherwise accept cross-sentence cards as a known Captions.ai limit
+and disclose it.
+Working Nova config for 2-4 words / max 2 lines / no orphans:
+words-per-line 2 · character count 22 · lines-per-page 2 · page-breaks 2 ·
+alignment Center · pause 0.40 · phrase Start time forced to 0.000 (frame-0 caption).
+
+
+## Rule 53 (LOCKED 2026-07-18) — CAPTIONS.AI IS THE CAPTION TOOL, and the quality gate stands
+Leon standing product decision: captions are produced in the **real Captions.ai app**
+(Captions mode, AUTO-TRIM OFF, AI-edit/restructure OFF), and the best-performing
+style/font for retention is chosen. Grouping and timing that matter are **manually
+corrected in-app** (Style -> Edit Style -> Paragraph tab: words-per-line, character
+count, pause seconds, lines-per-page; plus the phrase Properties Start/End time).
+**Captions.ai limitations are NOT permission to lower the quality gate.** If the app
+cannot preserve comprehension, factual wording/qualifiers, the engineered silence, or
+reveal timing, STOP and report a CAPABILITY BLOCKER — do not ship a degraded caption
+track and do not silently substitute another engine (see #32, #45).
+Supersedes the old "refuse auto-caption providers" path in #32.
+
+## PROVISIONAL — timing heuristics NOT yet validated (do not treat as LOCKED)
+The following are working hypotheses awaiting repeated Curio analytics. Recorded, not
+promoted (see the supersession rule in the header):
+- the 1.5–2.5s "new clue / visual change" interval
+- the exact engineered-silence duration range (0.35–0.50s)
+- the socially-transferable-payoff placement/timing
+Comprehension and factual accuracy OUTRANK all three. Never weaken grammar, factual
+clarity, pacing or payoff to satisfy one of these numbers (e.g. BRINE v3's 16.057s
+runtime and honest 68.1% reveal are ACCEPTED, not defects).
+
+## Rule 54 (LOCKED 2026-07-18) — STATE AUDIO LINEAGE EXPLICITLY
+Caught by Codex on BRINE-POOL v4: I reported "kept the approved performance, no
+re-recording" when the speech had in fact been **regenerated** for a new script.
+Silence insertion cannot change or reorder spoken words — the claim was impossible
+on its face.
+
+Every audio delivery MUST state, in one line, which of these happened:
+- **REGENERATED** (new TTS call) — give voice/model/settings and what was preserved
+  (voice + tone direction is NOT the same as preserving the approved audio);
+- **SPLICED** (assembled from >1 take) — give every source take;
+- **REUSED** (byte-identical prior master) — give the SHA;
+plus any post edits (silence inserts, trims, level moves), the source **SHA-256**,
+and the final-master **ASR** result. Persist it in a per-production
+`AUDIO-LINEAGE.md`.
+"Preserved the performance" may ONLY be said when the delivered audio contains the
+previously approved samples. Preserving voice/settings/tone is "same voice and
+direction, regenerated" — say it that way. This is the audio counterpart of #45
+(tool honesty): never let a summary imply provenance the artifact does not have.
+
+
+## Rule 55 (LOCKED 2026-07-18) — THE CAPTIONS.AI WORKING PROCEDURE
+Discovered/proven on BRINE-POOL. Style-level settings alone CANNOT produce correct
+grouping; the real controls are per-WORD. Follow this order.
+
+**55.1 — VERIFY THE TRANSCRIPT AGAINST THE LOCKED SCRIPT. ALWAYS.**
+Captions.ai runs its own ASR and it CAN INTRODUCE FACTUAL ERRORS. On BRINE it heard
+"Some are **deadly**" as "Some are **dead lakes**" and would have burned that wrong
+caption into the video. Our own `gpt-4o-transcribe` QA had the audio right — the
+defect was Captions.ai's transcript, not the voice. **Diff the Phrase text against
+the locked script word-for-word BEFORE export.** Treat any mismatch as a factual
+blocker, not a typo.
+
+**55.2 — The WORD panel is the precise control.** Click any word in the caption
+track to open it. It gives: an EDITABLE text field (fix ASR errors here),
+**Breaks = None / Auto / Line Break / Page Break**, Focus = Supersize / Emphasize /
+Underline, and **Delete word** (use for orphans left by an ASR fix).
+
+**55.3 — Deterministic sentence grouping:** set **Page Break** on the FIRST word of
+each sentence. This forces sentence-aligned cards and does NOT depend on the
+pause-threshold heuristic. Combine with the upstream VO sentence pauses (#52) for a
+belt-and-braces result.
+
+**55.4 — One-line hook:** Nova renders line 2 only as its first word approaches, so
+a 2-line opening card cannot show the complete premise early (BRINE: complete only
+at 0.90s). Set **Breaks = None** on the last word of the opening sentence to keep it
+on ONE line — the full premise then renders from ~0.10s. MEASURED: this cost ZERO
+font shrink (glyph height 17px at 270x480 both ways; width 238px = 88% of frame, no
+clipping) and left later cards byte-identical.
+
+**55.5 — Judge font size by MEASUREMENT, not eye.** Compare glyph-block pixel height
+on frames scaled to a true 270x480 before accepting/rejecting a caption change.
+
+**55.6 — The style picker grid SHIFTS.** Clicking a card body switches the style
+(BRINE accidentally flipped to Cove, then to the brand-banned Arion Pink twice).
+Always screenshot before clicking, click the PENCIL not the card, and re-verify the
+style name in the Phrase panel afterwards.
+
+**55.7 — Always re-mux the locked audio** after export (Captions.ai renormalises:
+observed -13.2 to -13.5 LUFS), then re-verify duration, frame count, audio
+correlation and the engineered silence.
+
+---
+
+## 56 — The VO MUST carry a LOOP BREATH after the final word (LOCKED, 2026-07-19)
+
+**Evidence: BRINE-POOL v4 caption verification.** The v4 audio was built with
+`TAIL = 0.0` — the last word "edges" ended at 17.040s in a 17.040s file. The final
+caption therefore had nowhere to clear into: measured at exported frames, it was
+still fully lit at 16.95s with the video ending at 17.033s → **ZERO clean frames
+before the loop restarted.** The loop cut from a full caption card straight back to
+the opening card, which reads as a glitch, not a loop.
+
+**Rule:** end every looping VO with a **0.25–0.35s bed-only breath** after the last
+spoken word (BRINE v5 uses 0.30s). Requirements:
+- The BED continues through the breath — silence under silence kills the loop.
+  (BRINE v5: last 300ms RMS −17.2 dB, bed only, peak 0.578, no speech.)
+- The VISUAL must be extended to cover it, landing on the **returned frame-0** so the
+  restart is image-identical. Extend the freeze/return hold; do not just let
+  `-shortest` trim — that silently truncates the new audio instead.
+- Verify by INK COUNT on exported frames, not by eye: bright-pixel count in the
+  caption band must go to 0 before the last frame. BRINE v5 measured 45,538 at
+  f510 → **0 at f511 (17.033s)**, clean through f519 — a 0.307s clean return.
+
+This is now part of the runtime budget: a 17.0s target means ~16.7s of speech.
+
+## 57 — When only the TAIL changes, SPLICE — do not re-run Captions.ai (LOCKED, 2026-07-19)
+
+Re-uploading to Captions.ai re-runs its ASR, and its ASR has already introduced a
+FACTUAL error once ("Some are deadly" → "Some are dead lakes", #55.1). **Never pay
+that risk for a change that does not touch the captioned region.**
+
+If the fix is confined to the tail (or any region with no captions), splice:
+`[0:v]trim=end_frame=N` from the VERIFIED captioned export + `[1:v]trim=start_frame=N`
+from the re-rendered clean master, concat, then mux the locked audio. The Captions.ai
+Word-panel work (page breaks, one-line hook, per-word text fixes) is preserved
+byte-for-byte and no new transcript can be introduced.
+
+Safe because: the `noise=allf=t` grade is TEMPORAL — it already changes every frame,
+so a noise discontinuity at the splice point is invisible. Content identity, not
+pixel identity, is what must hold. Re-verify after splicing anyway: frame count,
+duration, `audio corr vs LOCKED = 1.0000`, LUFS/peak, and the caption ink count.
+BRINE v5: 520f / 17.333s / corr 1.0000 / −16.0 LUFS / −1.6 dBFS.
+

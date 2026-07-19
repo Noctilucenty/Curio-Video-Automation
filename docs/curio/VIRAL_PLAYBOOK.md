@@ -1,5 +1,10 @@
 # Curio viral playbook
 
+> **LIVING DOCUMENT — LAST UPDATED 2026-07-18.** Always learning and REPLACING:
+> supersede stale rules in place, never leave two contradictory entries.
+> Latest evidence folded in: posted Harrison Reel analytics (EXP-202607-18-01).
+
+
 Rules live in three states. Promotion discipline (from CLAUDE.md): observation →
 metric → comparison vs prior evidence → CONFIRMED / PROVISIONAL / REJECTED →
 this file + the factory rules DB updated. Every rule cites its evidence.
@@ -282,3 +287,45 @@ Curio's own publishing analytics confirm them:**
   disturbing consequence -> named reveal -> unanswered mystery). Build from the strongest
   DOCUMENTED case, disclose its evidence class (caregiver-reported, not clinical), invent
   nothing (no names/dialogue/medical detail/time spans).
+
+---
+
+## Harrison Okene posted-Reel evidence (2026-07-18) — see EXP-202607-18-01
+
+### THE THREE GATES (adopt as the standard judging frame)
+A video is judged on three SEPARATE gates, never one blended "it did well":
+1. **Scroll-stop** — skip rate / 3s hold.
+2. **Retention** — avg watch, end retention.
+3. **Advocacy** — sends/shares, saves, comments, follows.
+Harrison PASSED 1 and 2 and FAILED 3 (all zero) — Zero sends LIKELY CONTRIBUTED to the limited Instagram expansion (176 views).
+Sends are a major expansion signal, not the only possible cause — visual quality,
+audience matching and a low-resolution source remain plausible contributors. Watch time alone
+does not buy distribution; **sends** are the expansion signal.
+
+### CONFIRMED (repeated across Curio results)
+- Put the complete physical contradiction/anomaly on **frame zero**.
+- Human danger + an impossible *visible action* is a strong scroll-stopper.
+- Withhold the **explanation and the phenomenon's name** — never the premise.
+- Context-first atmospheric openings underperform anomaly-first openings.
+- Instagram and Facebook performance MUST always be recorded separately.
+
+### PROVISIONAL (await more evidence)
+- Real motion in the opening may outperform static atmosphere.
+- The hand-return loop may have supported completion.
+- Facebook may respond especially well to visceral true-survival stories.
+- Obvious AI anatomy/physics errors may reduce trust and high-intent actions.
+- The factual ending may have lacked the emotional/social currency needed for
+  shares or saves.
+
+### REJECTED (do not learn these)
+- "Veo is validated because the post got 4,174 views."
+- "Combined cross-platform plays prove Instagram virality."
+- "More generated motion is automatically better."
+- Promoting complex AI-generated hands/faces/human interaction into the default
+  production strategy.
+
+### The formula (restated)
+Stop them with an impossible event → reward them with an escalating explanation →
+**finish with a fact they feel compelled to send.** Procedural closure ("he spent
+two more days decompressing") ends the facts but earns no advocacy. Prefer a
+transferable sentence, e.g. "the rescue itself could have killed him."

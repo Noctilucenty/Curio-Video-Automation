@@ -390,6 +390,126 @@
         ]
       },
       "verdict": "NOT a creative win despite 2,073 combined plays: FB supplied ~89%, IG only 224 (≈ Third Man's 240 → no IG reach breakout), and every high-intent action = 0. Retention pins the failure to the OPENING: ~45% gone by ~3s, then the curve stabilizes (~7-9s onward) → the subject was not the problem, the context-first scroll-stop was. Improved avg viewing DEPTH over the older boat posts but did NOT solve their shared opening problem. REJECTED (causal, repeated evidence): context-first opening, static beauty as scroll-stop, combined-total-as-success. OBSERVED FACT: every high-intent action (share/save/comment/repost/follow) was 0. PROVISIONAL inference (NOT causally proven — the opening failure also shrank the audience that reached the payoff): the payoff may not have produced enough repeatable/social value. NOT REJECTED: the Dead Water topic. vs Third Man (240 IG / 38.6% skip / ~59.5% watch / real shares+saves+comments) → Dead Water (224 IG / 58.5% skip / ~42.5% watch / zero high-intent)."
+    },
+    {
+      "id": "posted-harrison-okene",
+      "title": "Harrison Okene (The Hand Grabbed Back)",
+      "category": "survival-true-story",
+      "postedAt": "2026-07-17",
+      "postedAtProvenance": "inferred — final deliverable built the evening of Jul 17 and first insights screenshots landed Jul 18; exact post time unverified",
+      "capturedAt": "2026-07-19",
+      "liveStatus": "LIVE and actively growing on Facebook as of 2026-07-19 — FROZEN: do not edit/delete/rebuild/repost/boost",
+      "platform": "instagram+facebook-crosspost",
+      "sourceFile": "unverified",
+      "sourceFileNote": "Posted frame zero = the glitchy (Veo) hand grab — Leon-confirmed 2026-07-19 — which matches the v3 lineage (local closest match: data/productions/HARRISON-OKENE/preview-okene-v3.mp4, 270x480@30, 19.633s). Screenshot shows captions NOT present in that local file, so the posted file is a captioned derivative that does NOT exist on this machine (Downloads/iCloud/samples swept 2026-07-19). All local captioned exports are v5-based and RULED OUT by frame-zero mismatch, including ~/Downloads/a_hand_inside_the_wreck…_20260717_1717.mp4 (1080x1920@30, 19.633s, v5 imagery). Posted resolution, captions, and audio loudness are therefore UNVERIFIED; if captioned via the Captions.ai app without a re-mux, audio was likely renormalized to ~-13.3 LUFS.",
+      "creative": {
+        "archetype": "true survival mystery; ANOMALY-FIRST opening — an impossible visible human action on frame zero",
+        "durationSeconds": 19.633,
+        "durationProvenance": "observed on the local v3 lineage (19.633s, shared by every Okene export); IG displays a rounded 0:19. Posted-file duration itself unverified.",
+        "resolution": "270x480@30 on the local v3 closest match — POSTED-FILE RESOLUTION UNVERIFIED",
+        "openingFrame": "a hand emerges from the dark wreck and grabs the diver back — physically impossible-looking human contact at t=0; visible AI defects in the generated hand (Veo lineage)",
+        "hookWording": "posted caption text UNVERIFIED; locked VO opens 'A hand inside the wreck grabbed the diver back'",
+        "premiseUnderstandableBySeconds": 2,
+        "visualTimeline": "hand-grab anomaly -> alive underwater -> 60 hours -> 100 feet down -> breathing trapped air -> engineered silence -> surfacing could kill him -> pressurized bell -> two more days decompressing (reconstructed from the v3-lineage production; posted export unverified)",
+        "reveal": "the rescue itself could have killed him — decompression as the second trap after the apparent rescue",
+        "audio": {
+          "integratedLufs": -16.2,
+          "truePeakDbfs": -3.0,
+          "provenance": "locked audio master QA values — POSTED-FILE audio unverified (Captions.ai app renormalizes to ~-13.3 LUFS if no re-mux was done)",
+          "style": "atmospheric bed + knocks + engineered silence 10.075-10.590s"
+        },
+        "cta": "unverified",
+        "producedWith": "factory v3 lineage (Veo hero motion) + unknown external captioning pass"
+      },
+      "analytics": {
+        "viewsTotal": 26343,
+        "viewsInstagram": 178,
+        "viewsFacebook": 26165,
+        "splitNote": "Checkpoint 2 (2026-07-19): IG 178 (0.7%) + FB 26,165 (99.3%) = 26,343. Combined total is NOT an optimization target; the importer writes the IG-only stream. FACEBOOK VIEW CAVEAT: Facebook counts a Reel view at 1 ms of playback, so the FB headline count is a distribution signal, not proof of meaningful watches.",
+        "reachAccounts": 113,
+        "reachScopeNote": "'113 accounts reached' (2026-07-18 screenshot) — platform scope AMBIGUOUS and clearly NOT Facebook-inclusive (26k views over 113 accounts would be absurd). Recorded as reachAccounts (surface unverified), NOT reachInstagram.",
+        "avgWatchTimeSeconds": 13,
+        "avgWatchScopeNote": "13s average watch, 36.5% skip, retention curve and view sources all sit on an Instagram-oriented insights surface (several graphs explicitly labeled Instagram-only). They may describe IG only and MUST NOT be used to explain Facebook distribution. FB-native retention/watch-time NOT yet captured (Graph API token expired; renewal pending).",
+        "watchRatio": 0.662,
+        "watchRatioProvenance": "derived 13s / 19.633s = 0.662; plausible range 0.66-0.68 (IG shows rounded 0:19)",
+        "skipRate": 0.365,
+        "retentionCurve": {
+          "at2s": 0.75,
+          "at4s": 0.55,
+          "at7s": 0.45,
+          "at12s": 0.35,
+          "atEnd": 0.33,
+          "provenance": "estimated from the IG retention graph shape (2026-07-18 screenshot) — approximate, Instagram-scoped"
+        },
+        "retentionAtEnd": 0.33,
+        "retentionAtEndProvenance": "estimated from graph shape — approximate, Instagram-scoped",
+        "likes": 20,
+        "comments": 0,
+        "shares": 0,
+        "saves": 0,
+        "reposts": 0,
+        "follows": 0,
+        "reactionsCombined": 153,
+        "engagementCountsNote": "likes=20 is the 2026-07-18 IG reel-header reading (scope unverified, consistent with prior posts). The 153 'reactions' figure (2026-07-19) is scope-AMBIGUOUS — almost certainly FB-dominant given the view split — and is deliberately NOT mapped to the IG likes field or the learning stream. EVERY high-intent action (share/save/comment/repost/follow) remains ZERO at both checkpoints.",
+        "viewSources": {
+          "reels_tab": 0.855,
+          "explore": 0.081,
+          "stories": 0.029,
+          "feed": 0.029
+        },
+        "viewSourcesNote": "Instagram-scoped top-sources card (2026-07-18): 85.5% Reels tab + 8.1% Explore = cold discovery test on IG; IG sampled it and stopped expanding.",
+        "checkpoints": [
+          {
+            "capturedAt": "2026-07-18",
+            "viewsInstagram": 176,
+            "viewsFacebook": 3998,
+            "viewsTotal": 4174,
+            "likesIgHeader": 20,
+            "shares": 0, "saves": 0, "comments": 0, "reposts": 0, "follows": 0,
+            "note": "checkpoint 1 — PRESERVED as time-series evidence, never overwrite"
+          },
+          {
+            "capturedAt": "2026-07-19",
+            "viewsInstagram": 178,
+            "viewsFacebook": 26165,
+            "viewsTotal": 26343,
+            "reactionsCombined": 153,
+            "shares": 0, "saves": 0, "comments": 0, "reposts": 0, "follows": 0,
+            "note": "checkpoint 2 — FB grew ~6.5x in ~1 day while IG added +2; FB supplies 99.3% of all plays"
+          }
+        ],
+        "facebookNativeInsights": "NOT CAPTURED — Graph API token expired 2026-07-14 (re-tested 2026-07-19, OAuthException 190/463). Pending Leon's renewal (pages_show_list, pages_read_engagement, read_insights, Curio Page selected). Required once available: unique reach/viewers, 3-second views, avg watch time + retention, completion rate, recommendation-vs-follower traffic, FB-native shares/comments, Page follows — plus 24h/72h/7d snapshots."
+      },
+      "provenance": {
+        "observed": [
+          "viewsInstagram (176 -> 178) and viewsFacebook (3,998 -> 26,165) — platform-separated checkpoints 2026-07-18 / 2026-07-19",
+          "reactionsCombined (153, scope ambiguous)",
+          "likes 20 / all high-intent actions 0 (IG header, 2026-07-18)",
+          "skipRate 36.5%, avgWatchTime 13s, viewSources — IG-oriented insights surface",
+          "duration/resolution/audio of LOCAL v3-lineage files only (posted file not obtained)",
+          "META token expiry (Graph API error re-tested 2026-07-19)"
+        ],
+        "derived": [
+          "watchRatio (13 / 19.633; range 0.66-0.68)",
+          "FB share of plays (95.8% -> 99.3%)",
+          "FB growth multiple (~6.5x between checkpoints)"
+        ],
+        "estimated": [
+          "retentionCurve / retentionAtEnd (IG graph shape)",
+          "postedAt (production timeline; exact time unverified)"
+        ],
+        "userReported": [
+          "checkpoint-2 numbers (FB 26,165 / IG 178 / 153 reactions) and 'still growing' status (Leon/Codex 2026-07-19)",
+          "posted Reel starts with the glitchy hand (Leon 2026-07-19) — basis for the v3-lineage identification"
+        ],
+        "unverified": [
+          "sourceFile — exact posted captioned export (v3-lineage confirmed by frame zero, file NOT on this machine)",
+          "posted resolution / caption text / audio loudness",
+          "platform scope of reachAccounts (113), avgWatchTime, skipRate, retention, engagement counts, and the 153 reactions",
+          "ALL Facebook-native retention/reach/watch metrics (token expired)"
+        ]
+      },
+      "verdict": "FACEBOOK DISTRIBUTION WINNER, NOT YET AN ENGAGEMENT OR CONVERSION WINNER. Three gates: [1] Scroll-stop PASS — best IG skip yet (36.5%) AND Facebook keeps widening recommendation (3,998 -> 26,165 in ~a day). [2] Retention PASS/partial on the IG-scoped surface only (~66% avg watch, ~33% end); FB-native retention unknown and the 1ms FB view definition inflates the headline. [3] Advocacy FAIL — zero shares/saves/comments/reposts/follows at 26k+ combined plays; 153 reactions is passive approval. IG plateaued at 178 while FB ran the distribution test — do NOT explain the FB growth with IG-scoped metrics. Frame-zero impossible human evidence + escalating single-story danger is the best current Curio opening pattern; the Veo hand defects and the procedural (non-transferable) ending are NOT to be repeated."
     }
   ]
 }

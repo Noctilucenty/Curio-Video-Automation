@@ -45,6 +45,15 @@
       "position": "lower-center, clear of faces/hands; max 2 lines.",
       "emphasis": "one active warm/cream word."
     },
+    "word_panel_procedure_2026_07_18": {
+      "transcript_verification": "MANDATORY: Captions.ai ASR can introduce FACTUAL errors (observed: 'Some are deadly' -> 'Some are dead lakes'). Diff the Phrase text vs the locked script before export; a mismatch is a factual blocker.",
+      "word_panel": "Click a word in the caption track -> editable text field + Breaks(None/Auto/Line Break/Page Break) + Focus(Supersize/Emphasize/Underline) + Delete word.",
+      "sentence_grouping": "Set Page Break on the FIRST word of each sentence = deterministic sentence-aligned cards, independent of the pause heuristic.",
+      "one_line_hook": "Set Breaks=None on the last word of the opening sentence so the full premise renders on ONE line from ~0.10s (Nova reveals line 2 late). Measured zero font shrink at 270x480.",
+      "upstream_pauses": "For pause-based splitting to find sentences, the VO must contain ~0.25-0.40s inter-sentence gaps - decide BEFORE locking audio.",
+      "style_picker_hazard": "The style card grid shifts; clicking a card body switches style (observed accidental Cove / Arion Pink). Click the pencil, then re-verify the style name.",
+      "post_export": "Always re-mux the locked audio (Captions.ai renormalises to ~-13.3 LUFS) then re-verify duration/frames/audio-corr/silence."
+    },
     "caption_requirements": "each phrase independent 2-4 words (never 1 unless the reveal token); old words gone before next; no captions during engineered silence; reveal caption clears before the loop-tail caption; loop-tail clears before the endpoint hold."
   },
 
