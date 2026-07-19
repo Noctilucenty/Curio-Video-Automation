@@ -396,8 +396,9 @@
       "title": "Harrison Okene (The Hand Grabbed Back)",
       "category": "survival-true-story",
       "postedAt": "2026-07-17",
-      "postedAtProvenance": "inferred — final deliverable built the evening of Jul 17 and first insights screenshots landed Jul 18; exact post time unverified",
+      "postedAtProvenance": "CONFIRMED — Business Suite shows 'Published on: Fri Jul 17, 7:54pm' (captured 2026-07-19). Also confirmed: post was created on Instagram and crossposted to Facebook ('Published by Instagram'). FB content_id 122119453365356339, Page 'TryCurio'.",
       "capturedAt": "2026-07-19",
+      "postedCaptionText": "A rescue diver entered a sunken tugboat expecting to recover bodies. Then, from the darkness, a hand reached out and grabbed him. Harrison Okene had survived nearly three days underwater, 100 feet below the surface, breathing from a tiny pocket of trapped air. Everyone thought he was dead. He was still waiting to be found. #booktok #psychology #mystery #iosapp #booktok",
       "liveStatus": "LIVE and actively growing on Facebook as of 2026-07-19 — FROZEN: do not edit/delete/rebuild/repost/boost",
       "platform": "instagram+facebook-crosspost",
       "sourceFile": "unverified",
@@ -422,14 +423,14 @@
         "producedWith": "factory v3 lineage (Veo hero motion) + unknown external captioning pass"
       },
       "analytics": {
-        "viewsTotal": 26343,
-        "viewsInstagram": 178,
-        "viewsFacebook": 26165,
-        "splitNote": "Checkpoint 2 (2026-07-19): IG 178 (0.7%) + FB 26,165 (99.3%) = 26,343. Combined total is NOT an optimization target; the importer writes the IG-only stream. FACEBOOK VIEW CAVEAT: Facebook counts a Reel view at 1 ms of playback, so the FB headline count is a distribution signal, not proof of meaningful watches.",
-        "reachAccounts": 113,
-        "reachScopeNote": "'113 accounts reached' (2026-07-18 screenshot) — platform scope AMBIGUOUS and clearly NOT Facebook-inclusive (26k views over 113 accounts would be absurd). Recorded as reachAccounts (surface unverified), NOT reachInstagram.",
+        "viewsTotal": 35978,
+        "viewsInstagram": 179,
+        "viewsFacebook": 35799,
+        "splitNote": "Checkpoint 3 (2026-07-19, Business Suite platform-labeled tabs): IG 179 (0.5%) + FB 35,799 (99.5%) = 35,978. Combined total is NOT an optimization target; the importer writes the IG-only stream. FACEBOOK VIEW CAVEAT: FB counts a Reel view at 1 ms of playback — but FB-native watch data now exists (avg 15s, 56% completion), so watch quality is no longer inferred from the headline.",
+        "reachInstagram": 113,
+        "reachScopeNote": "113 = Instagram reach, CONFIRMED platform-labeled on the Business Suite Instagram tab (2026-07-19). Earlier ambiguity resolved.",
         "avgWatchTimeSeconds": 13,
-        "avgWatchScopeNote": "13s average watch, 36.5% skip, retention curve and view sources all sit on an Instagram-oriented insights surface (several graphs explicitly labeled Instagram-only). They may describe IG only and MUST NOT be used to explain Facebook distribution. FB-native retention/watch-time NOT yet captured (Graph API token expired; renewal pending).",
+        "avgWatchScopeNote": "13s average watch CONFIRMED Instagram-native (Business Suite IG tab, 2026-07-19; IG total watch 27m52s). The 36.5% skip figure remains from the IG-oriented screenshot surface. IG metrics still MUST NOT explain Facebook distribution — Facebook now has its own native block below.",
         "watchRatio": 0.662,
         "watchRatioProvenance": "derived 13s / 19.633s = 0.662; plausible range 0.66-0.68 (IG shows rounded 0:19)",
         "skipRate": 0.365,
@@ -443,14 +444,13 @@
         },
         "retentionAtEnd": 0.33,
         "retentionAtEndProvenance": "estimated from graph shape — approximate, Instagram-scoped",
-        "likes": 20,
+        "likes": 1,
         "comments": 0,
         "shares": 0,
         "saves": 0,
         "reposts": 0,
         "follows": 0,
-        "reactionsCombined": 153,
-        "engagementCountsNote": "likes=20 is the 2026-07-18 IG reel-header reading (scope unverified, consistent with prior posts). The 153 'reactions' figure (2026-07-19) is scope-AMBIGUOUS — almost certainly FB-dominant given the view split — and is deliberately NOT mapped to the IG likes field or the learning stream. EVERY high-intent action (share/save/comment/repost/follow) remains ZERO at both checkpoints.",
+        "engagementCountsNote": "IG-NATIVE (Business Suite IG tab, 2026-07-19): interactions 1 — a single like; comments/shares/saves/reposts/follows all 0 on Instagram. SCOPE CORRECTIONS: the earlier 'likes 20' header reading was NOT IG-only (superseded); the 153-reactions figure from checkpoint 2 was FB-dominant (FB-native reactions now 185). Facebook advocacy is NOT zero: 4 shares + 8 saves (see facebookNative) — ~0.03% of FB views, so the advocacy gate is still WEAK relative to distribution, but 'all zero' is superseded.",
         "viewSources": {
           "reels_tab": 0.855,
           "explore": 0.081,
@@ -475,41 +475,93 @@
             "viewsTotal": 26343,
             "reactionsCombined": 153,
             "shares": 0, "saves": 0, "comments": 0, "reposts": 0, "follows": 0,
-            "note": "checkpoint 2 — FB grew ~6.5x in ~1 day while IG added +2; FB supplies 99.3% of all plays"
+            "note": "checkpoint 2 (morning, user-reported dashboards) — FB grew ~6.5x in ~1 day while IG added +2. The zeros here were dashboard displays; superseded in detail by checkpoint 3's platform-labeled capture."
+          },
+          {
+            "capturedAt": "2026-07-19T11:30-07:00",
+            "viewsInstagram": 179,
+            "viewsFacebook": 35799,
+            "viewsTotal": 35978,
+            "fbShares": 4, "fbSaves": 8, "fbReactions": 185, "fbComments": 0, "fbFollows": 0,
+            "igLikes": 1, "igShares": 0, "igSaves": 0, "igComments": 0, "igFollows": 0,
+            "note": "checkpoint 3 — FB-NATIVE capture via Meta Business Suite (platform-labeled tabs). FB +9,634 views in ~1.5h since checkpoint 2; still accelerating."
           }
         ],
-        "facebookNativeInsights": "NOT CAPTURED — Graph API token expired 2026-07-14 (re-tested 2026-07-19, OAuthException 190/463). Pending Leon's renewal (pages_show_list, pages_read_engagement, read_insights, Curio Page selected). Required once available: unique reach/viewers, 3-second views, avg watch time + retention, completion rate, recommendation-vs-follower traffic, FB-native shares/comments, Page follows — plus 24h/72h/7d snapshots."
+        "facebookNative": {
+          "capturedAt": "2026-07-19T11:30-07:00",
+          "source": "Meta Business Suite post insights, Facebook tab (platform-labeled), Leon's logged-in Chrome session — user-directed capture; Graph API token still expired",
+          "views": 35799,
+          "viewers": 17645,
+          "viewsPerViewer": 2.03,
+          "interactions": 197,
+          "likesAndReactions": 185,
+          "reactionsBreakdown": { "like": 162, "love": 1, "haha": 0, "wow": 2, "sad": 1, "angry": 0 },
+          "comments": 0,
+          "shares": 4,
+          "saves": 8,
+          "follows": 0,
+          "linkClicks": null,
+          "avgWatchTimeSeconds": 15,
+          "avgWatchRatio": 0.764,
+          "totalWatchTime": "3d 4h (~76.9h; distribution table shows 276,943,642 ms)",
+          "retentionCurve0to20s": [1, 1, 1, 1, 0.8845, 0.8081, 0.7722, 0.7369, 0.6977, 0.68, 0.6669, 0.6573, 0.6389, 0.6276, 0.6187, 0.6141, 0.6062, 0.6005, 0.5922, 0.5843, 0.5613],
+          "retentionNotes": "Unconditioned platform series, 1s bins 0-20s. 100% through 3s; largest step 3s->4s (-11.6pp); tiny kink at the 10s engineered-silence beat; 56.1% completion. The 'Views over 15 seconds' toggle view stays >=92%. Platform summary text: 'Most of your audience dropped off at the 0:02 mark and your average watch time is 0:15.' Screenshots: samples/Curio Video Stats/Harrison Okene/",
+          "watchTimeDistribution": { "recommendations": 0.993, "followers": 0.007, "shares": 0, "paid": 0 },
+          "audienceBasedOn3sViews": { "menShare": 0.88, "womenShare": 0.11, "menCounted": 13521, "womenCounted": 1697, "note": "heavily 45-64 (men 45-54: 22.6%, men 55-64: 26.3%) — an OLDER male audience; IG's audience skews 18-34" },
+          "topCountries": { "US": 9100, "GB": 1000, "CA": 924, "PH": 649, "AU": 491, "ZA": 289, "NL": 139, "SE": 133, "DK": 126, "IN": 107 },
+          "topRegions": ["England 937", "Texas 788", "California 623", "Florida 623", "Ohio 436"],
+          "pageBenchmark": "typical recent-post views P25=12 / P75~266 -> this post ~135x P75",
+          "viewsTimeSeries": {
+            "epochSeconds": [1784344189, 1784345089, 1784345989, 1784346889, 1784347789, 1784348689, 1784350489, 1784352289, 1784354089, 1784355889, 1784357689, 1784359489, 1784361289, 1784363089, 1784364889, 1784366689, 1784368489, 1784370289, 1784372089, 1784373889, 1784375689, 1784377489, 1784379289, 1784381089, 1784382889, 1784384689, 1784386489, 1784390089, 1784393689, 1784397289, 1784400889, 1784404489, 1784408089, 1784411689, 1784415289, 1784418889, 1784422489, 1784426089, 1784429689, 1784440489, 1784451289, 1784462089, 1784472889, 1784483689],
+            "cumulativeViews": [4, 150, 483, 1040, 1571, 1636, 1726, 1789, 1981, 2166, 2326, 2484, 2531, 2567, 2605, 2638, 2663, 2686, 2709, 2766, 2811, 2824, 3031, 3194, 3255, 3305, 3397, 3547, 3640, 3761, 3884, 3985, 4192, 4413, 4600, 4642, 4778, 4891, 4970, 6278, 7361, 7952, 9354, 28565],
+            "note": "Business Suite chart series (lags the 35,799 headline). Slow build for ~24h (~5k), then sharp acceleration Jul 18 evening -> Jul 19."
+          }
+        },
+        "instagramNative": {
+          "capturedAt": "2026-07-19T11:30-07:00",
+          "source": "Meta Business Suite post insights, Instagram tab (platform-labeled)",
+          "views": 179,
+          "reach": 113,
+          "interactions": 1,
+          "likes": 1,
+          "comments": 0,
+          "shares": 0,
+          "saves": 0,
+          "follows": 0,
+          "avgWatchTimeSeconds": 13,
+          "totalWatchTime": "27m 52s",
+          "audience": { "menShare": 0.712, "womenShare": 0.288, "note": "18-34 heavy — younger than FB's 45+ audience" },
+          "viewsNote": "plateaued at ~169 within ~4h of posting"
+        }
       },
       "provenance": {
         "observed": [
-          "viewsInstagram (176 -> 178) and viewsFacebook (3,998 -> 26,165) — platform-separated checkpoints 2026-07-18 / 2026-07-19",
-          "reactionsCombined (153, scope ambiguous)",
-          "likes 20 / all high-intent actions 0 (IG header, 2026-07-18)",
-          "skipRate 36.5%, avgWatchTime 13s, viewSources — IG-oriented insights surface",
-          "duration/resolution/audio of LOCAL v3-lineage files only (posted file not obtained)",
+          "FULL FACEBOOK-NATIVE BLOCK (Business Suite FB tab, platform-labeled, 2026-07-19 11:30): views 35,799 / viewers 17,645 / avg watch 15s / retention curve incl. 56.1% completion / shares 4 / saves 8 / reactions 185 / follows 0 / rec-vs-follower watch split 99.3-0.7 / audience / geo / time-series",
+          "FULL INSTAGRAM-NATIVE BLOCK (Business Suite IG tab): views 179 / reach 113 / 1 like / 0 all other actions / avg watch 13s / 27m52s watch time",
+          "postedAt Fri Jul 17 7:54pm + 'Published by Instagram' crosspost origin + posted caption text + 0:20 displayed runtime (Business Suite)",
+          "viewsInstagram (176 -> 178 -> 179) and viewsFacebook (3,998 -> 26,165 -> 35,799) — platform-separated checkpoints",
+          "duration/resolution/audio of LOCAL v3-lineage files only (posted file itself not obtained)",
           "META token expiry (Graph API error re-tested 2026-07-19)"
         ],
         "derived": [
-          "watchRatio (13 / 19.633; range 0.66-0.68)",
-          "FB share of plays (95.8% -> 99.3%)",
-          "FB growth multiple (~6.5x between checkpoints)"
+          "watchRatio IG (13 / 19.633) and FB (15 / 19.633 = 0.764)",
+          "FB share of plays (95.8% -> 99.3% -> 99.5%)",
+          "viewsPerViewer FB (35,799 / 17,645 ~ 2.03)"
         ],
         "estimated": [
-          "retentionCurve / retentionAtEnd (IG graph shape)",
-          "postedAt (production timeline; exact time unverified)"
+          "the OLD IG retention curve from the 2026-07-18 screenshot (graph shape) — kept for history; FB has real platform numbers now"
         ],
         "userReported": [
-          "checkpoint-2 numbers (FB 26,165 / IG 178 / 153 reactions) and 'still growing' status (Leon/Codex 2026-07-19)",
+          "checkpoint-2 numbers (FB 26,165 / IG 178 / 153 reactions) (Leon/Codex 2026-07-19 morning)",
           "posted Reel starts with the glitchy hand (Leon 2026-07-19) — basis for the v3-lineage identification"
         ],
         "unverified": [
           "sourceFile — exact posted captioned export (v3-lineage confirmed by frame zero, file NOT on this machine)",
-          "posted resolution / caption text / audio loudness",
-          "platform scope of reachAccounts (113), avgWatchTime, skipRate, retention, engagement counts, and the 153 reactions",
-          "ALL Facebook-native retention/reach/watch metrics (token expired)"
+          "posted file resolution / audio loudness (caption TEXT now known from Business Suite)",
+          "the 36.5% skip figure's exact surface (2026-07-18 screenshot)"
         ]
       },
-      "verdict": "FACEBOOK DISTRIBUTION WINNER, NOT YET AN ENGAGEMENT OR CONVERSION WINNER. Three gates: [1] Scroll-stop PASS — best IG skip yet (36.5%) AND Facebook keeps widening recommendation (3,998 -> 26,165 in ~a day). [2] Retention PASS/partial on the IG-scoped surface only (~66% avg watch, ~33% end); FB-native retention unknown and the 1ms FB view definition inflates the headline. [3] Advocacy FAIL — zero shares/saves/comments/reposts/follows at 26k+ combined plays; 153 reactions is passive approval. IG plateaued at 178 while FB ran the distribution test — do NOT explain the FB growth with IG-scoped metrics. Frame-zero impossible human evidence + escalating single-story danger is the best current Curio opening pattern; the Veo hand defects and the procedural (non-transferable) ending are NOT to be repeated."
+      "verdict": "FACEBOOK DISTRIBUTION *AND RETENTION* WINNER; ADVOCACY STILL WEAK. Three gates on FB-NATIVE data (2026-07-19): [1] Scroll-stop PASS — retention holds 100% through 3s and the recommender keeps widening distribution (35,799 views, ~135x the Page's typical P75, 99.3% from Recommendations). [2] Retention PASS — avg watch 15s (76% of runtime), 56% completion, main drop 3-9s, only a tiny kink at the 10s silence beat; the AI-hand defects did NOT measurably break FB retention. [3] Advocacy WEAK — no longer literally zero (FB: 4 shares + 8 saves + 185 reactions) but ~0.03% of FB views and 0 follows; IG advocacy literally 1 like. IG plateaued at 179 (reach 113) while FB found a large 45+ male US/UK audience — the platforms sampled DIFFERENT demographics; never explain one with the other's metrics. Frame-zero impossible human evidence + escalating single-story danger is confirmed as Curio's best opening architecture; the remaining fix is the payoff (transferable fact) and clean 1080x1920 assets — see REP-4 brief."
     }
   ]
 }

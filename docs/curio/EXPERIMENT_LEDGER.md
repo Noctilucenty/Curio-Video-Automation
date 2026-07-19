@@ -269,6 +269,63 @@ repost/boost/disturb it.
   native shares/comments, or Page follows exist in our records — and IG-scoped
   retention/reach/watch-time MUST NOT be used to explain FB distribution.
 
+### CHECKPOINT 3 — 2026-07-19 ~11:30 PDT — **FACEBOOK-NATIVE CAPTURE (Meta Business Suite)**
+Captured directly from the Business Suite post-insights surface in Leon's
+logged-in Chrome session (user-directed; NOT the Graph API — token still
+expired). Post identity on-platform: content_id 122119453365356339, Page
+"TryCurio", **Reel published Fri Jul 17, 7:54pm** (post time now CONFIRMED),
+**"Published by Instagram"** → the post was created on Instagram and
+crossposted to Facebook. Posted caption text (now known, verbatim): "A rescue
+diver entered a sunken tugboat expecting to recover bodies. Then, from the
+darkness, a hand reached out and grabbed him. Harrison Okene had survived
+nearly three days underwater, 100 feet below the surface, breathing from a
+tiny pocket of trapped air. Everyone thought he was dead. He was still waiting
+to be found. #booktok #psychology #mystery #iosapp #booktok". Player shows
+runtime 0:20 (consistent with the 19.633 s lineage).
+
+**FACEBOOK (native, platform-labeled):**
+- Views **35,799** · Viewers **17,645** (~2.0 views/viewer → replays exist)
+- Interactions 197 · likes+reactions 185 (👍162 ❤️1 😮2 😢1 😆0 😡0)
+- Comments 0 · **Shares 4 · Saves 8** · Follows 0 · Link clicks —
+- **Average watch time 15 s** (76.4% of 19.633 s) · total watch time 3d 4h
+- **Audience retention (unconditioned, 0–20 s, platform series):** 1.00, 1.00,
+  1.00, 1.00, .8845, .8081, .7722, .7369, .6977, .6800, .6669, .6573, .6389,
+  .6276, .6187, .6141, .6062, .6005, .5922, .5843, **.5613 at end**.
+  100% through 3 s; biggest single step 3→4 s (−11.6 pp); only a tiny kink at
+  the 10 s engineered-silence beat; **56% completion**. ("Views over 15
+  seconds" toggle view — retention among 15 s+ viewers — stays ≥92%;
+  screenshots in `samples/Curio Video Stats/Harrison Okene/`.)
+- **Watch-time distribution: Recommendations 99.3% · Followers 0.7% · Shares
+  0% · Paid 0%** — recommendation-driven, non-follower distribution CONFIRMED.
+- Audience (based on 3-second views): **Men 88% / Women 11%**, heavily 45–64
+  (men 45–54: 22.6%, 55–64: 26.3%). Geography: US 9.1K, UK 1K, CA 924, PH 649,
+  AU 491. Top regions: England, Texas, California, Florida, Ohio.
+- Page benchmark: typical post views P25=12 / P75≈266 → this post is ~135×
+  the P75 of recent posts. FB views time-series (44 cumulative samples,
+  epoch-stamped) recorded in posted-experiments.json.
+
+**INSTAGRAM (native, platform-labeled):**
+- Views **179** · **Reach 113 — the earlier "113 accounts reached" is now
+  CONFIRMED as Instagram-only** (scope ambiguity resolved).
+- Interactions **1** (a single like) · comments/shares/saves/reposts 0 ·
+  follows 0 · avg watch **13 s** · total watch 27m 52s.
+- Views plateaued at ~169 within ~4 h of posting.
+- Audience: Men 71.2% / Women 28.8%, younger skew (18–34 heavy) — a DIFFERENT
+  demographic than Facebook's 45+ men.
+
+**SCOPE CORRECTIONS to earlier checkpoints (older records were honest about
+the ambiguity; these resolve it):**
+- "Likes 20" (2026-07-18 header reading) was NOT IG-only — IG-native likes are
+  **1**; the reactions live on Facebook (185 by this capture).
+- "Reach 113" = Instagram reach, confirmed.
+- Advocacy is **no longer literally zero**: Facebook shows 4 shares + 8 saves.
+  Per 35.8K FB views that is ~0.03% — still far below Third Man's rates, so the
+  advocacy gate remains WEAK/FAIL relative to distribution, but the earlier
+  "all zero" statements are superseded by this platform-labeled capture.
+- The FB-native retention curve (56% completion, 100% through 3 s) SUPERSEDES
+  any need to lean on IG-scoped retention for Facebook conclusions — and it
+  shows the AI-hand defects did NOT measurably break early retention on FB.
+
 ### UPLOAD IDENTITY — verification run 2026-07-19 (remains UNVERIFIED)
 - Leon confirmed the posted Reel **starts with the glitchy (Veo) hand** →
   frame-zero matches the **v3 lineage** (local `preview-okene-v3.mp4`,

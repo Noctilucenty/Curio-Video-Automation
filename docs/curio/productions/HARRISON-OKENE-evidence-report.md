@@ -1,104 +1,112 @@
-# Harrison Okene posted Reel — evidence report (2026-07-19)
+# Harrison Okene posted Reel — evidence report (2026-07-19, rev 2: FB-native captured)
 
 Status: post is **LIVE and actively growing on Facebook. FROZEN — do not edit,
 delete, rebuild, repost, boost, or otherwise disturb it.**
 Machine record: `data/posted-experiments.json` → `posted-harrison-okene`
-(checkpoints preserved as time-series). Ledger: EXP-202607-18-01.
+(3 checkpoints preserved as time-series + full `facebookNative` /
+`instagramNative` blocks). Ledger: EXP-202607-18-01.
+Rev 2 supersedes the morning report: **Facebook-native insights were captured
+2026-07-19 ~11:30 PDT from Meta Business Suite's platform-labeled tabs**
+(Leon's logged-in Chrome session, user-directed; the Graph API token is still
+expired — renewal remains open for automated snapshots).
 
-**Headline (blunt):** this is a **Facebook distribution winner, but not yet an
-engagement or conversion winner.**
-
----
-
-## 1. OBSERVED FACTS (nothing below this block is interpretation)
-
-### Time-series checkpoints (platform-separated, mandatory)
-| Captured | FB views | IG views | Combined | Reactions | Shares/Saves/Comments/Reposts/Follows |
-|---|---|---|---|---|---|
-| 2026-07-18 | 3,998 | 176 | 4,174 | 20 likes (IG header) | all 0 |
-| 2026-07-19 | 26,165 | 178 | 26,343 | 153 (scope AMBIGUOUS) | all 0 |
-
-- Facebook grew **~6.5×** between checkpoints; it now supplies **99.3%** of all
-  plays. Instagram added **+2 views** — the IG non-follower test plateaued
-  almost immediately.
-- Combined totals are recorded but are NOT an optimization target.
-- The 153 "reactions" figure is not platform-labeled; given the view split it is
-  almost certainly FB-dominant. It was NOT written to the IG learning stream.
-
-### Instagram-scoped insights surface (2026-07-18 screenshots)
-Skip rate 36.5% (best Curio yet, vs Third Man 38.6%) · avg watch 13 s of a
-19.633 s runtime (~66%) · retention est. ~75% @2s → ~33% at end · sources:
-Reels tab 85.5% + Explore 8.1% (cold discovery) · 113 "accounts reached"
-(scope ambiguous; clearly NOT Facebook-inclusive — 26k views over 113 accounts
-is arithmetically absurd).
-**These values live on an Instagram-oriented surface (several graphs explicitly
-labeled Instagram-only) and MUST NOT be used to explain Facebook distribution.**
-
-### Facebook measurement caveats (both are platform-documented)
-- Facebook counts a Reel **"view" at 1 ms of playback** — the 26,165 headline is
-  a distribution signal, not proof of meaningful watches.
-- **We hold ZERO Facebook-native quality metrics.** META_ACCESS_TOKEN expired
-  2026-07-14 14:00 PDT (Graph API re-tested 2026-07-19 → OAuthException
-  190/463). BLOCKED until Leon renews with `pages_show_list`,
-  `pages_read_engagement`, `read_insights`, Curio Page selected. Required on
-  renewal: unique reach, 3-second views, avg watch + retention, completion,
-  recommendation-vs-follower traffic, FB-native shares/comments, Page follows,
-  then 24h/72h/7d snapshots.
-
-### Upload identity (verification run 2026-07-19)
-- Posted frame zero = the **glitchy (Veo) hand** (Leon-confirmed) → **v3
-  lineage** (local closest match `preview-okene-v3.mp4`, 270×480@30, 19.633 s).
-- Every local captioned export is v5-based and **ruled out** by frame-zero
-  comparison (repo v5 family + `~/Downloads/a_hand_inside_the_wreck…_1717.mp4`,
-  1080×1920@30 — v5 imagery, SSIM 0.97 vs v5 / 0.87 vs v3).
-- No captioned v3 export exists on this machine → **posted-export identity
-  remains UNVERIFIED** (resolution, caption text, audio loudness all unknown).
+**Headline (blunt, updated):** this is a **Facebook distribution AND retention
+winner. Advocacy is no longer literally zero, but it is still the weak gate.**
 
 ---
 
-## 2. THE THREE GATES (Facebook framing)
+## 1. OBSERVED FACTS
 
-| Gate | Verdict | Evidence class |
+### Post identity (now confirmed on-platform)
+Published **Fri Jul 17, 7:54pm**, created on Instagram and crossposted to
+Facebook ("Published by Instagram"), Page "TryCurio", FB content_id
+122119453365356339, displayed runtime 0:20. Posted caption text captured
+verbatim in the machine record (`postedCaptionText`). The exact uploaded FILE
+is still not on this machine (identity of the captioned export remains
+UNVERIFIED; imagery = v3 lineage per the glitchy-hand frame zero).
+
+### Time-series checkpoints (platform-separated)
+| Captured | FB views | IG views | FB shares/saves | IG actions |
+|---|---|---|---|---|
+| Jul 18 | 3,998 | 176 | (not visible) | 0 |
+| Jul 19 ~10:00 | 26,165 | 178 | (dashboard showed 0) | 0 |
+| Jul 19 ~11:30 (native) | **35,799** | **179** | **4 / 8** | 1 like |
+
+FB added ~9,600 views in ~90 minutes between the last two checkpoints — still
+accelerating. The Business Suite chart shows a slow ~24h build (~5k) then a
+sharp acceleration from Jul 18 evening.
+
+### FACEBOOK-native (platform-labeled, 2026-07-19 11:30)
+- Views **35,799** · Viewers **17,645** (~2.03 views/viewer → replays exist)
+- **Average watch time 15 s = 76% of runtime** · total watch time 3d 4h
+- **Retention (unconditioned platform series): 100% through 3 s → 88% @4s →
+  68% @9s → 67% @10s → 56% completion at 20 s.** Largest single drop 3→4 s
+  (−11.6 pp). Only a tiny kink at the 10 s engineered-silence beat. Among
+  15s+ viewers, retention stays ≥92%.
+- Interactions 197: reactions 185 (👍162 ❤️1 😮2 😢1) · comments 0 ·
+  **shares 4 · saves 8** · follows 0.
+- **Watch-time distribution: Recommendations 99.3% / Followers 0.7% /
+  Shares 0% / Paid 0%** — non-follower, recommendation-driven, confirmed.
+- Audience (based on 3-second views): **88% men**, heavily 45–64. Geography:
+  US 9.1K, UK 1K, CA 924, PH 649, AU 491.
+- Page benchmark: typical post views P25=12 / P75≈266 → **~135× the P75**.
+
+### INSTAGRAM-native (platform-labeled, same capture)
+Views **179** · reach **113** (scope now CONFIRMED IG-only) · interactions
+**1** (a single like — the earlier "20 likes" header reading was not IG-only)
+· shares/saves/comments/follows **0** · avg watch 13 s · total watch 27m 52s ·
+plateaued at ~169 within ~4 h. Audience 71% men, 18–34 heavy — a **different
+demographic** than Facebook's 45+ men.
+
+### Standing caveats
+- FB counts a view at 1 ms — but watch quality no longer rests on the headline:
+  native avg watch (15 s) and the retention curve are in hand.
+- Graph API token still expired → automated 24h/72h/7d snapshots still blocked
+  (Business Suite manual capture is the current path).
+
+---
+
+## 2. THE THREE GATES (Facebook, now on native data)
+
+| Gate | Verdict | Evidence |
 |---|---|---|
-| **FB scroll-stop** | **PASS (provisional)** | Sustained, accelerating recommendation expansion (3,998 → 26,165 in ~1 day) is the only FB-native fact we hold; a recommender does not keep widening tests on content that dies at first contact. Direct proof requires FB 3-second views — not yet captured. |
-| **FB retention** | **UNKNOWN** | No FB-native watch-time/retention/completion exists in our records. The IG-scoped 13 s / ~66% figures are cross-platform hints only and are explicitly NOT evidence for Facebook. |
-| **Advocacy** | **FAIL (observed)** | At 26k+ combined plays, displayed shares, saves, reposts, comments, and follows are ALL ZERO at both checkpoints. 153 reactions is passive approval, not advocacy. |
+| **FB scroll-stop** | **PASS (confirmed)** | Retention holds 100% through 3 s on 35.8K views; recommender keeps widening distribution (~135× typical-post P75, 99.3% recommendations). |
+| **FB retention** | **PASS (confirmed)** | 15 s avg watch (76%), 56% completion, ≥92% among 15s+ viewers. Best watch-quality evidence Curio has ever recorded on any platform. |
+| **Advocacy** | **WEAK — the one remaining failure** | FB: 4 shares + 8 saves + 0 comments + 0 follows on 35.8K views (~0.03%); IG: 1 like, nothing else. No longer literally zero, but far below Third Man's rates and negligible against this distribution. |
 
----
+## 3. HYPOTHESES (interpretation — clearly separated)
 
-## 3. HYPOTHESES (interpretation — none of this is proven)
-
-1. **The frame-zero contradiction drives the stop.** A hand emerging from a dark
-   wreck grabbing the diver is physically immediate, human, and comprehensible
-   with no context — exactly what Dead Water's context-first opening lacked.
-2. **Escalating single-story stakes support depth.** "Alive underwater" → "60
-   hours" → "100 feet down" → "surfacing could kill him": every fact deepens one
-   story rather than changing subjects.
-3. **Facebook tailwind.** Meta is currently boosting recent original video and
-   fast-learning recommendations — plausible amplifier, not measurable by us.
-4. **The AI hand defects did not destroy the hook** at feed speed (the anomaly
-   may even read stronger) — but they plausibly suppress trust and high-intent
-   actions. This does NOT validate the artifacts; it means the premise survived
-   them.
-5. **The procedural ending caused the advocacy failure.** "Two more days
-   decompressing" closes the facts but hands the viewer nothing transferable to
-   send. This is the leading candidate cause for gate-3 failure, but visual
-   quality, audience matching, and a possible low-res (270×480-source) upload
-   remain plausible contributors — especially for the IG plateau.
+1. **The frame-zero contradiction drives the stop** — now strongly supported
+   (100%-through-3s on FB), though "supported" ≠ causally isolated until REP-4.
+2. **The escalation held people**: the only meaningful decay is 3–9 s (during
+   the escalation beats), then the curve flattens to a 56% completion.
+   The engineered silence at 10 s did NOT dump viewers (tiny kink only).
+3. **The AI hand defects did not measurably hurt FB retention.** They remain
+   suspect for the ADVOCACY gap (sharing something visibly AI-flawed has social
+   cost) — hypothesis, untested.
+4. **The procedural ending remains the leading advocacy suspect**: 56% of
+   viewers reached the payoff region and almost none shared/saved. REP-4's
+   transferable-fact ending is the controlled test.
+5. **Platform-audience mismatch hypothesis for IG**: IG sampled a young
+   audience (18–34) and stopped; FB found an older male audience that watched
+   deeply. Whether the subject is inherently 45+-male-skewed or FB's
+   recommender just found the pocket faster is unknown.
+6. **Low-res upload** remains a possible IG suppressor (posted file still
+   unobtained) — unproven either way; FB's performance shows it did not block
+   FB distribution.
 
 ## 4. Learning-system state
-Import: `met_posted_harrison_okene_09ac5076` (IG-only stream, views 178;
-ambiguous-scope figures refused). Learning run `learn_mrs3zzdx_012u7gms`
-(gpt-5.6, 9 new rules, 31 total; improvementDelta null — no judge-vs-actual
-pairs yet). New rules include: anomaly stated in 0–2 s as a complete clause;
-18–21 s test window (28 s target dropped pending retest); transferable-fact
-ending required; 7-of-10 slots to documented survival; no judge recalibration
-until ≥10 matched prediction/outcome pairs.
+Two runs today: `learn_mrs3zzdx_012u7gms` (pre-native data) and
+**`learn_mrs4z7it_01alt76h`** (after the IG-native corrections: IG likes 1,
+reach 113, views 179; 10 new rules, 41 total). The IG stream row was
+content-superseded to `met_posted_harrison_okene_5caabc69`. FB-native data
+lives in the dataset's `facebookNative` block (the importer's learning stream
+remains IG-only by design).
 
-## 5. What must happen next
-1. Leon renews the Meta token → capture the FB-native list above (read-only
-   first; verify Curio Page + the Harrison Reel are visible).
-2. Keep 24 h-cadence platform-separated checkpoints while growth continues.
-3. Next production follows the controlled replication brief
-   (`REP-4-second-trap-brief.md`) — clean imagery, same hook architecture,
-   advocacy-designed payoff. **Nothing posts without Leon's approval.**
+## 5. What happens next
+1. **REP-4** (`REP-4-second-trap-brief.md`) tests the advocacy fix with clean
+   1080×1920 assets — Codex review, then Leon approval. Nothing posts without it.
+2. Keep periodic Business Suite captures while FB growth continues (next:
+   +24 h). Renew the Graph API token when convenient for automated snapshots.
+3. If the exact uploaded MP4 exists on the phone, supply it to close the
+   upload-identity gap.

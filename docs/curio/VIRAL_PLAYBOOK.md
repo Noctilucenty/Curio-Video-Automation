@@ -297,10 +297,17 @@ A video is judged on three SEPARATE gates, never one blended "it did well":
 1. **Scroll-stop** — skip rate / 3s hold.
 2. **Retention** — avg watch, end retention.
 3. **Advocacy** — sends/shares, saves, comments, follows.
-Harrison PASSED 1 and 2 and FAILED 3 (all zero) — Zero sends LIKELY CONTRIBUTED to the limited Instagram expansion (176 views).
-Sends are a major expansion signal, not the only possible cause — visual quality,
-audience matching and a low-resolution source remain plausible contributors. Watch time alone
-does not buy distribution; **sends** are the expansion signal.
+Harrison PASSED 1 and 2 and FAILED 3 (all zero on the 2026-07-18 dashboards).
+**2026-07-19 FB-NATIVE UPDATE (Business Suite, platform-labeled):** gates 1+2
+are now CONFIRMED on Facebook — 35,799 views (99.3% recommendations, ~135× the
+Page's typical-post P75), avg watch 15 s (76%), 100% retention through 3 s,
+56% completion. Gate 3 is WEAK, not literally zero: FB 4 shares + 8 saves +
+185 reactions (~0.03% of views), 0 comments, 0 follows; IG-native = 1 like and
+nothing else (IG plateaued at 179 / reach 113). On Instagram zero sends still
+coincided with no expansion; on Facebook the recommender distributed massively
+WITHOUT sends — so sends are an IG-expansion signal, while FB distribution can
+run on watch-quality alone. Audience note: FB found 88% male 45–64 US/UK; IG
+sampled 18–34. Never explain one platform with the other's metrics.
 
 ### CONFIRMED (repeated across Curio results)
 - Put the complete physical contradiction/anomaly on **frame zero**.
@@ -313,7 +320,9 @@ does not buy distribution; **sends** are the expansion signal.
 - Real motion in the opening may outperform static atmosphere.
 - The hand-return loop may have supported completion.
 - Facebook may respond especially well to visceral true-survival stories.
-- Obvious AI anatomy/physics errors may reduce trust and high-intent actions.
+- Obvious AI anatomy/physics errors may reduce trust and high-intent actions
+  (FB-native retention was NOT measurably hurt — the suspicion now attaches to
+  the advocacy gap specifically, not to watch behavior).
 - The factual ending may have lacked the emotional/social currency needed for
   shares or saves.
 
