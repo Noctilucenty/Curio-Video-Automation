@@ -9,7 +9,10 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/src/server.js",
     "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "worker": "tsx watch src/worker.ts",
+    "worker:prod": "node dist/src/worker.js",
+    "migrate": "psql \"$DATABASE_URL\" -f db/migrations/001_autopilot.sql"
   },
   "dependencies": {
     "express": "^5.2.1"
@@ -22,5 +25,9 @@
     "tsx": "^4.20.0",
     "typescript": "^5.9.0",
     "vitest": "^3.2.0"
+  },
+  "optionalDependencies": {
+    "bullmq": "^5.34.0",
+    "pg": "^8.13.1"
   }
 }

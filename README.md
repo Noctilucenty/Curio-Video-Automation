@@ -144,3 +144,25 @@ driven into a nonsense state.
    paste analytics weekly.
 6. After each analytics batch, hit *Run learning analysis* — the next batch obeys
    the new rules.
+
+## One-click Autopilot
+
+`GENERATE NEXT CURIO VIDEO` on the dashboard creates a **durable run** and returns 202
+immediately. A separate background worker drives 17 stages — topic discovery → scoring →
+fact-check → script → narration → audio story → visuals → assemble → self-review →
+captions → QA — and parks at `READY_FOR_REVIEW`.
+
+**It never posts.** There is no publish path in the autopilot surface.
+
+    npm run dev          # web + dashboard
+    npm run worker       # background worker (separate process)
+    npm test             # all mock; no paid calls
+
+Architecture, verified provider capability, blockers and deployment steps:
+**`docs/curio/AUTOMATION_CONTROL_PLANE.md`**.
+
+Two things that page states plainly and that matter before deploying:
+- the Captions.ai public API was returning **502 even for an invalid key** on
+  2026-07-20, so captioning parks in `BLOCKED_CAPTIONS_AUTH`;
+- `src/localRenderer.ts` rasterizes captions via `xcrun swiftc` + `import AppKit`,
+  which **cannot run on Render's Linux containers**.

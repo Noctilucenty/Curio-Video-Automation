@@ -280,6 +280,106 @@ async function ingest() {
     } else {
       toast(`Nothing matched — ${zeroReason}`, false);
     }
+
+    // ---- Autopilot -------------------------------------------------------
+    let apRunId = null, apES = null, apStart = 0, apTimer = null;
+
+    function apConfig() {
+      const plat = $('ap-platforms').value;
+      const allowVeo = $('ap-veo').value === '1';
+      return {
+        platforms: plat === 'both' ? ['reels','shorts'] : [plat],
+        targetRuntime: { minSeconds: +$('ap-rtmin').value, maxSeconds: +$('ap-rtmax').value },
+        maxSpendUsd: +$('ap-spend').value,
+        category: $('ap-category').value || 'auto',
+        factualRisk: $('ap-risk').value,
+        visualPolicy: $('ap-visual').value,
+        allowPaidStock: $('ap-stock').value === '1',
+        allowVeo,
+        maxImageCalls: +$('ap-maximg').value,
+        maxVideoCalls: allowVeo ? +$('ap-maxvid').value : 0,
+        qualityProfile: $('ap-quality').value,
+        dryRun: $('ap-dry').value === '1',
+        maxCorrectionPasses: +$('ap-corr').value,
+      };
+    }
+
+    async function apGo() {
+      const btn = $('ap-go');
+      btn.disabled = true;                       // guard #1: no double-click
+      try {
+        const res = await fetch('/api/autopilot/runs', {
+          method: 'POST',
+          headers: Object.assign(headers(true), {
+            // guard #2: server-side idempotency, survives a refresh mid-click
+            'idempotency-key': 'btn-' + Date.now() + '-' + Math.random().toString(36).slice(2,8),
+          }),
+          body: JSON.stringify(apConfig()),
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || res.status);
+        apAttach(body.run_id);
+        toast('Run queued — generating.', true);
+      } catch (e) { toast(e.message, false); btn.disabled = false; }
+    }
+
+    function apAttach(runId) {
+      apRunId = runId; apStart = Date.now();
+      $('ap-live').style.display = 'block';
+      $('ap-logs').innerHTML = '';
+      clearInterval(apTimer);
+      apTimer = setInterval(() => {
+        $('ap-elapsed').textContent = Math.round((Date.now()-apStart)/1000) + 's';
+      }, 1000);
+      if (apES) apES.close();
+      apES = new EventSource('/api/autopilot/runs/' + runId + '/events');
+      apES.addEventListener('state', e => apState(JSON.parse(e.data)));
+      apES.addEventListener('log', e => apLog(JSON.parse(e.data)));
+      apES.addEventListener('done', e => { apState(JSON.parse(e.data)); apDone(); });
+      apES.onerror = () => { /* SSE reconnects on its own; polling stays as fallback */ };
+    }
+
+    function apState(s) {
+      $('ap-bar').style.width = Math.round((s.progress||0)*100) + '%';
+      $('ap-stage').textContent = s.stage_label || s.state;
+      $('ap-spend-live').textContent = '$' + Number(s.spent_usd||0).toFixed(2)
+        + ' / $' + Number(s.budget_usd||0).toFixed(2);
+      $('ap-topic').innerHTML = s.topic_title ? 'topic <b>'+esc(s.topic_title)+'</b>' : '';
+      $('ap-blocker').innerHTML = s.blocker
+        ? '<div class="blocker"><b>'+esc(s.blocker.code)+'</b><br>'+esc(s.blocker.detail||'')
+          +'<br><span class="muted">'+esc(s.blocker.help||'')+'</span></div>'
+        : '';
+      if (s.state === 'READY_FOR_REVIEW') { refresh(); }
+    }
+
+    function apLog(l) {
+      const el = $('ap-logs');
+      const t = new Date().toLocaleTimeString();
+      el.insertAdjacentHTML('beforeend',
+        '<div class="'+esc(l.level||'info')+'"><span class="t">'+t+'</span> '+esc(l.message)+'</div>');
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function apDone() {
+      clearInterval(apTimer);
+      $('ap-go').disabled = false;
+      if (apES) { apES.close(); apES = null; }
+    }
+
+    async function apCtl(action) {
+      if (!apRunId) return;
+      try {
+        const res = await fetch('/api/autopilot/runs/'+apRunId+'/'+action,
+          { method:'POST', headers: headers(true) });
+        const b = await res.json();
+        if (!res.ok) throw new Error(b.error || res.status);
+        apState(b); toast(action + ' ok', true);
+        if (action === 'resume' || action === 'retry-stage') apAttach(apRunId);
+      } catch (e) { toast(e.message, false); }
+    }
+
+    $('ap-go').addEventListener('click', apGo);
+
     refresh();
   } catch (e) { toast('Ingest failed: ' + e.message, false); }
 }

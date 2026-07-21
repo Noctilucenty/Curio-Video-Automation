@@ -1,0 +1,139 @@
+# Curio Automation — Render Blueprint.
+#
+# Two services share ONE image: a fast web service that only records intent, and a
+# background worker that does every expensive thing. A production run takes many
+# minutes and makes paid provider calls; it must never live inside an HTTP request,
+# because a Render deploy or a browser disconnect would abandon it mid-spend.
+#
+# Background workers require a paid instance type. `starter` is the floor; media work
+# (ffmpeg) wants more headroom than the web service, hence the asymmetric plans.
+#
+# Every secret is `sync: false` — Render prompts for it at deploy time and stores it
+# encrypted. Nothing sensitive is committed here.
+
+services:
+  # ---------------------------------------------------------------------------
+  # WEB — dashboard + API. Returns 202 and enqueues; never generates.
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: curio-web
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    autoDeploy: false          # deliberate: a deploy mid-run should be a human choice
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CURIO_ROLE
+        value: web
+      - key: PORT
+        value: "10000"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: curio-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: curio-keyvalue
+          property: connectionString
+      # --- secrets: entered in the Render dashboard, never in git ---
+      - key: SESSION_SECRET          # signs the HttpOnly dashboard cookie
+        generateValue: true
+      - key: ADMIN_PASSWORD          # single-owner dashboard login
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_VOICE_ID
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: YOUTUBE_API_KEY
+        sync: false
+      - key: CAPTIONS_API_KEY
+        sync: false
+      # --- object storage (S3-compatible: Cloudflare R2 or AWS S3) ---
+      - key: STORAGE_DRIVER
+        value: s3
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_REGION
+        value: auto
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
+
+  # ---------------------------------------------------------------------------
+  # WORKER — one production stage at a time, resumable, lease-protected.
+  # ---------------------------------------------------------------------------
+  - type: worker
+    name: curio-worker
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerCommand: node dist/src/worker.js
+    plan: standard             # ffmpeg needs the extra RAM/CPU
+    autoDeploy: false
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CURIO_ROLE
+        value: worker
+      # Exactly one stage in flight per worker. Raising this risks two paid provider
+      # calls for the same stage if a lease is ever mis-timed; the leases are correct,
+      # but the blast radius of a bug here is money, so the default stays 1.
+      - key: WORKER_CONCURRENCY
+        value: "1"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: curio-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: curio-keyvalue
+          property: connectionString
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_VOICE_ID
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: YOUTUBE_API_KEY
+        sync: false
+      - key: CAPTIONS_API_KEY
+        sync: false
+      - key: STORAGE_DRIVER
+        value: s3
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_REGION
+        value: auto
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
+
+databases:
+  - name: curio-postgres
+    plan: basic-256mb
+    databaseName: curio
+    user: curio
+
+# Render Key Value backs BullMQ. `noeviction` is REQUIRED: under any eviction policy
+# Redis may drop job keys under memory pressure, which silently loses queued
+# production runs. BullMQ itself refuses to start against an evicting instance.
+keyValue:
+  - name: curio-keyvalue
+    plan: starter
+    maxmemoryPolicy: noeviction
+    ipAllowList: []            # private network only; no public access
