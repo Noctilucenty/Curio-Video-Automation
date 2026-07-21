@@ -104,6 +104,27 @@ not. Options, in order of preference:
 in one process cannot be polled from another — it must move to the store before renders
 are distributed.
 
+## Security
+
+**Private by default.** Everything — every `/api` route including GETs, `/videos/*`,
+artifacts and the SSE stream — requires a credential. The previous model left all GETs
+and all rendered MP4s world-readable; that is fixed.
+
+| Control | Implementation |
+|---|---|
+| Login | `POST /api/auth/login` → HttpOnly + Secure + SameSite=Strict session cookie. Stateless HMAC, so a restart or a second web instance doesn't log you out. |
+| Logout | `POST /api/auth/logout` clears both cookies. |
+| Browser storage | **None.** The admin token no longer touches JS or `localStorage` — an XSS there would have leaked permanent access. JS only reads the CSRF token, which is useless without the HttpOnly session cookie. |
+| CSRF | Double-submit token (`x-curio-csrf`) **plus** Origin/Referer validation on every mutation. Bearer-authenticated calls are exempt — browsers never attach bearer tokens automatically, so there is no forgery vector. |
+| Rate limits | Login 10 / 15 min / IP. Generation and autopilot runs 30 / hour. |
+| Headers | CSP (`frame-ancestors 'none'`, `base-uri 'none'`), nosniff, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, HSTS in production. |
+| Artifacts | Session **or** a signed URL that expires in **5 minutes** (`GET /api/media/sign`). A leaked link stops working. |
+| Secret comparison | Constant-time everywhere. The old bearer check used `===`, which leaks under timing analysis. |
+| Boot guard | `NODE_ENV=production` with no `ADMIN_PASSWORD`/`ADMIN_TOKEN`, or a `SESSION_SECRET` under 32 chars, **refuses to start**. |
+
+Provider keys are never sent to the browser. `x-forwarded-for` is trusted only for its
+first hop; later entries are attacker-controlled.
+
 ## Deployment
 
 ```bash

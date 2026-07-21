@@ -13,6 +13,8 @@ import type { LearningRule } from "../src/types.js";
 function testConfig(adminToken: string | null = null, cardsFrozen = false): Config {
   return {
     port: 0, adminToken, dataDir: "./data", renderer: "mock" as const, cardsFrozen,
+    adminPassword: null, sessionSecret: "test-secret-test-secret-test-secret-32",
+    isProd: false, allowInsecureNoAuth: true, allowedOrigins: [],
     openai: { apiKey: null, model: "mock-llm" },
     heygen: { apiKey: null, avatarId: "av", voiceId: "vo" },
     elevenlabs: { apiKey: null, voiceId: "", modelId: "eleven_multilingual_v2" },
@@ -255,13 +257,26 @@ describe("api flow", () => {
     expect(vid!.reviewNote).toContain("fact-check blocked render");
   });
 
-  it("enforces the admin token on mutations but keeps reads open", async () => {
+  // SUPERSEDED CONTRACT: this used to assert "reads stay open". That left every
+  // video, transcript and analytics row world-readable on a public URL. Reads are
+  // now private too; the test asserts the corrected contract.
+  it("requires a credential for BOTH reads and mutations", async () => {
     const { app } = await makeApp("secret-token");
-    expect((await request(app).get("/api/videos")).status).toBe(200);
+    // read — previously 200 without any credential
+    expect((await request(app).get("/api/videos")).status).toBe(401);
+    // mutation
     expect((await request(app).post("/api/video-topics").send({ topic: "x" })).status).toBe(401);
+    // a valid bearer token unlocks both
+    expect((await request(app)
+      .get("/api/videos")
+      .set("authorization", "Bearer secret-token")).status).toBe(200);
     expect((await request(app)
       .post("/api/video-topics")
       .set("authorization", "Bearer secret-token")
       .send({ topic: "x" })).status).toBe(201);
+    // a wrong token is rejected
+    expect((await request(app)
+      .get("/api/videos")
+      .set("authorization", "Bearer wrong-token")).status).toBe(401);
   });
 });

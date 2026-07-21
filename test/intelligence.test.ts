@@ -101,6 +101,8 @@ describe("manual rule promotion endpoint", () => {
   function testConfig(): Config {
     return {
       port: 0, adminToken: null, dataDir: "./data", cardsFrozen: false,
+      adminPassword: null, sessionSecret: "test-secret-test-secret-test-secret-32",
+      isProd: false, allowInsecureNoAuth: true, allowedOrigins: [],
       openai: { apiKey: null, model: "mock-llm" },
       heygen: { apiKey: null, avatarId: "av", voiceId: "vo" },
       elevenlabs: { apiKey: null, voiceId: "", modelId: "eleven_multilingual_v2" },

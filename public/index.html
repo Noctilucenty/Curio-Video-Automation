@@ -66,8 +66,8 @@
   <h1><span>Curio</span> Automation — Review Queue</h1>
   <div class="meta" id="meta">…</div>
   <div class="spacer"></div>
-  <input id="token" placeholder="admin token (if set)" size="18" type="password">
   <button onclick="refresh()">Refresh</button>
+      <button onclick="logout()">Log out</button>
 </header>
 <main>
   <section>
@@ -112,17 +112,51 @@
 
 <script>
 const $ = (id) => document.getElementById(id);
-const token = $('token');
-token.value = localStorage.getItem('curio_admin_token') || '';
-token.addEventListener('change', () => localStorage.setItem('curio_admin_token', token.value));
-
+// Auth is a server-issued HttpOnly session cookie. The token is NEVER in JS or
+// localStorage — a single XSS would otherwise exfiltrate it permanently.
+// JS only touches the CSRF token, which is useless without the session cookie
+// the browser attaches automatically.
+function csrfToken() {
+  const m = document.cookie.match(/(?:^|;\s*)curio_csrf=([^;]+)/);
+  return m ? decodeURIComponent(m[1]) : '';
+}
 function headers(json) {
   const h = json ? { 'content-type': 'application/json' } : {};
-  if (token.value) h.authorization = 'Bearer ' + token.value;
+  const t = csrfToken();
+  if (t) h['x-curio-csrf'] = t;
   return h;
+}
+async function logout() {
+  await fetch('/api/auth/logout', { method: 'POST', headers: headers(false) });
+  location.reload();
+}
+function showLogin(msg) {
+  document.body.innerHTML =
+    '<div style="max-width:340px;margin:16vh auto;font:15px/1.5 -apple-system,sans-serif;color:#f5efe2">'
+    + '<h1 style="font-size:19px;letter-spacing:.5px">Curio</h1>'
+    + '<p style="color:#9a97a3;font-size:13px">' + (msg || 'Sign in to continue.') + '</p>'
+    + '<input id="pw" type="password" placeholder="Password" autofocus '
+    + 'style="width:100%;padding:11px 12px;background:#14141b;color:#f5efe2;'
+    + 'border:1px solid #26262f;border-radius:9px;font:inherit">'
+    + '<button id="go" style="width:100%;margin-top:10px;padding:12px;background:#e8b44f;'
+    + 'color:#14110a;font-weight:700;border:0;border-radius:9px;cursor:pointer">Sign in</button>'
+    + '<p id="err" style="color:#eb5757;font-size:12px;min-height:16px"></p></div>';
+  const submit = async () => {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ password: document.getElementById('pw').value }),
+    });
+    if (res.ok) { location.reload(); return; }
+    const b = await res.json().catch(() => ({}));
+    document.getElementById('err').textContent =
+      res.status === 429 ? 'Too many attempts — wait and try again.' : (b.error || 'Sign-in failed');
+  };
+  document.getElementById('go').onclick = submit;
+  document.getElementById('pw').addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
 }
 async function api(path, opts = {}) {
   const res = await fetch('/api' + path, opts);
+  if (res.status === 401) { showLogin('Your session expired.'); throw new Error('unauthenticated'); }
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(body.error || res.status);
   return body;
@@ -428,8 +462,9 @@ async function runLearning() {
   } catch (e) { toast('Learning: ' + e.message, false); }
 }
 
-refresh();
-setInterval(refresh, 15000);
+fetch('/api/auth/session')
+  .then(r => { if (r.status === 401) { showLogin(); return null; } return r.json(); })
+  .then(ok => { if (ok) { refresh(); setInterval(refresh, 15000); } });
 </script>
 </body>
 </html>

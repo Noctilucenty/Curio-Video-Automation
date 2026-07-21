@@ -1,9 +1,20 @@
+import { randomBytes } from "node:crypto";
+
 // Env-driven config. Missing provider keys flip the matching client into mock
 // mode instead of crashing, so the whole pipeline runs offline (dev + tests).
 
 export interface Config {
   port: number;
   adminToken: string | null;
+  /** Single-owner dashboard login. Preferred over shipping a bearer token to the browser. */
+  adminPassword: string | null;
+  /** Signs the HttpOnly session cookie and short-lived artifact URLs. */
+  sessionSecret: string;
+  isProd: boolean;
+  /** Explicit opt-in to run with NO credentials (local dev/tests only). */
+  allowInsecureNoAuth: boolean;
+  /** Origins permitted to make state-changing requests. Empty = same-origin only. */
+  allowedOrigins: string[];
   dataDir: string;
   /** "local" = no-avatar dark-editorial renderer (default); "heygen" = avatar. */
   renderer: "local" | "heygen" | "mock";
@@ -27,6 +38,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   return {
     port: Number(env.PORT) || 8790,
     adminToken: env.ADMIN_TOKEN?.trim() || null,
+    adminPassword: env.ADMIN_PASSWORD?.trim() || null,
+    // A random per-boot secret is fine for dev (sessions simply don't survive a
+    // restart); production MUST set this or assertBootSecurity refuses to start.
+    sessionSecret: env.SESSION_SECRET?.trim() || randomBytes(32).toString("hex"),
+    isProd: env.NODE_ENV?.trim() === "production",
+    allowInsecureNoAuth: env.ALLOW_INSECURE_NO_AUTH?.trim() === "1",
+    allowedOrigins: (env.ALLOWED_ORIGINS ?? "").split(",").map((s2) => s2.trim()).filter(Boolean),
     dataDir: env.DATA_DIR?.trim() || "./data",
     renderer: renderer === "heygen" || renderer === "mock" ? renderer : "local",
     cardsFrozen: env.CARDS_FROZEN?.trim() !== "0",

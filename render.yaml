@@ -41,7 +41,11 @@ services:
       # --- secrets: entered in the Render dashboard, never in git ---
       - key: SESSION_SECRET          # signs the HttpOnly dashboard cookie
         generateValue: true
-      - key: ADMIN_PASSWORD          # single-owner dashboard login
+      - key: ADMIN_PASSWORD          # single-owner dashboard login (REQUIRED in prod)
+        sync: false
+      - key: ALLOWED_ORIGINS         # e.g. https://curio-web.onrender.com
+        sync: false
+      - key: ADMIN_TOKEN             # optional: API/CI clients only
         sync: false
       - key: OPENAI_API_KEY
         sync: false
