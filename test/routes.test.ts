@@ -13,7 +13,7 @@ import type { LearningRule } from "../src/types.js";
 function testConfig(adminToken: string | null = null, cardsFrozen = false): Config {
   return {
     port: 0, adminToken, dataDir: "./data", renderer: "mock" as const, cardsFrozen,
-    adminPassword: null, sessionSecret: "test-secret-test-secret-test-secret-32",
+    adminPassword: null, sessionSecret: "test-secret-test-secret-test-secret-32", sessionSecretFromEnv: true,
     isProd: false, allowInsecureNoAuth: true, allowedOrigins: [],
     openai: { apiKey: null, model: "mock-llm" },
     heygen: { apiKey: null, avatarId: "av", voiceId: "vo" },

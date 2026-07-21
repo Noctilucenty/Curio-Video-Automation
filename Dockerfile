@@ -11,8 +11,15 @@ FROM node:22-bookworm-slim AS base
 # ffmpeg/ffprobe + fonts + fontconfig. libass/freetype come in with ffmpeg on Debian,
 # which is what the local Mac build was missing (see PRODUCTION_DOCTRINE: local ffmpeg
 # has no drawtext/libass, so captions were rendered via Pillow PNG overlay).
+# python3 + python3-pil back tools/caption_render.py, the PORTABLE caption
+# rasterizer. The Swift/AppKit tool cannot run here, so without Pillow this
+# container could not caption a video at all.
+# (Comment kept OUTSIDE the RUN: a '#' inside a backslash continuation is
+# parser-dependent and this image cannot be built locally to verify it.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
       ffmpeg \
+      python3 \
+      python3-pil \
       fontconfig \
       fonts-dejavu-core \
       fonts-liberation2 \
@@ -44,6 +51,7 @@ RUN npm ci --omit=dev && npm cache clean --force
 COPY --from=build /app/dist ./dist
 COPY public ./public
 COPY db ./db
+COPY tools ./tools
 COPY assets ./assets
 
 # Non-root. Render runs containers as root by default; we drop privileges because this

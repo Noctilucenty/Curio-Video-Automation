@@ -88,21 +88,42 @@ not presented as one. When the endpoint recovers, `probeCaptionsApi()` detects i
 runtime and the stage proceeds automatically — except for Nova styling, which remains
 web-app-only.
 
-## KNOWN BLOCKER — renderer is macOS-only
+## Rendering — RESOLVED (was the macOS-only blocker)
 
-`src/localRenderer.ts` rasterizes captions by shelling out to
-`xcrun swiftc tools/caption_render.swift`, and that file does `import AppKit`.
-**Neither exists on Linux.** ffmpeg/ffprobe are portable; the caption/card rasterizer is
-not. Options, in order of preference:
+The renderer previously rasterized captions by shelling out to
+`xcrun swiftc tools/caption_render.swift`, a file that does `import AppKit`. Neither
+exists on Linux, so a Render container could not caption a video at all.
 
-1. Replace the Swift tool with a cross-platform rasterizer (node-canvas, or ffmpeg
-   `drawtext` with a bundled font — the Dockerfile already installs fontconfig + DejaVu
-   + Liberation for exactly this).
-2. Keep rendering on the Mac and use Render only as the control plane.
+**`tools/caption_render.py` (Pillow) is now the portable rasterizer and the default on
+every platform.** It honours the identical `spec.json` contract, so `localRenderer.ts`
+only chooses a different executable — nothing else in the ffmpeg composition changed.
 
-`LocalRenderer` also stores render state in **process-local `Map`s**, so a render begun
-in one process cannot be polled from another — it must move to the store before renders
-are distributed.
+Why Pillow rather than ffmpeg `drawtext`:
+- PRODUCTION_DOCTRINE already records that the dev machine's ffmpeg has **no
+  drawtext/libass** (verified again: 0 drawtext filters), so a drawtext renderer could
+  never be tested here — it would ship unverified.
+- Pillow exposes exact per-run text metrics, which is what lets the **emphasis word**
+  sit correctly inside a proportional line. `drawtext` can only report the width of its
+  own single instance, so mixed-weight lines would have to be positioned by guesswork.
+
+Selection order (`resolveCaptionRasterizer`):
+1. `CAPTION_RASTERIZER=python|swift` forces the choice.
+2. Otherwise **python**, everywhere.
+3. Swift is used only if Pillow is genuinely unavailable **and** the host is macOS —
+   never as a silent Linux fallback, where it cannot work and a clear error is far more
+   useful than a confusing `xcrun` failure.
+
+Swift therefore remains an **optional macOS-local adapter** (it reproduces the exact
+typography earlier masters were cut with), not a requirement.
+
+**Verified end-to-end on the Linux path** (`CAPTION_RASTERIZER=python`, real ffmpeg):
+a narrated render produced **1080x1920, 192 frames, 6.400s**, and the card-mode render
+test passes through the same path. The Docker image installs `python3` + `python3-pil`
+plus DejaVu/Liberation fonts.
+
+Still open (not a rendering blocker): `LocalRenderer` keeps render state in
+process-local `Map`s, so a render begun in one process cannot be polled from another.
+That must move into the store before renders are distributed across multiple workers.
 
 ## Security
 
@@ -120,7 +141,7 @@ and all rendered MP4s world-readable; that is fixed.
 | Headers | CSP (`frame-ancestors 'none'`, `base-uri 'none'`), nosniff, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, HSTS in production. |
 | Artifacts | Session **or** a signed URL that expires in **5 minutes** (`GET /api/media/sign`). A leaked link stops working. |
 | Secret comparison | Constant-time everywhere. The old bearer check used `===`, which leaks under timing analysis. |
-| Boot guard | `NODE_ENV=production` with no `ADMIN_PASSWORD`/`ADMIN_TOKEN`, or a `SESSION_SECRET` under 32 chars, **refuses to start**. |
+| Boot guard — FAIL CLOSED | `NODE_ENV=production` **requires both `ADMIN_PASSWORD` and `SESSION_SECRET`**; startup aborts naming exactly what is missing. An `ADMIN_TOKEN` alone is NOT sufficient (a bearer token cannot sign a human into the dashboard). A `SESSION_SECRET` under 32 chars, or `ALLOW_INSECURE_NO_AUTH` set, also abort. Credential-less/public mode is possible only outside production. |
 
 Provider keys are never sent to the browser. `x-forwarded-for` is trusted only for its
 first hop; later entries are attacker-controlled.

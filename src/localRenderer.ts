@@ -160,7 +160,7 @@ export class LocalRenderer implements Renderer {
     const outPath = join(this.dirs.videos, `${providerVideoId}.mp4`);
     const pngDir = join(this.dirs.tmp, providerVideoId);
 
-    this.ensureCaptionTool();
+    const footerTool = this.resolveCaptionRasterizer();
     mkdirSync(pngDir, { recursive: true });
 
     // Card face WITHOUT the footer — branding fades in late, not permanently.
@@ -178,7 +178,7 @@ export class LocalRenderer implements Renderer {
         .slice(0, 5)
         .map((l, i) => ({ id: `i${i}`, text: l.text.replace(/\s+/g, " ").trim(), emphasis: l.emphasis })),
     }));
-    execFileSync(this.toolPath, [specPath], { timeout: 60_000 });
+    execFileSync(footerTool.cmd, footerTool.args(specPath), { timeout: 60_000 });
     const cardPng = join(pngDir, "card.png");
     if (!existsSync(cardPng)) throw new Error("card png was not produced");
 
@@ -190,7 +190,7 @@ export class LocalRenderer implements Renderer {
       fontSize: 30,
       lines: [{ id: "footer", text: req.pkg.cta, emphasis: "" }],
     }));
-    execFileSync(this.toolPath, [footerSpec], { timeout: 60_000 });
+    execFileSync(footerTool.cmd, footerTool.args(footerSpec), { timeout: 60_000 });
     const footerPng = join(pngDir, "footer.png");
     if (!existsSync(footerPng)) throw new Error("footer png was not produced");
 
@@ -279,21 +279,55 @@ export class LocalRenderer implements Renderer {
   }
 
   /** Compile the Swift caption tool once (recompiles when the source is newer). */
-  private ensureCaptionTool(): void {
-    const src = resolve("tools/caption_render.swift");
-    if (!existsSync(src)) throw new Error("tools/caption_render.swift missing");
-    const stale = !existsSync(this.toolPath) || statSync(this.toolPath).mtimeMs < statSync(src).mtimeMs;
-    if (stale) {
-      execFileSync("xcrun", ["swiftc", "-O", src, "-o", this.toolPath], { timeout: 120_000 });
+  /**
+   * Caption rasterizer selection.
+   *
+   * The Swift/AppKit tool only exists on macOS — `xcrun` and `import AppKit` are both
+   * absent on Linux, so a Render container could never render a caption. Pillow is the
+   * portable path and is the DEFAULT everywhere it is available; Swift is kept purely
+   * as an optional macOS-local adapter (it produces the typography the earlier masters
+   * were cut with, so it stays reproducible).
+   *
+   * Force either with CAPTION_RASTERIZER=python|swift.
+   */
+  private resolveCaptionRasterizer(): { cmd: string; args: (spec: string) => string[]; kind: string } {
+    const forced = process.env.CAPTION_RASTERIZER?.trim().toLowerCase();
+
+    const python = () => {
+      const script = resolve("tools/caption_render.py");
+      if (!existsSync(script)) throw new Error("tools/caption_render.py missing");
+      const bin = process.env.PYTHON_BIN?.trim() || "python3";
+      return { cmd: bin, args: (spec: string) => [script, spec], kind: "python" };
+    };
+
+    const swift = () => {
+      const src = resolve("tools/caption_render.swift");
+      if (!existsSync(src)) throw new Error("tools/caption_render.swift missing");
+      const stale = !existsSync(this.toolPath) || statSync(this.toolPath).mtimeMs < statSync(src).mtimeMs;
+      if (stale) execFileSync("xcrun", ["swiftc", "-O", src, "-o", this.toolPath], { timeout: 120_000 });
+      return { cmd: this.toolPath, args: (spec: string) => [spec], kind: "swift" };
+    };
+
+    if (forced === "swift") return swift();
+    if (forced === "python") return python();
+
+    // Default: python everywhere. Only fall back to Swift if Pillow is genuinely
+    // unavailable AND we are on macOS — never silently on Linux, where the fallback
+    // cannot work and a clear error is far more useful than a confusing xcrun failure.
+    try {
+      return python();
+    } catch (e) {
+      if (process.platform !== "darwin") throw e;
+      return swift();
     }
   }
 
   private renderCaptionPngs(outDir: string, lines: Array<{ id: string; text: string; emphasis: string }>): void {
-    this.ensureCaptionTool();
+    const tool = this.resolveCaptionRasterizer();
     mkdirSync(outDir, { recursive: true });
     const specPath = join(outDir, "spec.json");
     writeFileSync(specPath, JSON.stringify({ width: WIDTH, outDir, fontSize: FONT_SIZE, lines }));
-    execFileSync(this.toolPath, [specPath], { timeout: 60_000 });
+    execFileSync(tool.cmd, tool.args(specPath), { timeout: 60_000 });
     for (const l of lines) {
       if (!existsSync(join(outDir, `${l.id}.png`))) throw new Error(`caption png missing: ${l.id}`);
     }

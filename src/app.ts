@@ -61,7 +61,10 @@ export function createApp(deps: AppDeps): App {
     adminPassword: config.adminPassword,
     adminToken: config.adminToken,
     isProd: config.isProd,
-    allowInsecureNoAuth: config.allowInsecureNoAuth || !config.isProd,
+    sessionSecretFromEnv: config.sessionSecretFromEnv,
+    // In production this is forced false — assertBootSecurity also rejects the flag
+    // outright, so there is no path to a public production dashboard.
+    allowInsecureNoAuth: config.isProd ? false : true,
   };
   // Fails the boot rather than serving an unauthenticated dashboard to the internet.
   assertBootSecurity(auth);

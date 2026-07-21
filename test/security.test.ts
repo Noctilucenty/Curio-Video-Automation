@@ -111,20 +111,52 @@ describe("private by default", () => {
   });
 });
 
-describe("boot guard", () => {
-  it("refuses production with no credentials", () => {
-    expect(() => assertBootSecurity(
-      baseAuth({ isProd: true, adminPassword: null, adminToken: null })
-    )).toThrow(/refusing to start/);
+describe("boot guard — production FAILS CLOSED", () => {
+  const prod = (over = {}) => baseAuth({ isProd: true, sessionSecretFromEnv: true, ...over });
+
+  it("refuses production with no credentials at all", () => {
+    expect(() => assertBootSecurity(prod({ adminPassword: null, adminToken: null })))
+      .toThrow(/ADMIN_PASSWORD/);
   });
 
-  it("refuses production with a weak session secret", () => {
-    expect(() => assertBootSecurity(baseAuth({ isProd: true, sessionSecret: "short" })))
+  it("refuses production when ADMIN_PASSWORD is missing even if ADMIN_TOKEN is set", () => {
+    // A bearer token cannot log a human into the dashboard. Accepting it alone was
+    // the gap: an operator with only ADMIN_TOKEN set would find the UI unusable and
+    // be tempted to re-open reads.
+    expect(() => assertBootSecurity(prod({ adminPassword: null, adminToken: "tok-123" })))
+      .toThrow(/ADMIN_PASSWORD/);
+  });
+
+  it("refuses production when SESSION_SECRET was never provided", () => {
+    // The dev fallback is random per boot; on Render that silently breaks sessions
+    // on every restart and hides the fact that nothing was configured.
+    expect(() => assertBootSecurity(prod({ sessionSecretFromEnv: false })))
       .toThrow(/SESSION_SECRET/);
   });
 
+  it("names BOTH missing variables in one error", () => {
+    expect(() => assertBootSecurity(
+      prod({ adminPassword: null, sessionSecretFromEnv: false })
+    )).toThrow(/ADMIN_PASSWORD and SESSION_SECRET/);
+  });
+
+  it("refuses production with a weak session secret", () => {
+    expect(() => assertBootSecurity(prod({ sessionSecret: "short" }))).toThrow(/at least 32/);
+  });
+
+  it("refuses production when the insecure escape hatch is set", () => {
+    expect(() => assertBootSecurity(prod({ allowInsecureNoAuth: true })))
+      .toThrow(/ALLOW_INSECURE_NO_AUTH/);
+  });
+
   it("permits production when properly configured", () => {
-    expect(() => assertBootSecurity(baseAuth({ isProd: true }))).not.toThrow();
+    expect(() => assertBootSecurity(prod())).not.toThrow();
+  });
+
+  it("still allows credential-less DEVELOPMENT", () => {
+    expect(() => assertBootSecurity(
+      baseAuth({ isProd: false, adminPassword: null, adminToken: null, allowInsecureNoAuth: true })
+    )).not.toThrow();
   });
 });
 
@@ -263,5 +295,31 @@ describe("cookies", () => {
     expect(s).toMatch(/Secure/);
     expect(s).toMatch(/SameSite=Strict/);
     expect(s).toMatch(/Max-Age=60/);
+  });
+});
+
+describe("caption rasterizer is cross-platform", () => {
+  it("renders PNGs on this machine via the portable Pillow tool", async () => {
+    // The Swift/AppKit tool cannot run on Linux, so Render could never caption a
+    // video. This asserts the portable path actually produces the artifacts the
+    // ffmpeg composition step expects.
+    const { execFileSync } = await import("node:child_process");
+    const { mkdtempSync, writeFileSync, existsSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const { tmpdir } = await import("node:os");
+
+    const dir = mkdtempSync(join(tmpdir(), "caps-"));
+    const spec = join(dir, "spec.json");
+    writeFileSync(spec, JSON.stringify({
+      width: 1080, outDir: dir, fontSize: 58,
+      lines: [
+        { id: "c0", text: "The ant ahead is leading them to death.", emphasis: "death" },
+        { id: "c1", text: "no emphasis here", emphasis: "" },
+      ],
+    }));
+
+    execFileSync("python3", ["tools/caption_render.py", spec], { timeout: 60_000 });
+    expect(existsSync(join(dir, "c0.png"))).toBe(true);
+    expect(existsSync(join(dir, "c1.png"))).toBe(true);
   });
 });

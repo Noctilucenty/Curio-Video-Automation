@@ -256,6 +256,8 @@ export interface AuthConfig {
   isProd: boolean;
   /** Explicit opt-in to run with no credentials at all (local dev / tests). */
   allowInsecureNoAuth: boolean;
+  /** False when sessionSecret is a random dev fallback rather than SESSION_SECRET. */
+  sessionSecretFromEnv?: boolean;
 }
 
 export function authConfigured(c: AuthConfig): boolean {
@@ -289,15 +291,38 @@ export function requireAuth(c: AuthConfig) {
   };
 }
 
-/** Boot-time guard. Throwing here is deliberate: never serve prod without auth. */
+/**
+ * Boot-time guard — FAIL CLOSED.
+ *
+ * In production BOTH are mandatory:
+ *   ADMIN_PASSWORD  — an ADMIN_TOKEN alone is not enough. A bearer token is for API
+ *                     clients; without a password there is no way to sign in to the
+ *                     dashboard, and operators would be tempted to re-open reads.
+ *   SESSION_SECRET  — must come from the environment. The dev fallback is random per
+ *                     boot, so on Render every restart (and every second instance)
+ *                     would silently invalidate sessions, and nothing would surface
+ *                     that the secret was never configured.
+ *
+ * Credential-less/public mode is only ever possible outside production.
+ */
 export function assertBootSecurity(c: AuthConfig): void {
-  if (c.isProd && !authConfigured(c)) {
+  if (!c.isProd) return;
+
+  const missing: string[] = [];
+  if (!c.adminPassword) missing.push("ADMIN_PASSWORD");
+  if (c.sessionSecretFromEnv === false) missing.push("SESSION_SECRET");
+
+  if (missing.length) {
     throw new Error(
-      "refusing to start: NODE_ENV=production with no ADMIN_PASSWORD or ADMIN_TOKEN. " +
-      "The dashboard, API, videos and artifacts would be public.",
+      `refusing to start: NODE_ENV=production requires ${missing.join(" and ")}. ` +
+      "Without them the dashboard, API, videos and artifacts would be exposed or " +
+      "sessions would break on every restart. Set them in Render → Environment.",
     );
   }
-  if (c.isProd && c.sessionSecret.length < 32) {
+  if (c.sessionSecret.length < 32) {
     throw new Error("refusing to start: SESSION_SECRET must be at least 32 characters in production.");
+  }
+  if (c.allowInsecureNoAuth) {
+    throw new Error("refusing to start: ALLOW_INSECURE_NO_AUTH is not permitted in production.");
   }
 }

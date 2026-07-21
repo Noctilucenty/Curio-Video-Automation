@@ -10,6 +10,8 @@ export interface Config {
   adminPassword: string | null;
   /** Signs the HttpOnly session cookie and short-lived artifact URLs. */
   sessionSecret: string;
+  /** False when sessionSecret is the random dev fallback rather than SESSION_SECRET. */
+  sessionSecretFromEnv: boolean;
   isProd: boolean;
   /** Explicit opt-in to run with NO credentials (local dev/tests only). */
   allowInsecureNoAuth: boolean;
@@ -42,6 +44,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     // A random per-boot secret is fine for dev (sessions simply don't survive a
     // restart); production MUST set this or assertBootSecurity refuses to start.
     sessionSecret: env.SESSION_SECRET?.trim() || randomBytes(32).toString("hex"),
+    sessionSecretFromEnv: Boolean(env.SESSION_SECRET?.trim()),
     isProd: env.NODE_ENV?.trim() === "production",
     allowInsecureNoAuth: env.ALLOW_INSECURE_NO_AUTH?.trim() === "1",
     allowedOrigins: (env.ALLOWED_ORIGINS ?? "").split(",").map((s2) => s2.trim()).filter(Boolean),
