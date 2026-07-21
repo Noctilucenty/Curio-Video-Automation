@@ -9,9 +9,14 @@
 // .m4a/.wav) and it gets mixed under the narration at low level automatically.
 
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
+import { LocalObjectStore, type ObjectStore } from "./objectStore.js";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import type { RenderRequest, RenderStatus, Renderer } from "./heygen.js";
+import {
+  MemoryRenderStore, renderIdempotencyKey, type RenderStore,
+} from "./renderStore.js";
 import { CAPTION_STYLE } from "./captions.js";
 import { makeId } from "./config.js";
 import { resolveAudioAsset } from "./audioAssets.js";
@@ -28,16 +33,46 @@ const FONT_SIZE = 58;
  * -1.5 dBTP headroom is the social-feed sweet spot.
  */
 const LOUDNORM = "loudnorm=I=-16:TP=-1.5:LRA=7";
+/** Long enough for a slow ffmpeg pass; heartbeats extend it while work continues. */
+const RENDER_LEASE_MS = 10 * 60_000;
+
+function sha256(s: string): string {
+  return createHash("sha256").update(s).digest("hex");
+}
+function sha256File(p: string): string {
+  return createHash("sha256").update(readFileSync(p)).digest("hex");
+}
+/** Minimal ffprobe evidence recorded alongside the artifact. */
+function probeStreams(p: string): Record<string, unknown> {
+  const r = spawnSync("ffprobe", ["-v", "error", "-select_streams", "v:0",
+    "-show_entries", "stream=width,height,nb_frames,avg_frame_rate",
+    "-show_entries", "format=duration", "-of", "json", p], { encoding: "utf8" });
+  try { return JSON.parse(r.stdout || "{}"); } catch { return {}; }
+}
 
 export class LocalRenderer implements Renderer {
   readonly provider = "local" as const;
   readonly burnsCaptions = true;
+  // Audio assets stay process-local ON PURPOSE: the file is written to this
+  // container's disk, and the SAME process renders with it moments later. Render
+  // STATUS is the thing that must outlive the process, and that now lives in `store`.
   private audio = new Map<string, string>();
-  private results = new Map<string, RenderStatus>();
   private toolPath: string;
   private dirs: { tmp: string; videos: string; bin: string };
+  private store: RenderStore;
+  private objects: ObjectStore;
+  private owner: string;
 
-  constructor(private dataDir: string) {
+  /**
+   * @param store durable render state. Defaults to MemoryRenderStore, which is the
+   *   TEST/DEV adapter only — production passes a PgRenderStore so the WEB service can
+   *   poll a render the WORKER started, and so a worker restart resumes instead of
+   *   losing the job.
+   */
+  constructor(private dataDir: string, store?: RenderStore, owner?: string, objects?: ObjectStore) {
+    this.store = store ?? new MemoryRenderStore();
+    this.objects = objects ?? new LocalObjectStore(join(dataDir, "videos"));
+    this.owner = owner ?? `renderer-${process.env.RENDER_INSTANCE_ID ?? process.pid}`;
     this.dirs = {
       tmp: join(dataDir, "tmp"),
       videos: join(dataDir, "videos"),
@@ -56,13 +91,61 @@ export class LocalRenderer implements Renderer {
     return { assetId };
   }
 
+  /**
+   * Register + claim the render BEFORE any work. Two effects that matter:
+   *   1. an identical render already completed is REUSED, never re-run
+   *   2. a crash leaves a claimable row instead of losing the job entirely
+   */
+  private async beginRender(req: RenderRequest, providerVideoId: string): Promise<
+    { reuse: RenderStatus } | { proceed: true }
+  > {
+    const audioPath = req.audioAssetId ? this.audio.get(req.audioAssetId) : undefined;
+    const key = renderIdempotencyKey({
+      script: req.pkg.script,
+      captionLines: req.pkg.captionLines,
+      audioSha256: audioPath && existsSync(audioPath) ? sha256File(audioPath) : undefined,
+      format: req.format ?? "narrated",
+    });
+
+    const prior = await this.store.findByIdempotencyKey(key);
+    if (prior?.status === "completed" && prior.outputUri) {
+      return { reuse: { providerVideoId: prior.id, status: "completed", videoUrl: prior.outputUri } };
+    }
+
+    await this.store.create({
+      id: providerVideoId, idempotencyKey: key,
+      inputHashes: { script: sha256(req.pkg.script), audio: audioPath ? sha256File(audioPath) : null },
+    });
+    const claimed = await this.store.claim(providerVideoId, this.owner, RENDER_LEASE_MS);
+    if (!claimed) {
+      throw new Error(`render ${providerVideoId} is leased by another worker`);
+    }
+    return { proceed: true };
+  }
+
   async createVideo(req: RenderRequest): Promise<{ providerVideoId: string }> {
-    if (req.format === "card") return this.createCardVideo(req);
+    const providerVideoId = makeId(req.format === "card" ? "localcard" : "localvid");
+    const begun = await this.beginRender(req, providerVideoId);
+    if ("reuse" in begun) {
+      // An identical render already completed — reuse the artifact. This is what makes
+      // a restart free instead of paying for the same encode twice.
+      return { providerVideoId: begun.reuse.providerVideoId };
+    }
+    try {
+      return await this.renderInner(req, providerVideoId);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      await this.store.fail(providerVideoId, msg, { retryAfterMs: 30_000 });
+      throw e;
+    }
+  }
+
+  private async renderInner(req: RenderRequest, providerVideoId: string): Promise<{ providerVideoId: string }> {
+    if (req.format === "card") return this.createCardVideo(req, providerVideoId);
     if (!req.audioAssetId || !this.audio.has(req.audioAssetId)) {
       throw new Error("local renderer needs the ElevenLabs narration (no TTS fallback exists locally)");
     }
     const audioPath = this.audio.get(req.audioAssetId)!;
-    const providerVideoId = makeId("localvid");
     const outPath = join(this.dirs.videos, `${providerVideoId}.mp4`);
 
     const duration = probeDuration(audioPath);
@@ -138,12 +221,10 @@ export class LocalRenderer implements Renderer {
     if (res.status !== 0) {
       throw new Error(`ffmpeg failed: ${(res.stderr || res.stdout || "unknown").slice(-500)}`);
     }
-    assertLoudness(outPath); // narration must land in the social-loudness window
-    this.results.set(providerVideoId, {
-      providerVideoId,
-      status: "completed",
-      videoUrl: `/videos/${providerVideoId}.mp4`,
-    });
+    const loud = assertLoudness(outPath); // must land in the social-loudness window
+    // CHECKPOINT AFTER: atomic completion. Once this row is `completed` the job is
+    // never claimed again, so a restart cannot re-render an artifact that exists.
+    await this.publish(providerVideoId, outPath, { ...probeStreams(outPath), loudness: loud });
     return { providerVideoId };
   }
 
@@ -155,8 +236,27 @@ export class LocalRenderer implements Renderer {
    * SHORTER than its read time — pause/screenshot/rewatch is the retention
    * mechanic (see WINNING_REFERENCES.md).
    */
-  private async createCardVideo(req: RenderRequest): Promise<{ providerVideoId: string }> {
-    const providerVideoId = makeId("localcard");
+
+  /**
+   * Upload the artifact to durable object storage and only then mark the job
+   * completed. Order matters: if the upload fails the job stays claimable and is
+   * retried, whereas completing first would leave a "completed" row pointing at a
+   * file that dies with this container.
+   */
+  private async publish(
+    providerVideoId: string, outPath: string, probe: Record<string, unknown>,
+  ): Promise<void> {
+    const key = `${providerVideoId}.mp4`;
+    const put = await this.objects.put(key, outPath, "video/mp4");
+    await this.store.complete(providerVideoId, {
+      outputUri: put.uri,
+      outputSha256: put.sha256,
+      outputBytes: put.bytes,
+      probe: { ...probe, storage: this.objects.kind },
+    });
+  }
+
+  private async createCardVideo(req: RenderRequest, providerVideoId: string): Promise<{ providerVideoId: string }> {
     const outPath = join(this.dirs.videos, `${providerVideoId}.mp4`);
     const pngDir = join(this.dirs.tmp, providerVideoId);
 
@@ -231,11 +331,7 @@ export class LocalRenderer implements Renderer {
       throw new Error(`ffmpeg card failed: ${(res.stderr || res.stdout || "unknown").slice(-500)}`);
     }
     assertLoudness(outPath); // silent AND whisper-quiet AND clipping all fail here
-    this.results.set(providerVideoId, {
-      providerVideoId,
-      status: "completed",
-      videoUrl: `/videos/${providerVideoId}.mp4`,
-    });
+    await this.publish(providerVideoId, outPath, probeStreams(outPath));
     return { providerVideoId };
   }
 
@@ -268,14 +364,27 @@ export class LocalRenderer implements Renderer {
     return path;
   }
 
+  /**
+   * Reads DURABLE state, never renderer memory — this is what lets the web service
+   * poll a render the worker started, and what survives the worker being replaced.
+   */
   async pollUntilDone(providerVideoId: string): Promise<RenderStatus> {
-    return (
-      this.results.get(providerVideoId) ?? {
-        providerVideoId,
-        status: "failed",
-        error: "unknown local render id",
-      }
-    );
+    const job = await this.store.get(providerVideoId);
+    if (!job) {
+      return { providerVideoId, status: "failed", error: "unknown local render id" };
+    }
+    if (job.status === "completed") {
+      return { providerVideoId, status: "completed", videoUrl: job.outputUri ?? undefined };
+    }
+    if (job.status === "failed") {
+      return { providerVideoId, status: "failed", error: job.error ?? "render failed" };
+    }
+    return { providerVideoId, status: "rendering" };
+  }
+
+  /** Sweep leases abandoned by workers that died mid-render. */
+  async reclaimExpiredRenders(): Promise<number> {
+    return this.store.reclaimExpired();
   }
 
   /** Compile the Swift caption tool once (recompiles when the source is newer). */

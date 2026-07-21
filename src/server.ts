@@ -13,16 +13,24 @@ import { makeVoice } from "./voice.js";
 import { makePostProcessor } from "./postprocess.js";
 import { ensureSeedRules } from "./learning.js";
 import { createApp } from "./app.js";
+import { makeRenderStore } from "./renderStore.js";
+import { makeObjectStore } from "./objectStore.js";
 
 const config = loadConfig();
 const repo = new JsonFileRepo(config.dataDir);
 const llm = makeLlmClient(config.openai.apiKey, config.openai.model);
+// Durable render state. Without this the WEB service could not poll a render the
+// WORKER started, and a worker restart would lose the job — the two processes share
+// no memory. DATABASE_URL unset => memory adapter (dev/tests only).
+const renderStore = await makeRenderStore(process.env.DATABASE_URL ?? null);
+// Artifacts must outlive the container that rendered them (see objectStore.ts).
+const objectStore = makeObjectStore(config.dataDir);
 const renderer: Renderer =
   config.renderer === "heygen" && config.heygen.apiKey
     ? new HeyGenRenderer(config.heygen.apiKey)
     : config.renderer === "mock"
       ? new MockRenderer()
-      : new LocalRenderer(config.dataDir);
+      : new LocalRenderer(config.dataDir, renderStore, undefined, objectStore);
 const voice = makeVoice(config.elevenlabs.apiKey, {
   voiceId: config.elevenlabs.voiceId,
   modelId: config.elevenlabs.modelId,

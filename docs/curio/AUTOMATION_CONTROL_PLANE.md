@@ -184,3 +184,91 @@ Health: `GET /healthz` (web). Worker readiness is its boot log line.
 Set `maxSpendUsd` per run (hard-clamped server-side to ≤ $100 regardless of payload).
 Dry-run never invokes a paid API. There are no hidden retries: every attempt is a row in
 `provider_calls`.
+
+---
+
+## Durable render state (architecture pass, 2026-07-20)
+
+### The defect
+
+`LocalRenderer` kept render status in a process-local `Map`. On Render, WEB and WORKER
+are separate processes and workers restart on every deploy, so that Map was not a
+limitation — it was a guarantee of two failures:
+
+1. A render started by the worker could **never** be polled by the web service. The
+   dashboard would poll forever for a job that was, in another process, already done.
+2. A deploy mid-render lost the job entirely, and the retry re-rendered work that had
+   already been paid for.
+
+### The fix
+
+`render_jobs` (migration `002`) is the single source of truth: id, idempotency key,
+run/stage, status, attempt, lease owner + expiry, heartbeat, progress, input hashes,
+output URI + SHA-256 + bytes, ffprobe/QA evidence, error/retry metadata, timestamps.
+
+Three invariants carry the weight:
+
+- **`claim` is one statement guarded by `status <> 'completed'`.** This is what makes
+  "never render the same thing twice" structural rather than conventional. A restarted
+  worker cannot claim a finished job even if the queue redelivers the message.
+- **`idempotency_key` is UNIQUE.** Recomputed from the inputs that determine the output,
+  so a crash-retry finds the existing completed row and reuses the artifact.
+- **Upload precedes completion.** The artifact goes to object storage first; only then
+  is the row marked completed. Completing first would leave a `completed` row pointing
+  at a file that dies with the container — a durable record of a vanished artifact.
+
+`MemoryRenderStore` still exists, but only as the explicit dev/test adapter, and
+`makeRenderStore` now **throws** in production rather than silently degrading to it.
+Same for object storage: production refuses to boot on container-local artifacts unless
+`ALLOW_EPHEMERAL_ARTIFACTS=1` says the loss is knowingly accepted.
+
+### Findings worth keeping
+
+**P-51 — A green test against the wrong engine proves nothing.** The six required
+durability scenarios passed against the memory adapter while the Postgres SQL had never
+once executed. Running the *same contract* against a real PostgreSQL engine (PGlite,
+in-process WASM, real migrations) is what turned "it typechecks" into "it runs." Method
+generalizes: when there are two adapters, write one contract and run it against both.
+
+**P-52 — A test harness bug looks exactly like a passing product.** The PGlite shim
+reported `rowCount: rows.length`, which is 0 for any UPDATE without RETURNING, so
+`reclaimExpired()` appeared to reclaim nothing. Had the assertion been `toBe(0)` — the
+"observed" value — a broken lease reclaim would have been frozen into the suite as
+correct. Assert the behaviour you *require*, then explain any gap; never rewrite the
+expectation to match what you saw.
+
+**P-53 — Sanitizing a path is weaker than rejecting it.** Stripping `..` from an object
+key silently maps `../x` and `x` onto the same object: a traversal fix that quietly
+becomes an artifact-corruption bug. Reject malformed keys.
+
+**P-54 — Fail closed on durability, not just on auth.** The original
+`makeRenderStore` logged an error and returned the memory store when Postgres was
+unreachable. That converts a loud outage into silent data loss on the next deploy.
+Booting is not the goal; booting *correctly* is.
+
+**P-55 — Three of this pass's four "failures" were the harness, not the product.**
+A wrong dist path, a `rowCount`/`affectedRows` mismatch, and — the subtle one — zsh not
+word-splitting unquoted `$VARS`, so `env $B1 node server.js` set `NODE_ENV` to the
+literal string `"production PORT=0 ADMIN_PASSWORD=..."`. Every fail-closed guard
+therefore looked dead when all of them worked. Rule: when a verification fails, prove
+the harness observed the right thing *before* touching the product. A red test is a
+claim about the test as much as about the code.
+
+### Honest gaps
+
+- **Docker image: unverified locally.** Not built on this machine.
+- **Captions.ai: `BLOCKED_CAPTIONS_AUTH`.** External 502, reproduced with an invalid
+  key, so it fails before auth — service-side, not credentials.
+- **S3 signature: unverified against a real bucket.** SigV4 is exercised against a local
+  HTTP server (bytes, headers, determinism, error handling), but no AWS/R2 endpoint has
+  ever accepted it. First real upload is the test that matters.
+- **Worker does not yet render.** The autopilot worker's assemble stage does not
+  construct a `LocalRenderer`; the durable store is wired through `server.ts`. The
+  cross-process guarantees are in place *for when it does*, and are tested, but the
+  worker-side render path is not yet exercised end to end.
+- **Object-storage boot guard: unit-tested, not boot-tested.** In production the
+  `DATABASE_URL` guard fires before it, so a full-boot check of the storage guard needs
+  a live Postgres. Verified by unit test instead; the ordering is intentional.
+- **A successful production boot has never happened locally.** No Postgres *server* is
+  installed here (PGlite is in-process and cannot serve `pg`). The fail-closed paths are
+  verified; the happy path is not.
