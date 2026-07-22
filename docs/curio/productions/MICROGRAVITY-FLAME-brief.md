@@ -5,7 +5,7 @@ Status: **CODEX-AUTHORED DRAFT — concept/script approval gate; not produced**
 Date: 2026-07-21 (Tuesday)  
 Growth OS slot: visually impossible strange-science phenomenon  
 Category: strange science / space  
-Target: ~19.3 seconds including a 0.30s bed-only loop breath  
+Runtime lock: **18.0 seconds** including a 0.30s bed-only loop breath
 Primary outcome: **retention**  
 Secondary outcome: **shares**
 
@@ -46,9 +46,9 @@ the provisional value of making the physical phenomenon inspectable.
 
 ## Outcome declaration
 
-- **Retention moment:** at ~14.5s, the radial diffusion explanation resolves
-  into the complete spherical flame: "The flame can round into a sphere."
-- **Share moment:** the final line at ~17.0s: "Gravity gives fire its familiar
+- **Retention moment:** at ~12.9s, the radial diffusion explanation resolves
+  into the complete spherical flame: "Flames tend toward spheres."
+- **Share moment:** the final line at ~15.0s: "Gravity gives fire its familiar
   shape." It is the specific fact a viewer can repeat to another person.
 - No comment, save, like, or follow tactic is added.
 - In-video Curio signature: **OMIT**. The payoff and visual return form the
@@ -59,12 +59,12 @@ the provisional value of making the physical phenomenon inspectable.
 
 | Script clause | Evidence class | Support | Guardrail |
 |---|---|---|---|
-| "A flame **can** turn spherical in space" | VERIFIED | NASA says low-momentum flames in microgravity tend to be rounded or spherical; NASA also documents spherical-flame experiments on the ISS. | Keep **can**. Do not say every fire becomes a perfect sphere. |
-| "On Earth, hot gases rise and pull cooler air underneath" | VERIFIED | NASA describes hot gases rising while gravity draws cooler, denser air to the flame's bottom. | Refers to the familiar candle/low-momentum flame shown. |
-| This circulation stretches fire upward | VERIFIED paraphrase | NASA identifies buoyant circulation as the cause of the typical candle-flame shape and flicker. | Do not claim gravity directly pulls the flame material upward. |
-| "In microgravity, that buoyant flow **can fade**" | VERIFIED conservative paraphrase | NASA says the buoyancy-driven flow/circulation that shapes an Earth candle does not occur in microgravity; **can fade** preserves setup dependence and avoids implying every spacecraft flame behaves identically. | Keep **can** and say **microgravity**, not "no gravity." |
-| "Fuel diffuses outward. Oxygen diffuses inward." | VERIFIED for the shown spherical diffusion-flame setup | NASA combustion materials describe fuel moving radially outward and chamber oxygen diffusing inward toward the flame. | Keep the visual tied to NASA's spherical diffusion-flame experiment; do not generalize to every spacecraft fire. |
-| "The flame **can** round into a sphere" | VERIFIED | NASA says low-momentum flames in microgravity tend to become rounded or spherical. | Keep **can**. Do not present perfect sphericity as universal. |
+| "Flames **can** turn spherical in space" | VERIFIED | NASA says low-momentum flames in microgravity tend to be rounded or spherical; NASA also documents spherical-flame experiments on the ISS. | Keep **can**. Do not say every fire becomes a perfect sphere. |
+| "On Earth, gases rise. Air moves underneath." | VERIFIED plain-language sequence | NASA describes hot gases rising while gravity draws cooler, denser air to the flame's bottom. | Refers to the familiar candle/low-momentum flame shown; the designed visual distinguishes hot rising gas from cooler incoming air. |
+| "Airflow stretches flames upward" | VERIFIED paraphrase | NASA identifies buoyant circulation as the cause of the typical candle-flame shape and flicker. | Do not claim gravity directly pulls the flame material upward. |
+| "In microgravity, buoyant flow fades" | VERIFIED scoped paraphrase | NASA says the buoyancy-driven flow/circulation that shapes an Earth candle does not occur in microgravity. | **Buoyant flow** names the specific Earth-shaping mechanism; this does not claim all gas motion stops. Say **microgravity**, not "no gravity." |
+| "Fuel diffuses out. Oxygen diffuses in." | VERIFIED for the shown spherical diffusion-flame setup | NASA combustion materials describe fuel moving radially outward and chamber oxygen diffusing inward toward the flame. | Keep the visual tied to NASA's spherical diffusion-flame experiment; do not generalize to every spacecraft fire. |
+| "Flames **tend** toward spheres" | VERIFIED | NASA says low-momentum flames in microgravity tend to become rounded or spherical. | Keep **tend**. Do not present perfect sphericity as universal. |
 | "Gravity gives fire its familiar shape" | VERIFIED synthesis | Derived directly from NASA's explanation of buoyancy-driven candle-flame geometry. | "Familiar shape" is deliberate; no claim that gravity is the only influence on every flame. |
 
 Primary sources:
@@ -78,17 +78,20 @@ Primary sources:
 - NASA Glenn, "ACME Flame Game" (radial fuel/oxygen diffusion explanation):
   https://www1.grc.nasa.gov/wp-content/uploads/ACME-flame-game-20150320-1.pdf
 
-## Locked narration draft
+## Narration draft written to the locked runtime
 
-> A flame can turn spherical in space. On Earth, hot gases rise and pull cooler
-> air underneath, stretching fire upward. In microgravity, that buoyant flow
-> can fade. Fuel diffuses outward. Oxygen diffuses inward. The flame can round
-> into a sphere. Gravity gives fire its familiar shape.
+> Flames can turn spherical in space. On Earth, gases rise. Air moves
+> underneath. Airflow stretches flames upward. In microgravity, buoyant flow
+> fades. Fuel diffuses out. Oxygen diffuses in. Flames tend toward spheres.
+> Gravity gives fire its familiar shape.
 
-46 words. At the currently observed ~145 WPM, estimated speech is ~19.0s; with
-the required 0.30s bed-only breath, estimated master length is ~19.3s. This is
-an estimate only. ElevenLabs v3 WPM must be measured empirically, then the
-script re-cut by whole ideas if needed. No em dash in the TTS input.
+The 18.0s runtime was locked first, reserving 0.30s for the loop breath and
+17.70s for narration. At the last measured ~145 WPM, the spoken-window budget
+is 42.8 words; this draft is 38 words. The 4.8-word buffer is reserved for the
+eight deliberate sentence-gap extensions required by Rule 52. The estimate does
+not authorize runtime drift: ElevenLabs v3 delivery must be measured empirically,
+and words must be re-cut by whole ideas and regenerated if the final narration
+cannot fit the 18.0s timeline. No em dash in the TTS input.
 
 ## Frame-zero and edit architecture
 
@@ -97,15 +100,16 @@ explanation -> transferable final fact -> clean loop.
 
 | Time | Narration / information | Visual evidence |
 |---:|---|---|
-| 0.0–2.3 | A flame can turn spherical in space. | **Viewpoint 1 — documentary macro:** isolated spherical-flame crop from NASA GRC-1998-C-00485. Complete, pointable anomaly and full opening thought on frame zero. |
-| 2.3–4.4 | On Earth, hot gases rise | **Viewpoint 2 — documentary Earth reference:** isolated Earth-candle crop from NASA GRC-1998-C-00486. No diagram or comparison yet. |
-| 4.4–8.2 | and pull cooler air underneath, stretching fire upward. | **Viewpoint 3 — designed convection cross-section:** locally rendered hot-gas plume rises, then a separate cooler-air path enters underneath and physically reaches the flame. This one composition carries exactly two connected causal states. |
-| 8.2–10.5 | In microgravity, that buoyant flow can fade. | **Viewpoint 4 — documentary comparator:** the full cropped GRC-1998-C-00485 Earth/microgravity pair appears as one comparison event; the buoyant arrows clear rather than the flame morphing artificially. |
-| 10.5–12.5 | Fuel diffuses outward. | **Viewpoint 5 — designed radial section:** a labeled fuel field moves outward from the source. |
-| 12.5–14.5 | Oxygen diffuses inward. | The same radial section's second and final causal state: oxygen moves inward and meets fuel at the reaction sheet. |
-| 14.5–17.0 | The flame can round into a sphere. | **Viewpoint 6 — documentary reveal:** isolated spherical crop from GRC-1998-C-00486, held long enough to inspect. |
-| 17.0–19.0 | Gravity gives fire its familiar shape. | **Viewpoint 7 — designed synthesis:** a minimal teardrop outline contracts into a circular outline around the documentary sphere; no new factual evidence is fabricated. |
-| 19.0–19.3 | bed-only loop breath | Exact returned frame-zero GRC-1998-C-00485 crop, caption-free. |
+| 0.0–2.4 | Flames can turn spherical in space. | **Viewpoint 1 — documentary macro:** isolated spherical-flame crop from NASA GRC-1998-C-00485. Complete, pointable anomaly and full opening thought on frame zero. |
+| 2.4–4.2 | On Earth, gases rise. | **Viewpoint 2 — documentary Earth reference:** isolated Earth-candle crop from NASA GRC-1998-C-00486. No diagram or comparison yet. |
+| 4.2–5.7 | Air moves underneath. | **Viewpoint 3 — designed convection cross-section, state 1:** a separate cooler-air path enters underneath and physically reaches the flame. |
+| 5.7–7.5 | Airflow stretches flames upward. | **Viewpoint 3, state 2 and final use:** the rising hot-gas path completes the teardrop shape. This composition carries exactly two connected causal states. |
+| 7.5–9.7 | In microgravity, buoyant flow fades. | **Viewpoint 4 — documentary comparator:** the full cropped GRC-1998-C-00485 Earth/microgravity pair appears as one comparison event; the buoyant arrows clear rather than the flame morphing artificially. |
+| 9.7–11.2 | Fuel diffuses out. | **Viewpoint 5 — designed radial section:** a labeled fuel field moves outward from the source. |
+| 11.2–12.9 | Oxygen diffuses in. | The radial section's second and final causal state: oxygen moves inward and meets fuel at the reaction sheet. From 12.55–12.90, narration and bed collapse while both fields visibly continue moving and the reaction ring tightens; the image is changing throughout the measured 0.35s silence. |
+| 12.9–15.0 | Flames tend toward spheres. | **Viewpoint 6 — documentary reveal:** on the first reveal word, match-cut from the tightening designed ring to the isolated spherical crop from GRC-1998-C-00486, then hold long enough to inspect. |
+| 15.0–17.7 | Gravity gives fire its familiar shape. | **Viewpoint 7 — designed synthesis:** a minimal teardrop outline contracts into a circular outline around the documentary sphere; no new factual evidence is fabricated. |
+| 17.7–18.0 | bed-only loop breath | Exact returned frame-zero GRC-1998-C-00485 crop, caption-free. |
 
 Every beat teaches a new cause or state. Crops do not count as beats. The
 mechanism stays above the lower caption band and must read without narration.
@@ -114,31 +118,39 @@ mechanism stays above the lower caption band and must read without narration.
 
 | Beat | Caption card |
 |---:|---|
-| frame zero | FIRE CAN TURN / SPHERICAL IN SPACE |
-| 2 | HOT GASES RISE |
-| 3 | COOL AIR MOVES IN |
-| 4 | STRETCHING FIRE UPWARD |
-| 5 | BUOYANT FLOW CAN FADE |
-| 6 | FUEL DIFFUSES OUTWARD |
-| 7 | OXYGEN DIFFUSES INWARD |
-| reveal | FLAME CAN ROUND / INTO A SPHERE |
+| frame zero | FLAMES CAN TURN / SPHERICAL IN SPACE |
+| 2 | ON EARTH / GASES RISE |
+| 3 | AIR MOVES UNDERNEATH |
+| 4 | AIRFLOW STRETCHES / FLAMES UPWARD |
+| 5 | IN MICROGRAVITY / BUOYANT FLOW FADES |
+| 6 | FUEL DIFFUSES OUT |
+| 7 | OXYGEN DIFFUSES IN |
+| reveal | FLAMES TEND / TOWARD SPHERES |
 | payoff | GRAVITY GIVES FIRE / ITS FAMILIAR SHAPE |
 
 The two opening lines illuminate together so the complete premise exists on
-frame zero. All generated lines stay at 2–4 words, with no more than 6 total
-words across two simultaneously visible lines. Captions use stable lower-center
-placement, no karaoke, no premature reveal, and clear before the 0.30s return
-hold.
+frame zero. Every caption word is a verbatim subset of its narration beat and
+carries the same qualifier. All generated lines stay at 2–4 words, with no more
+than 6 total words across two simultaneously visible lines. Captions use stable
+lower-center placement, no karaoke, no premature reveal, and clear before the
+0.30s return hold.
 
 ## Audio direction — only after script approval
 
 - ElevenLabs v3, current approved narrator, one continuous thought.
 - Generate at most two takes; transcript-verify both and self-select at >=80/100.
+- Rule 52 is resolved before audio lock: each caption card is now one complete
+  written sentence, and every internal period must produce a
+  measured 0.35–0.45s inter-sentence word gap. If the two takes do not, insert
+  documented sentence-boundary room-tone gaps before locking audio, then
+  remeasure the complete runtime. Captions.ai `Pause seconds` is set just below
+  the measured gap; cross-sentence cards are not accepted as a surprise later.
 - Continuous restrained low bed from frame zero; sound events follow the
   buoyant-flow and radial-diffusion state changes.
-- Engineer a measured ~0.35s collapse immediately before "The flame can round
-  into a sphere," with the documentary sphere already motivated by the radial
-  diagram rather than visibly fabricated.
+- Engineer a measured ~0.35s collapse immediately before "Flames tend toward
+  spheres." During that silence, the outward fuel field and inward
+  oxygen field continue moving and the reaction ring tightens; match-cut to the
+  documentary sphere only when narration resumes.
 - No CTA boom, no musical sting, no inert post-speech tail.
 - End with a 0.25–0.35s bed-only loop breath and deliver loopx2 for ear review.
 - State audio lineage as REGENERATED, including voice/model/settings, source
