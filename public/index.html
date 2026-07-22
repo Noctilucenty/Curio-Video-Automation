@@ -97,7 +97,7 @@
   <section>
     <h2>Find the next topic</h2>
     <div class="card">
-      <div class="script" style="margin-top:0">Runs Curio's reviewed discovery stack: live vidIQ outliers imported from Instagram, TikTok and YouTube; Curio analytics; weekday/category strategy; factual-source strength; visual feasibility; payoff and production risk. External patterns remain candidates until Curio's results confirm them.</div>
+      <div class="script" style="margin-top:0">Shows only ideas that clear Curio's elite gate: an instant visual contradiction, exceptional story power, surprise, tension, a strong payoff, credible sourcing, current demand and realistic production. Scores cannot compensate for a weak dimension. If nothing is excellent, nothing appears.</div>
       <div class="row" style="margin-top:10px">
         <button class="primary" id="find-topics-button" onclick="findTopics()">Find topics</button>
         <select id="topic-platform"><option value="reels">Instagram / Facebook Reels</option><option value="tiktok">TikTok</option><option value="shorts">YouTube Shorts</option></select>
@@ -265,16 +265,17 @@ function topicCandidateCard(c) {
       ? `<button disabled title="Resolve the production risk before selection">On hold</button>`
       : `<button class="primary" onclick="selectTopic('${c.id}')">Choose and start video</button>`;
   return `<div class="card topic-card ${esc(c.recommendation)}">
-    <div class="row"><span class="badge ${c.recommendation === 'recommended' ? 'approved' : ''}">${esc(c.recommendation)}</span><span class="badge">${esc(c.category)}</span><span class="badge">${esc(c.targetLengthSeconds)}s target</span><span class="topic-score">${esc(c.scores.total)}/100</span></div>
+    <div class="row"><span class="badge approved">elite pass</span><span class="badge">${esc(c.category)}</span><span class="badge">${esc(c.targetLengthSeconds)}s target</span><span class="topic-score">${esc(c.scores.total)}/100</span></div>
     <div class="hook">${esc(c.topic)}</div>
     <div class="script"><b>Frame zero:</b> ${esc(c.frameZero)}<br><b>Payoff:</b> ${esc(c.payoff)}</div>
     <div class="script">${esc(c.whyNow)}</div>
     <div class="problems" style="color:${held ? 'var(--red)' : 'var(--dim)'}"><b>Production check:</b> ${esc(c.productionRisk)}</div>
     <div class="scores">
-      <span>hook <b>${esc(c.scores.frameZero)}</b></span><span>facts <b>${esc(c.scores.factualStrength)}</b></span>
-      <span>visual <b>${esc(c.scores.visualTeachability)}</b></span><span>payoff <b>${esc(c.scores.payoff)}</b></span>
-      <span>share <b>${esc(c.scores.socialTransfer)}</b></span><span>feasible <b>${esc(c.scores.feasibility)}</b></span>
-      <span>diversity <b>${esc(c.scores.diversity)}</b></span><span>outliers <b>${esc(c.scores.outlierEvidence)}</b></span>
+      <span>frame zero <b>${esc(c.scores.frameZero)}</b></span><span>story <b>${esc(c.scores.storyPower)}</b></span>
+      <span>surprise <b>${esc(c.scores.surprise)}</b></span><span>tension <b>${esc(c.scores.tension)}</b></span>
+      <span>facts <b>${esc(c.scores.factualStrength)}</b></span><span>visual proof <b>${esc(c.scores.visualProof)}</b></span>
+      <span>payoff <b>${esc(c.scores.payoff)}</b></span><span>tell-a-friend <b>${esc(c.scores.socialTransfer)}</b></span>
+      <span>feasible <b>${esc(c.scores.feasibility)}</b></span><span>demand <b>${esc(c.scores.outlierEvidence)}</b></span>
     </div>
     <ul class="evidence">${evidence}</ul>
     <div class="row" style="margin-top:12px">${action}</div>
@@ -289,10 +290,13 @@ async function findTopics() {
     const snapshot = await api('/topic-discovery');
     const ageHours = Math.max(0, (Date.now() - Date.parse(snapshot.collectedAt)) / 3_600_000);
     const freshness = ageHours < 24 ? `fresh · ${ageHours.toFixed(1)}h old` : `stale · ${Math.floor(ageHours)}h old`;
-    $('topic-search-status').textContent = `${snapshot.contentSlot} · ${freshness}`;
+    $('topic-search-status').textContent = `${snapshot.contentSlot} · ${snapshot.candidates.length} elite pass${snapshot.candidates.length === 1 ? '' : 'es'} · ${snapshot.screenedOutCount || 0} rejected · ${freshness}`;
     const unavailable = snapshot.unavailableProviders?.length
       ? `<div class="source-status">Unavailable: ${snapshot.unavailableProviders.map(esc).join(' · ')}</div>` : '';
-    $('topic-candidates').innerHTML = `<div class="source-status"><b>Evidence:</b> ${snapshot.liveProviders.map(esc).join(' · ')}</div>${unavailable}${snapshot.candidates.map(topicCandidateCard).join('')}`;
+    const cards = snapshot.candidates.length
+      ? snapshot.candidates.map(topicCandidateCard).join('')
+      : '<div class="card empty">No idea cleared the elite bar. The system is recommending nothing—not filling space.</div>';
+    $('topic-candidates').innerHTML = `<div class="source-status"><b>Evidence:</b> ${snapshot.liveProviders.map(esc).join(' · ')}</div>${unavailable}${cards}`;
   } catch (e) {
     $('topic-search-status').textContent = '';
     $('topic-candidates').innerHTML = `<div class="card problems">${esc(e.message)}</div>`;

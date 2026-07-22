@@ -1,7 +1,7 @@
 {
-  "collectedAt": "2026-07-22T07:32:00-07:00",
+  "collectedAt": "2026-07-22T07:49:00-07:00",
   "contentSlot": "Wednesday — strongest hero video of the week",
-  "strategyVersion": "growth-os-v1 + outcome-topic-gate-v1 + live-outlier-sweep-2026-07-22",
+  "strategyVersion": "growth-os-v1 + elite-topic-gate-v2 + live-outlier-sweep-2026-07-22",
   "liveProviders": [
     "vidIQ Instagram/TikTok outlier search",
     "vidIQ YouTube Shorts outlier search",
@@ -12,16 +12,50 @@
   ],
   "candidates": [
     {
+      "id": "ukraine-drone-cable-bird-nest",
+      "topic": "On Ukraine's front line, birds are weaving drone-control fibre into their nests",
+      "category": "nature-history",
+      "targetLengthSeconds": 19,
+      "recommendation": "recommended",
+      "frameZero": "THIS NEST IS MADE FROM WAR",
+      "payoff": "The fibre once guided drones through electronic jamming. A bird wove the abandoned cable into a place for new life.",
+      "whyNow": "An Instagram Reel about the nests is an 85.2x creator outlier with 327,700 views, and Kyiv's War Museum documented a recovered nest in June 2026. It combines a shocking physical object, human consequence, nature, technology and an emotionally transferable final image.",
+      "productionRisk": "Conflict context requires restraint. The official museum page confirms the object, but its photographs are not presumed reusable; obtain permission or build an original clearly illustrative macro plate before production.",
+      "scores": {"frameZero": 10, "storyPower": 10, "surprise": 10, "tension": 9, "factualStrength": 10, "visualProof": 9, "payoff": 9, "socialTransfer": 10, "feasibility": 7, "outlierEvidence": 9, "total": 93},
+      "evidence": [
+        {"provider": "vidIQ Instagram outliers", "label": "Birds weave nests from fibre-optic drone cable", "url": "https://www.instagram.com/reel/DZtGR3Lj2zi/", "metric": "327,700 views · 85.2x creator median · 11s", "status": "candidate"},
+        {"provider": "National Museum of the History of Ukraine in the Second World War", "label": "A Bird's Nest Made of Fibre Optic Cable", "url": "https://warmuseum.kyiv.ua/public/en/news/show/a-birds-nest-made-of-fibre-optic-cable-testimony-from-the-front-line-in-the-war-museums-collection", "metric": "Primary institutional record · found near Chorne, Kharkiv region · published 10 June 2026", "status": "confirmed"}
+      ]
+    },
+    {
+      "id": "titanic-chief-baker-survival",
+      "topic": "Titanic's chief baker stocked the lifeboats, rode the stern down, and survived the freezing water",
+      "category": "survival-history",
+      "targetLengthSeconds": 19,
+      "recommendation": "recommended",
+      "frameZero": "THE TITANIC'S BAKER SURVIVED THE WATER",
+      "payoff": "His 1912 testimony records bread, deck chairs, whisky and a long wait in the water—but does not prove the viral myth that alcohol saved him.",
+      "whyNow": "A current Short about Charles Joughin is a 656.44x channel outlier with 746,169 views. A second treatment reached 7.56 million views at 39.8x, so the subject has two independent outlier signals plus unusually detailed first-person testimony.",
+      "productionRisk": "Do not claim alcohol protected him from hypothermia; that popular causal explanation is unsupported and physiologically misleading. Use public-domain archival material and original animation, never clips from Titanic films.",
+      "scores": {"frameZero": 9, "storyPower": 10, "surprise": 9, "tension": 10, "factualStrength": 9, "visualProof": 8, "payoff": 9, "socialTransfer": 9, "feasibility": 9, "outlierEvidence": 9, "total": 91},
+      "evidence": [
+        {"provider": "vidIQ YouTube outliers", "label": "Drunken chef survived Titanic wreck", "url": "https://www.youtube.com/shorts/ABvWfuhIE4g", "metric": "746,169 views · 656.44x breakout", "status": "candidate"},
+        {"provider": "vidIQ YouTube outliers", "label": "Titanic baker film treatment", "url": "https://www.youtube.com/shorts/sO6YJzwbBAE", "metric": "7,556,599 views · 39.8x breakout", "status": "candidate"},
+        {"provider": "British Wreck Commissioner's Inquiry", "label": "Testimony of Charles Joughin, 10 May 1912", "url": "https://titanicinquiry.org/BOTInq/BOTInq06Joughin01.php", "metric": "Contemporaneous first-person inquiry transcript", "status": "confirmed"},
+        {"provider": "United States Senate", "label": "Titanic Disaster Hearings", "url": "https://www.senate.gov/reference/reference_item/titanic.htm", "metric": "Official investigation archive and British report reference", "status": "confirmed"}
+      ]
+    },
+    {
       "id": "pitch-drop-slowest-experiment",
       "topic": "The world's slowest experiment has produced only nine drops in nearly a century",
       "category": "strange-science",
       "targetLengthSeconds": 19,
-      "recommendation": "recommended",
+      "recommendation": "viable",
       "frameZero": "THIS LIQUID TAKES YEARS TO DROP",
       "payoff": "Pitch looks solid, but its viscosity is so high that one drop can take years to form.",
       "whyNow": "A current YouTube Short about the world's slowest experiment is a 14.65x channel outlier with 889,824 views and about 32,849 views per hour. The topic also has unusually strong primary-source documentation and a visible, singular hero object.",
       "productionRisk": "The outlier validates demand, not reuse rights. Build from University of Queensland facts and permission-qualified imagery; do not download or imitate the outlier's footage.",
-      "scores": {"frameZero": 9, "factualStrength": 10, "visualTeachability": 9, "payoff": 9, "socialTransfer": 9, "feasibility": 8, "diversity": 9, "outlierEvidence": 8, "total": 89},
+      "scores": {"frameZero": 9, "storyPower": 6, "surprise": 8, "tension": 4, "factualStrength": 10, "visualProof": 8, "payoff": 8, "socialTransfer": 7, "feasibility": 8, "outlierEvidence": 8, "total": 76},
       "evidence": [
         {"provider": "vidIQ YouTube outliers", "label": "The World's Slowest Experiment", "url": "https://www.youtube.com/shorts/490Y3Vn-10U", "metric": "889,824 views · 14.65x breakout · ~32,849 VPH", "status": "candidate"},
         {"provider": "University of Queensland", "label": "Pitch Drop Experiment", "url": "https://smp.uq.edu.au/pitch-drop-experiment", "metric": "Primary factual source and official experiment page", "status": "confirmed"}
@@ -37,7 +71,7 @@
       "payoff": "Dense old ice absorbs red wavelengths and returns more blue light, revealing its age and compression.",
       "whyNow": "A current Instagram Reel built around a glacier calving and revealing deep blue ice is a 20.0x creator outlier. It matches Curio's immediate-anomaly and raw-phenomenon-audio architecture.",
       "productionRisk": "The visual is footage-dependent and the discovered Reel is not a licensed source. Proceed only if a genuine 1080x1920-capable public-domain or licensed calving shot can be secured.",
-      "scores": {"frameZero": 9, "factualStrength": 9, "visualTeachability": 9, "payoff": 8, "socialTransfer": 8, "feasibility": 5, "diversity": 9, "outlierEvidence": 8, "total": 81},
+      "scores": {"frameZero": 8, "storyPower": 6, "surprise": 8, "tension": 7, "factualStrength": 9, "visualProof": 9, "payoff": 7, "socialTransfer": 7, "feasibility": 5, "outlierEvidence": 8, "total": 74},
       "evidence": [
         {"provider": "vidIQ Instagram outliers", "label": "Glacier calving reveals a deep blue core", "url": "https://www.instagram.com/reel/DZ4OdDuoylH/", "metric": "112,900 views · 20.0x creator median · 18s", "status": "candidate"},
         {"provider": "USGS", "label": "Why glacier ice is blue", "url": "https://www.usgs.gov/faqs/why-glacier-ice-blue", "metric": "Authoritative factual source", "status": "confirmed"}
@@ -53,7 +87,7 @@
       "payoff": "Inertia keeps the water nearly still for a moment while the torn rubber snaps away.",
       "whyNow": "A current TikTok slow-motion experiment montage is a 920x creator outlier. Its opening water-balloon slice supplies a strong format signal: the impossible state is fully visible before explanation.",
       "productionRisk": "The discovered montage is reference evidence only. Original high-speed capture is expensive; production needs licensed high-speed footage or a verified reusable source before approval.",
-      "scores": {"frameZero": 10, "factualStrength": 8, "visualTeachability": 10, "payoff": 8, "socialTransfer": 8, "feasibility": 4, "diversity": 8, "outlierEvidence": 9, "total": 81},
+      "scores": {"frameZero": 9, "storyPower": 5, "surprise": 7, "tension": 5, "factualStrength": 8, "visualProof": 9, "payoff": 7, "socialTransfer": 7, "feasibility": 4, "outlierEvidence": 9, "total": 70},
       "evidence": [
         {"provider": "vidIQ TikTok outliers", "label": "Invisible Moments at 1000 FPS", "url": "https://www.tiktok.com/@endlessillusion_/video/7663280380803403026", "metric": "248,400 views · 920.0x creator median · 22s", "status": "candidate"}
       ]
@@ -68,7 +102,7 @@
       "payoff": "The rescue is emotionally clear, but the story needs a verified distance and outcome before it has a transferable factual ending.",
       "whyNow": "A current local-news YouTube Short is a 545.34x channel outlier with 883,303 views and about 11,521 views per hour. It is strong demand evidence for a compact animal-rescue arc.",
       "productionRisk": "Hold until the original report, exact location, distance, outcome, and footage rights are verified. Virality alone cannot fill factual gaps.",
-      "scores": {"frameZero": 8, "factualStrength": 5, "visualTeachability": 8, "payoff": 6, "socialTransfer": 7, "feasibility": 4, "diversity": 8, "outlierEvidence": 10, "total": 70},
+      "scores": {"frameZero": 8, "storyPower": 8, "surprise": 6, "tension": 8, "factualStrength": 5, "visualProof": 8, "payoff": 6, "socialTransfer": 7, "feasibility": 4, "outlierEvidence": 10, "total": 70},
       "evidence": [
         {"provider": "vidIQ YouTube outliers", "label": "Heartwarming Raccoon Rescue on a Texas Lake", "url": "https://www.youtube.com/shorts/mxsVCvJX6MM", "metric": "883,303 views · 545.34x breakout · ~11,521 VPH", "status": "candidate"}
       ]

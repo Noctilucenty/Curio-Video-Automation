@@ -11,12 +11,14 @@ export interface TopicEvidence {
 
 export interface TopicCandidateScores {
   frameZero: number;
+  storyPower: number;
+  surprise: number;
+  tension: number;
   factualStrength: number;
-  visualTeachability: number;
+  visualProof: number;
   payoff: number;
   socialTransfer: number;
   feasibility: number;
-  diversity: number;
   outlierEvidence: number;
   total: number;
 }
@@ -42,12 +44,30 @@ export interface TopicDiscoverySnapshot {
   liveProviders: string[];
   unavailableProviders: string[];
   candidates: TopicCandidate[];
+  /** Research items retained in the file but rejected by the non-compensable
+   * editorial gate. They never appear as ideas in the dashboard. */
+  screenedOutCount?: number;
 }
 
 const SCORE_KEYS: Array<keyof Omit<TopicCandidateScores, "total">> = [
-  "frameZero", "factualStrength", "visualTeachability", "payoff",
-  "socialTransfer", "feasibility", "diversity", "outlierEvidence",
+  "frameZero", "storyPower", "surprise", "tension", "factualStrength",
+  "visualProof", "payoff", "socialTransfer", "feasibility", "outlierEvidence",
 ];
+
+/** No average can rescue a dull idea. Every dimension below is a hard gate. */
+export const ELITE_TOPIC_GATE = {
+  total: 90,
+  frameZero: 9,
+  storyPower: 9,
+  surprise: 9,
+  tension: 8,
+  factualStrength: 9,
+  visualProof: 8,
+  payoff: 9,
+  socialTransfer: 9,
+  feasibility: 7,
+  outlierEvidence: 8,
+} as const;
 
 /**
  * Topic discovery is evidence import, never generic brainstorming. Codex's
@@ -61,13 +81,33 @@ export function loadTopicDiscoverySnapshot(intelligenceDir: string): TopicDiscov
   try {
     const raw = JSON.parse(readFileSync(file, "utf8"));
     if (!validSnapshot(raw)) return null;
+    const candidates = raw.candidates.filter(passesEliteTopicGate);
     return {
       ...raw,
-      candidates: [...raw.candidates].sort((a, b) => b.scores.total - a.scores.total),
+      screenedOutCount: raw.candidates.length - candidates.length,
+      candidates: candidates.sort((a, b) => b.scores.total - a.scores.total),
     };
   } catch {
     return null;
   }
+}
+
+export function passesEliteTopicGate(candidate: TopicCandidate): boolean {
+  const s = candidate.scores;
+  return candidate.recommendation === "recommended" &&
+    s.total >= ELITE_TOPIC_GATE.total &&
+    s.frameZero >= ELITE_TOPIC_GATE.frameZero &&
+    s.storyPower >= ELITE_TOPIC_GATE.storyPower &&
+    s.surprise >= ELITE_TOPIC_GATE.surprise &&
+    s.tension >= ELITE_TOPIC_GATE.tension &&
+    s.factualStrength >= ELITE_TOPIC_GATE.factualStrength &&
+    s.visualProof >= ELITE_TOPIC_GATE.visualProof &&
+    s.payoff >= ELITE_TOPIC_GATE.payoff &&
+    s.socialTransfer >= ELITE_TOPIC_GATE.socialTransfer &&
+    s.feasibility >= ELITE_TOPIC_GATE.feasibility &&
+    s.outlierEvidence >= ELITE_TOPIC_GATE.outlierEvidence &&
+    candidate.evidence.some((e) => e.status === "confirmed") &&
+    candidate.evidence.some((e) => e.status === "candidate");
 }
 
 function validSnapshot(raw: any): raw is TopicDiscoverySnapshot {
@@ -84,7 +124,8 @@ function validSnapshot(raw: any): raw is TopicDiscoverySnapshot {
         !Array.isArray(c.evidence) || !c.scores) return false;
     ids.add(c.id);
     return SCORE_KEYS.every((key) => Number.isFinite(c.scores[key]) && c.scores[key] >= 0 && c.scores[key] <= 10) &&
-      Number.isFinite(c.scores.total) && c.scores.total >= 0 && c.scores.total <= 100 &&
+      Number.isFinite(c.scores.total) &&
+      c.scores.total === SCORE_KEYS.reduce((sum, key) => sum + c.scores[key], 0) &&
       c.evidence.every((e: any) => e && typeof e.provider === "string" && typeof e.label === "string" &&
         typeof e.url === "string" && /^https:\/\//.test(e.url) && typeof e.metric === "string" &&
         ["candidate", "confirmed"].includes(e.status));

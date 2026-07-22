@@ -392,6 +392,9 @@ describe("api flow", () => {
     expect(found.body.contentSlot).toContain("Wednesday");
     expect(found.body.liveProviders.some((p: string) => p.includes("vidIQ"))).toBe(true);
     expect(found.body.candidates[0].scores.total).toBeGreaterThanOrEqual(found.body.candidates[1].scores.total);
+    expect(found.body.screenedOutCount).toBeGreaterThan(0);
+    expect(found.body.candidates.every((c: any) => c.recommendation === "recommended")).toBe(true);
+    expect(found.body.candidates.every((c: any) => c.scores.total >= 90 && c.scores.storyPower >= 9)).toBe(true);
 
     const candidate = found.body.candidates.find((c: any) => c.recommendation === "recommended");
     const selected = await request(app)
@@ -410,8 +413,9 @@ describe("api flow", () => {
     expect(duplicate.body.idempotent).toBe(true);
     expect(duplicate.body.topic.id).toBe(selected.body.topic.id);
 
-    const held = found.body.candidates.find((c: any) => c.recommendation === "hold");
-    expect((await request(app).post(`/api/topic-discovery/${held.id}/select`).send({})).status).toBe(409);
+    // Rejected research stays in the intelligence file for audit, but does not
+    // appear as an idea and cannot be selected by id.
+    expect((await request(app).post("/api/topic-discovery/raccoon-lake-rescue/select").send({})).status).toBe(404);
   });
 
   it("stores versioned platform-separated performance-over-time analyses", async () => {
