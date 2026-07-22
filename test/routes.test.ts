@@ -31,6 +31,16 @@ async function makeApp(adminToken: string | null = null, cardsFrozen = false) {
 }
 
 describe("api flow", () => {
+  it("serves the review dashboard from the application root", async () => {
+    const { app } = await makeApp();
+
+    const dashboard = await request(app).get("/");
+
+    expect(dashboard.status).toBe(200);
+    expect(dashboard.headers["content-type"]).toContain("text/html");
+    expect(dashboard.text).toContain("Curio Automation");
+  });
+
   it("topic -> generate -> review -> approve -> publish -> performance", async () => {
     const { app, queue, repo } = await makeApp();
 

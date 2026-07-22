@@ -4,8 +4,7 @@
 
 import express from "express";
 import type { Express, NextFunction, Request, Response } from "express";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import type { Config } from "./config.js";
 import type { Repo } from "./repository.js";
 import type { LlmClient } from "./llm.js";
@@ -78,7 +77,11 @@ export function createApp(deps: AppDeps): App {
   }));
 
   // Review dashboard (static single page hitting the API above).
-  const publicDir = join(dirname(fileURLToPath(import.meta.url)), "..", "public");
+  // Resolve from the application root, not the compiled module directory.
+  // In development import.meta.url lives under src/, but production runs the
+  // compiled file from dist/src/; resolving relative to the module therefore
+  // points at the nonexistent dist/public directory on Render.
+  const publicDir = join(process.cwd(), "public");
   app.use(express.static(publicDir));
 
   // Locally rendered MP4s (LocalRenderer writes <dataDir>/videos/*.mp4).
