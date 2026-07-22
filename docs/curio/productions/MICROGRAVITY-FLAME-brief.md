@@ -1,6 +1,6 @@
 # MICROGRAVITY-FLAME — spherical fire
 
-Status: **CODEX-AUTHORED DRAFT — concept/script approval gate; not produced**
+Status: **SCRIPT APPROVED 2026-07-22 — AUDIO RUNTIME HOLD: measured delivery requires a 19.0s lock or a newly approved script cut**
 
 Date: 2026-07-21 (Tuesday)  
 Growth OS slot: visually impossible strange-science phenomenon  
@@ -9,8 +9,9 @@ Runtime lock: **18.0 seconds** including a 0.30s bed-only loop breath
 Primary outcome: **retention**  
 Secondary outcome: **shares**
 
-No narration, paid asset, generated visual, or render is authorized by this
-draft. Leon approves or changes the concept and exact factual script first.
+Leon approved the concept and exact factual script in the Codex task on
+2026-07-22. Narration and the complete audio story are authorized. Paid visual
+generation remains blocked until the complete audio-story review passes.
 Because Codex selected the topic and drafted the script, any later Codex verdict
 must still inspect the producer's exact artifact independently.
 
@@ -188,8 +189,12 @@ upscale a preview or fabricate proof.
 
 ## Production gate
 
-**HARD STOP:** Leon must approve the concept and exact script before narration.
-After approval: audio story first -> audio review -> source acquisition and
+**SCRIPT GATE PASSED 2026-07-22. CURRENT HARD STOP: measured runtime decision.**
+Two word-exact v3 takes proved that the full caption-safe audio architecture
+lands at approximately 19.0s, not the approved 18.0s. Do not time-stretch,
+silently drift, or weaken the sentence-gap contract; Leon must approve a 19.0s
+runtime lock or approve a revised shorter script. After that decision:
+Audio story first -> audio review -> source acquisition and
 low-resolution visual preview -> independent artifact review -> Captions.ai
 finishing -> locked-audio remux -> `node tools/finalqa.mjs <mp4>` -> final
 review. Nothing posts automatically.
