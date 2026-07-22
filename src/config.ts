@@ -6,6 +6,7 @@ export interface Config {
   adminToken: string | null;
   dataDir: string;
   intelligenceDir: string;
+  databaseUrl: string | null;
   /** "local" = no-avatar dark-editorial renderer (default); "heygen" = avatar. */
   renderer: "local" | "heygen" | "mock";
   openai: { apiKey: string | null; model: string };
@@ -30,6 +31,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     adminToken: env.ADMIN_TOKEN?.trim() || null,
     dataDir: env.DATA_DIR?.trim() || "./data",
     intelligenceDir: env.INTELLIGENCE_DIR?.trim() || `${env.DATA_DIR?.trim() || "./data"}/viral-intelligence`,
+    databaseUrl: env.DATABASE_URL?.trim() || null,
     renderer: renderer === "heygen" || renderer === "mock" ? renderer : "local",
     cardsFrozen: env.CARDS_FROZEN?.trim() !== "0",
     openai: {

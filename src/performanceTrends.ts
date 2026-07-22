@@ -1,0 +1,149 @@
+import type { PerformanceMetrics, Video } from "./types.js";
+
+const CHECKPOINT_HOURS = [2, 24, 72, 168] as const;
+
+export interface PerformanceStreamAnalysis {
+  video_id: string;
+  label: string;
+  platform: string;
+  surface: string;
+  posted_at: number;
+  age_hours: number;
+  latest: {
+    views: number;
+    completion_rate: number;
+    skip_rate: number | null;
+    avg_watch_time: number;
+    advocacy_rate: number;
+    ingested_at: number;
+  };
+  delta_from_prior: {
+    views: number;
+    completion_points: number;
+    skip_points: number | null;
+    advocacy_actions: number;
+  } | null;
+  checkpoints: Array<{ hours: number; due: boolean; captured: boolean; captured_at: number | null }>;
+  weakest_gate: "scroll_stop" | "retention" | "advocacy" | "insufficient_data";
+  recommendation: string;
+}
+
+export interface PerformanceTrendReport {
+  generated_at: number;
+  checkpoints: number[];
+  streams: PerformanceStreamAnalysis[];
+  missing_due: number;
+}
+
+/**
+ * Deterministic longitudinal diagnosis. It never merges Instagram and
+ * Facebook, never promotes a content rule, and never lets one snapshot become
+ * a trend. The LLM learning run remains a separate, evidence-gated action.
+ */
+export function analyzePerformanceOverTime(
+  videos: Video[],
+  metrics: PerformanceMetrics[],
+  now = Date.now(),
+): PerformanceTrendReport {
+  const byVideo = new Map(videos.map((video) => [video.id, video]));
+  const grouped = new Map<string, PerformanceMetrics[]>();
+  for (const metric of metrics.filter((m) => m.provenance !== "synthetic")) {
+    const surface = metric.surface ?? metric.platform;
+    const key = `${metric.videoId}::${metric.platform}::${surface}`;
+    const rows = grouped.get(key) ?? [];
+    rows.push(metric);
+    grouped.set(key, rows);
+  }
+
+  const streams = [...grouped.values()].flatMap((rows) => {
+    rows.sort((a, b) => a.ingestedAt - b.ingestedAt);
+    const latest = rows.at(-1)!;
+    const prior = rows.length > 1 ? rows.at(-2)! : null;
+    const video = byVideo.get(latest.videoId);
+    if (!video) return [];
+    const postedAt = latest.postedAt || video.publishedAt || latest.ingestedAt;
+    const ageHours = Math.max(0, (now - postedAt) / 3_600_000);
+    const checkpoints = CHECKPOINT_HOURS.map((hours, index) => {
+      const nextHours = CHECKPOINT_HOURS[index + 1] ?? Number.POSITIVE_INFINITY;
+      // A late analytics paste cannot retroactively satisfy every earlier
+      // checkpoint. Attribute each row only to the window it was captured in.
+      const captured = rows.find((row) => {
+        const capturedAge = (row.ingestedAt - postedAt) / 3_600_000;
+        return capturedAge >= hours && capturedAge < nextHours;
+      });
+      return { hours, due: ageHours >= hours, captured: Boolean(captured), captured_at: captured?.ingestedAt ?? null };
+    });
+    const views = Math.max(latest.views, 1);
+    const advocacyRate = (latest.shares + latest.saves) / views;
+    const diagnosis = diagnose(latest, video, advocacyRate);
+    return [{
+      video_id: latest.videoId,
+      label: video.pkg?.selectedHook ?? video.pkg?.title ?? latest.videoId,
+      platform: latest.platform,
+      surface: latest.surface ?? latest.platform,
+      posted_at: postedAt,
+      age_hours: Math.round(ageHours * 10) / 10,
+      latest: {
+        views: latest.views,
+        completion_rate: latest.completionRate,
+        skip_rate: latest.skipRate ?? null,
+        avg_watch_time: latest.avgWatchTime,
+        advocacy_rate: Math.round(advocacyRate * 10_000) / 10_000,
+        ingested_at: latest.ingestedAt,
+      },
+      delta_from_prior: prior ? {
+        views: latest.views - prior.views,
+        completion_points: roundPoints(latest.completionRate - prior.completionRate),
+        skip_points: latest.skipRate != null && prior.skipRate != null
+          ? roundPoints(latest.skipRate - prior.skipRate) : null,
+        advocacy_actions: (latest.shares + latest.saves) - (prior.shares + prior.saves),
+      } : null,
+      checkpoints,
+      weakest_gate: diagnosis.gate,
+      recommendation: diagnosis.recommendation,
+    }];
+  }).sort((a, b) => b.latest.ingested_at - a.latest.ingested_at);
+
+  const missingDue = streams.reduce(
+    (sum, stream) => sum + stream.checkpoints.filter((checkpoint) => checkpoint.due && !checkpoint.captured).length,
+    0,
+  );
+  return { generated_at: now, checkpoints: [...CHECKPOINT_HOURS], streams, missing_due: missingDue };
+}
+
+function diagnose(metric: PerformanceMetrics, video: Video, advocacyRate: number): {
+  gate: PerformanceStreamAnalysis["weakest_gate"];
+  recommendation: string;
+} {
+  const duration = video.pkg?.estimatedLengthSeconds ?? 0;
+  const watchRatio = duration > 0 && metric.avgWatchTime > 0 ? metric.avgWatchTime / duration : null;
+  const candidates: Array<{ gate: "scroll_stop" | "retention" | "advocacy"; severity: number }> = [];
+  if (metric.skipRate != null) candidates.push({ gate: "scroll_stop", severity: metric.skipRate / 0.5 });
+  if (metric.completionRate > 0 || watchRatio != null) {
+    const completionSeverity = metric.completionRate > 0 ? (1 - metric.completionRate) / 0.75 : 0;
+    const watchSeverity = watchRatio != null ? (1 - Math.min(1, watchRatio)) / 0.6 : 0;
+    candidates.push({ gate: "retention", severity: Math.max(completionSeverity, watchSeverity) });
+  }
+  candidates.push({ gate: "advocacy", severity: Math.max(0, 1 - advocacyRate / 0.005) });
+  if (!candidates.length) return {
+    gate: "insufficient_data",
+    recommendation: "Capture platform-separated retention, skip, share, and save metrics before changing the creative.",
+  };
+  const gate = candidates.sort((a, b) => b.severity - a.severity)[0].gate;
+  if (gate === "scroll_stop") return {
+    gate,
+    recommendation: "Repair only frame zero and the opening sentence: show the complete anomaly immediately, then keep the rest stable for a clean test.",
+  };
+  if (gate === "retention") return {
+    gate,
+    recommendation: "Tighten the first soft or repeated middle beat and move the mechanism/payoff earlier; do not change the topic and visual style in the same test.",
+  };
+  return {
+    gate,
+    recommendation: "Strengthen the final transferable fact or consequence after the full payoff; do not add engagement bait or withhold the answer.",
+  };
+}
+
+function roundPoints(delta: number): number {
+  return Math.round(delta * 10_000) / 100;
+}

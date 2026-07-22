@@ -100,7 +100,7 @@ describe("pattern injection into the generation prompt", () => {
 describe("manual rule promotion endpoint", () => {
   function testConfig(): Config {
     return {
-      port: 0, adminToken: null, dataDir: "./data", intelligenceDir: "./data/viral-intelligence", cardsFrozen: false,
+      port: 0, adminToken: null, dataDir: "./data", intelligenceDir: "./data/viral-intelligence", databaseUrl: null, cardsFrozen: false,
       openai: { apiKey: null, model: "mock-llm" },
       heygen: { apiKey: null, avatarId: "av", voiceId: "vo" },
       elevenlabs: { apiKey: null, voiceId: "", modelId: "eleven_v3" },

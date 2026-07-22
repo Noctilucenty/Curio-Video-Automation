@@ -182,6 +182,7 @@ async function runLearningUnlocked(repo: Repo, llm: LlmClient): Promise<Learning
   const baselineAvg = avg(scored.map((s) => s.score));
 
   const priorRuns = await repo.listLearningRuns(); // newest first
+  const priorTrendAnalyses = await repo.listPerformanceAnalyses();
   const previousRun = priorRuns[0];
   const allRules = await repo.listRules();
   const validations = ruleValidation(allRules, scored, baselineAvg);
@@ -216,6 +217,12 @@ async function runLearningUnlocked(repo: Repo, llm: LlmClient): Promise<Learning
       rules_issued: allRules
         .filter((rule) => rule.runId === r.id)
         .map((rule) => ({ category: rule.category, rule: rule.rule })),
+    })),
+    longitudinal_memory: priorTrendAnalyses.slice(0, 5).map((analysis) => ({
+      analysis_id: analysis.id,
+      version: analysis.version,
+      created_at: analysis.createdAt,
+      diagnosis: analysis.payload,
     })),
     rule_validation: validations,
     judge_vs_actual: judgeVsActual(scored),

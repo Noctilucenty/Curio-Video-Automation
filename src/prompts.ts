@@ -288,6 +288,10 @@ with EVERY analytics drop. The payload contains:
   ONLY from cohorts — the top/bottom lists are the extremes and carry
   selection bias. Treat small cohort n as noisy and say so.
 - history: summaries of previous learning runs and the rules they issued.
+- longitudinal_memory: immutable, versioned checkpoint diagnoses from prior
+  2h/24h/72h/7d analyses. Treat these as observations. Compare repeated
+  platform-and-surface-specific patterns over time, but never promote one
+  diagnosis or one video's result into a confirmed rule.
 - rule_validation: for each previously-issued rule, the avg engagement of videos
   generated UNDER that rule vs the overall baseline. Re-issue (strengthened) the
   rules that worked; explicitly drop or invert what didn't. Never re-issue a

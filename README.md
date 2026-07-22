@@ -82,6 +82,7 @@ pipeline — including the fail→rewrite loop — works end-to-end offline.
 | `ADMIN_TOKEN` | when set, all POSTs need `Authorization: Bearer <token>` |
 | `PORT` / `DATA_DIR` | server port, JSON snapshot location |
 | `INTELLIGENCE_DIR` | reviewed viral-research snapshots; defaults to `<DATA_DIR>/viral-intelligence` |
+| `DATABASE_URL` | PostgreSQL production memory; empty keeps the local JSON fallback |
 
 ## API
 
@@ -103,6 +104,8 @@ POST /api/videos/:id/reject       … → rejected ({reason})
 POST /api/videos/:id/publish      approved → published (you post manually, then mark)
 POST /api/videos/:id/postprocess  retry the Captions.ai step against the existing render
 POST /api/videos/:id/performance  ingest analytics (views, completion_rate, saves, …)
+POST /api/performance/trends/analyze  persist 2h/24h/72h/7d platform-separated diagnosis
+GET  /api/performance/trends     durable longitudinal-analysis history
 POST /api/learning/run            analyze top/bottom 20% → new prompt rules
 GET  /api/learning/rules          GET /api/learning/runs
 GET  /api/review-queue            GET /api/jobs · GET /api/meta · GET /healthz

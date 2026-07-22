@@ -2,6 +2,16 @@
 -- The dev server uses a JSON snapshot (data/automation.json); this schema is the
 -- contract for the production adapter. Column names mirror the API wire format.
 
+-- The current Postgres adapter persists the complete repository contract in a
+-- single atomic JSONB row. This includes immutable prompt/model traces,
+-- platform-separated metrics, human gates, and versioned over-time analyses.
+-- Normalized tables below remain the migration contract for larger deployments.
+create table if not exists curio_app_state (
+  id text primary key,
+  state jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists topics (
   id text primary key,
   topic text not null,

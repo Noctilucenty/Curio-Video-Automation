@@ -106,6 +106,12 @@ describe("learning payload cohort metadata", () => {
         views: 10000,
       }));
     }
+    await repo.addPerformanceAnalysis({
+      id: "trend_known",
+      version: "performance_trends_v1",
+      payload: { streams: [{ platform: "reels", surface: "instagram", weakest_gate: "retention" }] },
+      createdAt: Date.now(),
+    });
 
     await runLearning(repo, new MockLlmClient());
     const rec = (await repo.listGenerations()).find((g) => g.kind === "learning")!;
@@ -134,6 +140,11 @@ describe("learning payload cohort metadata", () => {
     expect(typeof v7.avg_engagement).toBe("number");
     const retention = cohorts.by_primary_outcome.retention;
     expect(retention.n_rows).toBe(10);
+    expect(payload.longitudinal_memory[0]).toMatchObject({
+      analysis_id: "trend_known",
+      version: "performance_trends_v1",
+      diagnosis: { streams: [{ platform: "reels", surface: "instagram", weakest_gate: "retention" }] },
+    });
   });
 
   it("attributes manually edited packages to the manual_edit cohort", async () => {

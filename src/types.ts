@@ -243,6 +243,16 @@ export interface LearningRun {
   createdAt: number;
 }
 
+/** Immutable output of one deterministic longitudinal analytics pass. The
+ * payload is versioned so later brains can compare old diagnoses without
+ * rewriting history. */
+export interface PerformanceAnalysisRecord {
+  id: string;
+  version: string;
+  payload: Record<string, unknown>;
+  createdAt: number;
+}
+
 export type ProductionGateStage =
   | "concept_script"
   | "runtime"

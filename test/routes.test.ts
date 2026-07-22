@@ -12,7 +12,7 @@ import type { LearningRule } from "../src/types.js";
 
 function testConfig(adminToken: string | null = null, cardsFrozen = false): Config {
   return {
-    port: 0, adminToken, dataDir: "./data", intelligenceDir: "./data/viral-intelligence", renderer: "mock" as const, cardsFrozen,
+    port: 0, adminToken, dataDir: "./data", intelligenceDir: "./data/viral-intelligence", databaseUrl: null, renderer: "mock" as const, cardsFrozen,
     openai: { apiKey: null, model: "mock-llm" },
     heygen: { apiKey: null, avatarId: "av", voiceId: "vo" },
     elevenlabs: { apiKey: null, voiceId: "", modelId: "eleven_v3" },
@@ -412,6 +412,33 @@ describe("api flow", () => {
 
     const held = found.body.candidates.find((c: any) => c.recommendation === "hold");
     expect((await request(app).post(`/api/topic-discovery/${held.id}/select`).send({})).status).toBe(409);
+  });
+
+  it("stores versioned platform-separated performance-over-time analyses", async () => {
+    const { app, queue } = await makeApp();
+    const gen = await request(app).post("/api/videos/generate").send({ topic: "checkpoint memory topic" });
+    const videoId = gen.body.video_id;
+    await queue.drain();
+    await request(app).post(`/api/videos/${videoId}/approve`).send({});
+    await request(app).post(`/api/videos/${videoId}/publish`).send({});
+    const postedAt = Date.now() - 25 * 3_600_000;
+    await request(app).post(`/api/videos/${videoId}/performance`).send({
+      platform: "instagram", views: 1000, completion_rate: 0.2, skip_rate: 0.62,
+      avg_watch_time: 4, shares: 1, saves: 2, posted_at: postedAt,
+    });
+
+    const analyzed = await request(app).post("/api/performance/trends/analyze").send({});
+    expect(analyzed.status).toBe(201);
+    expect(analyzed.body.version).toBe("performance_trends_v1");
+    expect(analyzed.body.payload.streams).toHaveLength(1);
+    expect(analyzed.body.payload.streams[0].surface).toBe("instagram");
+    expect(analyzed.body.payload.streams[0].weakest_gate).toBe("scroll_stop");
+    expect(analyzed.body.payload.streams[0].checkpoints.find((c: any) => c.hours === 24).captured).toBe(true);
+    expect(analyzed.body.payload.streams[0].checkpoints.find((c: any) => c.hours === 2).captured).toBe(false);
+
+    const history = await request(app).get("/api/performance/trends");
+    expect(history.status).toBe(200);
+    expect(history.body.analyses[0].id).toBe(analyzed.body.id);
   });
 
   it("validates a caption plan against the locked script with explicit per-card reasons", async () => {

@@ -176,7 +176,13 @@
   </section>
 
   <section>
-    <h2>Learning <button style="float:right" onclick="runLearning()">Run learning analysis</button></h2>
+    <h2>Learning and improvement</h2>
+    <div class="row" style="margin-bottom:12px">
+      <button class="primary" id="analyze-over-time" onclick="analyzeOverTime()">Analyze performance over time</button>
+      <button onclick="runLearning()">Run AI learning analysis</button>
+      <span class="meta" id="trend-status" style="color:var(--dim);font-size:12.5px"></span>
+    </div>
+    <div id="trend-analysis"></div>
     <div id="insights"></div>
     <div id="rules"></div>
   </section>
@@ -397,6 +403,31 @@ function insightsPanel(run) {
   </div>`;
 }
 
+function trendPanel(record) {
+  if (!record?.payload) return '<div class="empty">No over-time analysis yet.</div>';
+  const p = record.payload;
+  const rows = (p.streams || []).slice(0, 12).map((s) => {
+    const checkpoints = s.checkpoints.map((c) => {
+      const state = c.captured ? '✓' : c.due ? 'missing' : 'later';
+      const color = c.captured ? 'var(--green)' : c.due ? 'var(--red)' : 'var(--dim)';
+      return `<span class="badge" style="color:${color};border-color:${color}">${c.hours === 168 ? '7d' : c.hours + 'h'} ${state}</span>`;
+    }).join('');
+    const d = s.delta_from_prior;
+    const delta = d ? `Since prior: views ${d.views >= 0 ? '+' : ''}${d.views.toLocaleString()} · completion ${d.completion_points >= 0 ? '+' : ''}${d.completion_points}pp${d.skip_points == null ? '' : ` · skip ${d.skip_points >= 0 ? '+' : ''}${d.skip_points}pp`} · saves+shares ${d.advocacy_actions >= 0 ? '+' : ''}${d.advocacy_actions}` : 'First captured snapshot — trend direction needs another checkpoint.';
+    return `<div class="rule" style="padding:10px 0">
+      <div class="row"><span class="badge">${esc(s.surface)}</span><span class="badge ${s.weakest_gate === 'insufficient_data' ? '' : 'needs_revision'}">weakest: ${esc(s.weakest_gate).replace(/_/g,' ')}</span>${checkpoints}</div>
+      <div style="margin-top:6px;font-weight:700">${esc(s.label)}</div>
+      <div class="script">${esc(delta)}</div>
+      <div class="script"><b>Next controlled change:</b> ${esc(s.recommendation)}</div>
+    </div>`;
+  }).join('');
+  return `<div class="card">
+    <div class="row"><span class="badge approved">stored memory</span><span class="meta" style="color:var(--dim);font-size:12px">${esc(record.version)} · ${new Date(record.createdAt).toLocaleString()} · ${p.streams.length} platform stream(s)</span></div>
+    ${p.missing_due ? `<div class="problems" style="margin-top:10px">${p.missing_due} due analytics checkpoint(s) are missing. Capture them before treating movement as a trend.</div>` : '<div class="script" style="color:var(--green)">All currently due checkpoints are captured.</div>'}
+    ${rows || '<div class="empty">No real platform metrics are stored yet.</div>'}
+  </div>`;
+}
+
 function founderKitCard(record) {
   const k = record.kit;
   const beats = (k.edit_beats || []).map((b) =>
@@ -419,9 +450,9 @@ function founderKitCard(record) {
 async function refresh() {
   // Each section renders independently — one flaky endpoint (e.g. during a
   // server restart) must not blank the whole dashboard.
-  const [meta, gates, queue, all, rules, perf, runs, founderKits] = await Promise.allSettled([
+  const [meta, gates, queue, all, rules, perf, runs, founderKits, trends] = await Promise.allSettled([
     api('/meta'), api('/production-gates'), api('/review-queue'), api('/videos'),
-    api('/learning/rules'), api('/performance/summary'), api('/learning/runs'), api('/founder-videos/kits'),
+    api('/learning/rules'), api('/performance/summary'), api('/learning/runs'), api('/founder-videos/kits'), api('/performance/trends'),
   ]);
   if (meta.status === 'fulfilled') {
     $('meta').textContent = `brain ${meta.value.llm_model} · voice ${meta.value.voice} · render ${meta.value.renderer} · post ${meta.value.post}`;
@@ -450,13 +481,16 @@ async function refresh() {
       ? founderKits.value.kits.map(founderKitCard).join('')
       : '<div class="empty">No founder kits yet.</div>';
   }
+  if (trends.status === 'fulfilled') {
+    $('trend-analysis').innerHTML = trendPanel(trends.value.analyses[0]);
+  }
   if (rules.status === 'fulfilled') {
     $('rules').innerHTML = rules.value.rules.length
       ? rules.value.rules.slice().reverse().map((r) =>
           `<div class="rule ${r.active ? '' : 'inactive'}"><span class="cat">${r.category} · ${r.source}</span>${esc(r.rule)}</div>`).join('')
       : '<div class="empty">No rules yet.</div>';
   }
-  const failed = [meta, gates, queue, all, rules, perf, runs, founderKits].filter((r) => r.status === 'rejected');
+  const failed = [meta, gates, queue, all, rules, perf, runs, founderKits, trends].filter((r) => r.status === 'rejected');
   if (failed.length) toast(`Load failed for ${failed.length} section(s): ${failed[0].reason?.message ?? failed[0].reason}`, false);
 }
 
@@ -634,6 +668,21 @@ async function runLearning() {
     toast(`Learning run done — ${run.newRuleIds.length} new rules from ${run.analyzedVideos} videos.`);
     refresh();
   } catch (e) { toast('Learning: ' + e.message, false); }
+}
+
+async function analyzeOverTime() {
+  const button = $('analyze-over-time');
+  button.disabled = true;
+  $('trend-status').textContent = 'Comparing platform-separated checkpoints…';
+  try {
+    const record = await api('/performance/trends/analyze', { method: 'POST', headers: headers(true), body: '{}' });
+    $('trend-analysis').innerHTML = trendPanel(record);
+    $('trend-status').textContent = `Stored ${record.id}`;
+    toast('Over-time analysis stored in durable memory.');
+  } catch (e) {
+    $('trend-status').textContent = '';
+    toast('Over-time analysis failed: ' + e.message, false);
+  } finally { button.disabled = false; }
 }
 
 refresh();

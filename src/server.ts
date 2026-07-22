@@ -5,7 +5,7 @@
 try { process.loadEnvFile(); } catch { /* no .env — mock mode */ }
 
 import { loadConfig } from "./config.js";
-import { JsonFileRepo } from "./repository.js";
+import { JsonFileRepo, PostgresRepo } from "./repository.js";
 import { makeLlmClient } from "./llm.js";
 import { HeyGenRenderer, MockRenderer, type Renderer } from "./heygen.js";
 import { LocalRenderer } from "./localRenderer.js";
@@ -15,7 +15,9 @@ import { ensureSeedRules } from "./learning.js";
 import { createApp } from "./app.js";
 
 const config = loadConfig();
-const repo = new JsonFileRepo(config.dataDir);
+const repo = config.databaseUrl
+  ? await PostgresRepo.create(config.databaseUrl)
+  : new JsonFileRepo(config.dataDir);
 const llm = makeLlmClient(config.openai.apiKey, config.openai.model);
 const renderer: Renderer =
   config.renderer === "heygen" && config.heygen.apiKey

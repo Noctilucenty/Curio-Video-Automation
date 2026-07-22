@@ -45,6 +45,7 @@ import {
   planToText,
 } from "./captionPlan.js";
 import { loadTopicDiscoverySnapshot } from "./topicDiscovery.js";
+import { analyzePerformanceOverTime } from "./performanceTrends.js";
 
 export interface RouteDeps {
   repo: Repo;
@@ -701,6 +702,25 @@ export function buildRoutes(deps: RouteDeps): Router {
       )
       .sort((a, b) => b.engagement_score - a.engagement_score);
     res.json({ videos: rows });
+  });
+
+  r.get("/performance/trends", async (_req, res) => {
+    res.json({ analyses: await repo.listPerformanceAnalyses() });
+  });
+
+  r.post("/performance/trends/analyze", async (_req, res) => {
+    const report = analyzePerformanceOverTime(
+      await repo.listVideos(),
+      await repo.listMetrics(),
+    );
+    const record = {
+      id: makeId("trend"),
+      version: "performance_trends_v1",
+      payload: report as unknown as Record<string, unknown>,
+      createdAt: Date.now(),
+    };
+    await repo.addPerformanceAnalysis(record);
+    res.status(201).json(record);
   });
 
   r.post("/learning/run", async (_req, res) => {

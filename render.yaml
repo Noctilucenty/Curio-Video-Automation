@@ -11,7 +11,7 @@ services:
       - key: NODE_VERSION
         value: 24.18.0
       - key: DATA_DIR
-        value: /var/data
+        value: /tmp/curio-data
       - key: INTELLIGENCE_DIR
         value: ./data/viral-intelligence
       - key: RENDERER
@@ -26,7 +26,14 @@ services:
         sync: false
       - key: ELEVENLABS_API_KEY
         sync: false
-    disk:
-      name: curio-state
-      mountPath: /var/data
-      sizeGB: 1
+      - key: DATABASE_URL
+        fromDatabase:
+          name: curio-automation-db
+          property: connectionString
+
+databases:
+  - name: curio-automation-db
+    plan: basic-256mb
+    postgresMajorVersion: "18"
+    diskSizeGB: 5
+    ipAllowList: []
