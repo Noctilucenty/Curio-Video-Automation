@@ -478,6 +478,60 @@ describe("api flow", () => {
     expect(missing.body.error).toMatch(/cards.*plan_text/);
   });
 
+  it("runs an automated production to the approval gate, then advances on approval", async () => {
+    const { app } = await makeApp();
+    // A real-length script: a short one correctly fails the 12-25s runtime window.
+    const script = "Flames can turn spherical in space. On Earth, gases rise. Air moves underneath. "
+      + "Airflow stretches flames upward. In microgravity, buoyant flow fades. Fuel diffuses out. "
+      + "Oxygen diffuses in. Flames tend toward spheres. Gravity gives fire its familiar shape.";
+    const started = await request(app).post("/api/production/runs").send({ script, title: "TEST-FLAME" });
+    expect(started.status).toBe(201);
+    const id = started.body.run_id;
+
+    // The run is detached; poll until it settles at the gate.
+    let run: any;
+    for (let i = 0; i < 60; i++) {
+      run = (await request(app).get(`/api/production/runs/${id}`)).body;
+      if (run.status !== "running") break;
+      await new Promise((r) => setTimeout(r, 25));
+    }
+    expect(run.status).toBe("awaiting_approval");
+    expect(run.gate.question).toMatch(/ElevenLabs/);
+    // Nothing may be spent before the gate.
+    expect(run.events.some((e: any) => e.level === "gate")).toBe(true);
+    expect(run.events.some((e: any) => e.level === "pass" && e.step === "captions")).toBe(true);
+
+    const approved = await request(app).post(`/api/production/runs/${id}/approve`).send({ approved: true });
+    expect(approved.status).toBe(200);
+    expect(approved.body.status).toBe("passed");
+
+    // Approving twice is a conflict, not a silent no-op.
+    expect((await request(app).post(`/api/production/runs/${id}/approve`).send({ approved: true })).status).toBe(409);
+  });
+
+  it("stops a production run with an explicit reason and rule when a check fails", async () => {
+    const { app } = await makeApp();
+    const started = await request(app).post("/api/production/runs")
+      .send({ script: "Flames can turn spherical — in space. On Earth, gases rise. Air moves underneath. "
+        + "Airflow stretches flames upward. In microgravity, buoyant flow fades. Fuel diffuses out. "
+        + "Oxygen diffuses in. Flames tend toward spheres. Gravity gives fire its familiar shape." });
+    const id = started.body.run_id;
+    let run: any;
+    for (let i = 0; i < 60; i++) {
+      run = (await request(app).get(`/api/production/runs/${id}`)).body;
+      if (run.status !== "running") break;
+      await new Promise((r) => setTimeout(r, 25));
+    }
+    expect(run.status).toBe("failed");
+    const failure = run.events.find((e: any) => e.level === "fail");
+    expect(failure.message).toMatch(/em\/en dash/i);
+    expect(failure.rule).toBeTruthy();
+
+    const missing = await request(app).post("/api/production/runs").send({});
+    expect(missing.status).toBe(400);
+    expect(missing.body.error).toMatch(/script/);
+  });
+
   it("generates a verified caption plan and refuses an empty script explicitly", async () => {
     const { app, repo } = await makeApp();
     const script = "Flames can turn spherical in space. On Earth, gases rise. Gravity gives fire its familiar shape.";

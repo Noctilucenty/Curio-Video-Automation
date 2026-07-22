@@ -20,3 +20,6 @@ samples/
 # assets/audio-assets.json, approved:false until the license is confirmed)
 Sound Effects/
 .secrets/
+
+# Python venv for audio-production tooling (numpy/ffmpeg glue)
+.venv/

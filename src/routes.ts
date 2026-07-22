@@ -44,6 +44,7 @@ import {
   parsePlanText,
   planToText,
 } from "./captionPlan.js";
+import { approveGate, getRun, listRuns, startRun, subscribe } from "./productionRun.js";
 import { loadTopicDiscoverySnapshot } from "./topicDiscovery.js";
 import { analyzePerformanceOverTime } from "./performanceTrends.js";
 
@@ -452,6 +453,79 @@ export function buildRoutes(deps: RouteDeps): Router {
       }
       throw e;
     }
+  });
+
+  // --- Automated production runs (live verbose stream) ----------------------
+
+  r.post("/production/runs", (req, res) => {
+    const b = req.body ?? {};
+    if (typeof b.script !== "string" || !b.script.trim()) {
+      res.status(400).json({ error: "script (string) is required — the exact narration to produce" });
+      return;
+    }
+    const run = startRun(llm, {
+      script: b.script,
+      title: typeof b.title === "string" ? b.title : undefined,
+      planText: typeof b.plan_text === "string" ? b.plan_text : undefined,
+      measuredWpm: Number(b.measured_wpm) || undefined,
+      targetSeconds: Number(b.target_seconds) || undefined,
+    });
+    res.status(201).json({ run_id: run.id, status: run.status });
+  });
+
+  r.get("/production/runs", (_req, res) => {
+    res.json({
+      runs: listRuns().map((r0) => ({
+        run_id: r0.id, title: r0.title, status: r0.status,
+        created_at: r0.createdAt, events: r0.events.length,
+      })),
+    });
+  });
+
+  r.get("/production/runs/:id", (req, res) => {
+    const run = getRun(String(req.params.id));
+    if (!run) { res.status(404).json({ error: `no such run: ${req.params.id}` }); return; }
+    res.json({
+      run_id: run.id, title: run.title, status: run.status, script: run.script,
+      gate: run.gate, result: run.result, events: run.events,
+    });
+  });
+
+  // Server-sent events: replays everything so far, then streams live. A
+  // reconnecting browser never loses the earlier reasoning.
+  r.get("/production/runs/:id/stream", (req, res) => {
+    const run = getRun(String(req.params.id));
+    if (!run) { res.status(404).json({ error: `no such run: ${req.params.id}` }); return; }
+    res.writeHead(200, {
+      "content-type": "text/event-stream",
+      "cache-control": "no-cache, no-transform",
+      connection: "keep-alive",
+      "x-accel-buffering": "no",
+    });
+    const send = (e: unknown) => res.write(`data: ${JSON.stringify(e)}\n\n`);
+    for (const e of run.events) send(e);
+    if (run.status === "running" || run.status === "awaiting_approval") {
+      const off = subscribe(run, (e) => {
+        send(e);
+        if (e.level === "done") { off(); res.end(); }
+      });
+      const beat = setInterval(() => res.write(": keep-alive\n\n"), 15000);
+      req.on("close", () => { off(); clearInterval(beat); });
+    } else {
+      res.end();
+    }
+  });
+
+  r.post("/production/runs/:id/approve", (req, res) => {
+    const run = getRun(String(req.params.id));
+    if (!run) { res.status(404).json({ error: `no such run: ${req.params.id}` }); return; }
+    const b = req.body ?? {};
+    const ok = approveGate(run, b.approved !== false, String(b.note ?? ""));
+    if (!ok) {
+      res.status(409).json({ error: `run is ${run.status}, not waiting at an approval gate` });
+      return;
+    }
+    res.json({ run_id: run.id, status: run.status });
   });
 
   // --- Videos ---------------------------------------------------------------

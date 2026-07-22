@@ -139,6 +139,26 @@
   </section>
 
   <section>
+    <h2>Automated production run</h2>
+    <div class="card">
+      <div class="script" style="margin:0 0 10px">Edit the narration and press Run. Every doctrine check that can be decided in code or by the model runs automatically and narrates itself below. Spending on narration or visuals always stops for your approval, and any failure states its reason and the rule it breaks.</div>
+      <input id="pr-title" style="width:100%;margin-bottom:8px" placeholder="Production title — e.g. MICROGRAVITY-FLAME">
+      <textarea id="pr-script" rows="5" style="width:100%" placeholder="The exact narration to produce — this is yours to edit."></textarea>
+      <textarea id="pr-plan" rows="4" style="width:100%;margin-top:8px;font-family:ui-monospace,monospace;font-size:13px" placeholder="Optional caption plan (one card per line, ' / ' between lines). Leave empty and the model proposes one, which is then verified word-for-word in code."></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="primary" onclick="prStart()">Run production</button>
+        <label class="meta" style="color:var(--dim);font-size:12.5px">measured WPM
+          <input id="pr-wpm" type="number" value="145" style="width:70px"></label>
+        <label class="meta" style="color:var(--dim);font-size:12.5px">target s
+          <input id="pr-target" type="number" value="18" style="width:60px"></label>
+        <span class="meta" id="pr-status" style="color:var(--dim);font-size:12.5px"></span>
+      </div>
+      <div id="pr-gate"></div>
+      <pre id="pr-log" style="display:none;margin-top:12px;padding:12px;background:#0e0e14;border:1px solid var(--line);border-radius:10px;max-height:380px;overflow:auto;font:12.5px/1.55 ui-monospace,monospace;white-space:pre-wrap"></pre>
+    </div>
+  </section>
+
+  <section>
     <h2>Caption contract — Rule 55.1 verifier</h2>
     <div class="card">
       <div class="script" style="margin:0 0 8px">Captions.ai transcribes the <b>locked audio</b>, so a caption plan is only valid as the narration's exact words, grouped — never a paraphrase. Validation is deterministic in code; OpenAI only proposes break points and its output is re-verified before you see it. Every failure states its reason and the rule it breaks.</div>
@@ -563,6 +583,93 @@ async function generateFounderKit(ev) {
     toast('Founder edit kit generated — verify every flagged claim before production.');
     refresh();
   } catch (e) { toast('Founder kit failed: ' + e.message, false); }
+}
+
+// --- Automated production run -----------------------------------------------
+
+let prRunId = null, prES = null;
+
+const PR_STYLE = {
+  info: ['#9a97a3', '·'], step: ['#6ea8fe', '▸'], pass: ['#6fcf97', '✓'],
+  fail: ['#eb5757', '✗'], warn: ['#e8b44f', '⚠'], gate: ['#e8b44f', '⏸'], done: ['#9a97a3', '■'],
+};
+
+function prAppend(e) {
+  const log = $('pr-log');
+  log.style.display = 'block';
+  const [color, glyph] = PR_STYLE[e.level] || PR_STYLE.info;
+  const time = new Date(e.at).toLocaleTimeString();
+  const rule = e.rule ? `<span style="color:#6b6875"> [${esc(e.rule)}]</span>` : '';
+  log.insertAdjacentHTML('beforeend',
+    `<div style="color:${color}"><span style="color:#4a4854">${time}</span> ${glyph} `
+    + `<b style="color:#6b6875">${esc(e.step)}</b> ${esc(e.message)}${rule}</div>`);
+  log.scrollTop = log.scrollHeight;
+}
+
+function prRenderGate(gate) {
+  if (!gate) { $('pr-gate').innerHTML = ''; return; }
+  $('pr-gate').innerHTML = `
+    <div class="card" style="margin-top:12px;border-color:var(--gold)">
+      <div style="font-weight:700;color:var(--gold)">${esc(gate.question)}</div>
+      <div class="script" style="margin:6px 0 10px">${esc(gate.detail)}</div>
+      <div class="row">
+        <button class="approve" onclick="prApprove(true)">Approve</button>
+        <button class="reject" onclick="prApprove(false)">Decline</button>
+      </div>
+    </div>`;
+}
+
+async function prStart() {
+  const script = $('pr-script').value.trim();
+  if (!script) { toast('Write the narration script first.', false); return; }
+  if (prES) { prES.close(); prES = null; }
+  $('pr-log').innerHTML = ''; $('pr-gate').innerHTML = '';
+  $('pr-status').textContent = 'starting…';
+  try {
+    const body = {
+      script, title: $('pr-title').value,
+      plan_text: $('pr-plan').value,
+      measured_wpm: Number($('pr-wpm').value) || undefined,
+      target_seconds: Number($('pr-target').value) || undefined,
+    };
+    const res = await fetch('/api/production/runs', { method: 'POST', headers: headers(true), body: JSON.stringify(body) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { $('pr-status').textContent = ''; toast('Run failed to start: ' + (data.error || res.status), false); return; }
+    prRunId = data.run_id;
+    prStream(prRunId);
+  } catch (e) { $('pr-status').textContent = ''; toast('Run failed to start: ' + e.message, false); }
+}
+
+function prStream(id) {
+  $('pr-status').textContent = 'running — live';
+  prES = new EventSource(`/api/production/runs/${id}/stream`);
+  prES.onmessage = (m) => {
+    const e = JSON.parse(m.data);
+    prAppend(e);
+    if (e.level === 'gate') { $('pr-status').textContent = 'waiting for your approval'; prFetchGate(id); }
+    if (e.level === 'done') {
+      prES.close(); prES = null;
+      $('pr-status').textContent = 'finished';
+      refresh();
+    }
+  };
+  prES.onerror = () => { $('pr-status').textContent = 'stream closed'; if (prES) { prES.close(); prES = null; } };
+}
+
+async function prFetchGate(id) {
+  try { prRenderGate((await api(`/production/runs/${id}`)).gate); } catch { /* gate is optional detail */ }
+}
+
+async function prApprove(approved) {
+  if (!prRunId) return;
+  const note = approved ? '' : (prompt('Reason for declining (optional)') || '');
+  try {
+    await api(`/production/runs/${prRunId}/approve`, {
+      method: 'POST', headers: headers(true), body: JSON.stringify({ approved, note }),
+    });
+    $('pr-gate').innerHTML = '';
+    if (!prES) prStream(prRunId);
+  } catch (e) { toast('Approval failed: ' + e.message, false); }
 }
 
 // --- Caption contract panel -------------------------------------------------
