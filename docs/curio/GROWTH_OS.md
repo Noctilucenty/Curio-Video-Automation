@@ -1,6 +1,6 @@
 # CURIO GROWTH OPERATING SYSTEM v1
 
-> **LIVING DOCUMENT — LAST UPDATED 2026-07-19.** Authored by Codex, adopted by Leon.
+> **LIVING DOCUMENT — LAST UPDATED 2026-07-22.** Authored by Codex, adopted by Leon.
 > **MANDATORY PRE-PRODUCTION READ.** Whenever a NEW TOPIC is introduced, run §3 FIRST
 > to determine which content type the day calls for, then §4 for the architecture the
 > build must satisfy. Do not begin scripting before this check (Leon, 2026-07-19).
@@ -73,6 +73,27 @@ contradiction.
 Weekly mix: 3 human-survival · 2 strange-science · 1 psychology · 1 controlled experiment.
 Saturday's experiment changes **ONE** meaningful variable only — hook wording, caption
 grouping, visual style OR ending. Never all four.
+
+### Elite topic gate (Leon, 2026-07-22)
+
+The discovery dashboard is a recommendation surface, not an inventory of everything
+research found. It may show **zero** ideas. A high blended score, a viral source video,
+or an easy production cannot rescue a merely educational premise.
+
+Every visible idea must independently clear all of these non-compensable gates:
+
+- the complete contradiction is instantly understandable at frame zero;
+- exceptional story power and genuine narrative tension;
+- a surprising reveal that deepens the premise rather than merely explaining it;
+- a final fact a viewer would immediately tell another person;
+- authoritative factual support plus current demand evidence;
+- visual proof and a credible rights-safe production route.
+
+The code-enforced floor is 90/100, with hard minimums per dimension. Research that
+misses any minimum remains in the intelligence snapshot for audit but is screened out
+of the dashboard and cannot be selected. This is an editorial/product rule, not a
+claim that a topic will perform; published platform-separated analytics still decide
+which mechanisms work.
 
 ## 4. Required video architecture
 
