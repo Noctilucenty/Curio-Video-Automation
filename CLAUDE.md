@@ -8,11 +8,21 @@ OpenAI = brain · ElevenLabs = voice · local ffmpeg = renderer · this DB = mem
 2. `docs/curio/VIRAL_PLAYBOOK.md` — confirmed/provisional/rejected rules.
 3. `docs/curio/CONTENT_ENGINE_STATE.md` — pipeline + where live counts come from.
 4. `data/viral-intelligence/` — structured trend findings (vidIQ + analytics).
-5. `docs/curio/AUTOPILOT_REVIEW_PROTOCOL.md` — mandatory producer/reviewer
+5. **`docs/curio/GROWTH_OS.md` — MANDATORY when a NEW TOPIC is introduced.** Run its
+   §3 seven-day content map FIRST to decide which content type the day calls for, and
+   §4 for the architecture the build must satisfy, BEFORE scripting. It also holds the
+   per-platform publish schedule, packaging rules and the 2h/24h/72h/7d analytics
+   checkpoints. (Leon, 2026-07-19.)
+6. **`docs/curio/CONVERSION_SYSTEM.md` — how a Reel converts curiosity into Curio
+   users.** Default soft signature "GO DEEPER WITH CURIO" (0.6-0.9s, post-payoff,
+   loop-safe, OMIT if it would damage the ending); conversion CTA lives in the CAPTION
+   layer, never inside an approved master. NEVER withhold the payoff. NEVER retrofit
+   into an approved master without a new review. (Codex/Leon, 2026-07-19.)
+7. `docs/curio/AUTOPILOT_REVIEW_PROTOCOL.md` — mandatory producer/reviewer
    roles, approval gates, audio-first workflow, speed policy, artifact handoff,
    and learning discipline. Read it before researching, scripting, generating,
    reviewing, captioning, exporting, or ingesting analytics for a video.
-6. **Before any video PRODUCTION work**: `docs/curio/PRODUCTION_DOCTRINE.md` —
+8. **Before any video PRODUCTION work**: `docs/curio/PRODUCTION_DOCTRINE.md` —
    locked production-quality lessons (REP-2's four review rounds). MANDATORY:
    every finished master runs `node tools/finalqa.mjs <mp4>` and passes ALL
    automated checks BEFORE going to any reviewer. Production-defect lessons

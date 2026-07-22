@@ -88,6 +88,8 @@ pipeline — including the fail→rewrite loop — works end-to-end offline.
 POST /api/video-topics            create a topic (topic, category, target_platform, tone, …)
 GET  /api/video-topics
 POST /api/videos/generate         {topic_id} or inline topic — returns 202 + video_id
+POST /api/founder-videos/kit      faceless founder-journal edit kit (no auto-render)
+GET  /api/founder-videos/kits     persisted founder edit kits
 GET  /api/videos[?status=]        GET /api/videos/:id[?include=generations]
 GET  /api/videos/:id/captions.srt
 POST /api/videos/:id/regenerate   back through the pipeline (judge feedback carried)
@@ -101,6 +103,35 @@ POST /api/learning/run            analyze top/bottom 20% → new prompt rules
 GET  /api/learning/rules          GET /api/learning/runs
 GET  /api/review-queue            GET /api/jobs · GET /api/meta · GET /healthz
 ```
+
+## 30/70 content split
+
+The curiosity factory remains the 70% engine for Rabbit Hole Daily. Curio's
+30% founder layer is a separate **faceless founder-journal** path: first-person
+storytelling over real Curio screen recordings, UI iterations, redacted build
+artifacts, and restrained non-human atmosphere plates. It does not create a
+fake founder face and it does not auto-run ElevenLabs, HeyGen, or the local
+mystery renderer.
+
+Create a kit from the dashboard or call:
+
+```bash
+curl -X POST http://localhost:8790/api/founder-videos/kit \
+  -H 'content-type: application/json' \
+  -d '{
+    "story_seed": "I loved online rabbit holes but hated remembering nothing afterward. I built Curio to make the scroll leave an idea behind.",
+    "proof_points": ["Curio has a swipeable reading feed", "The product is built; discovery is now the hard part"],
+    "available_assets": ["Curio feed recording", "card iteration screenshots", "redacted build notes"],
+    "target_platform": "reels",
+    "target_length_seconds": 30,
+    "delivery_mode": "synthetic_voiceover"
+  }'
+```
+
+The response contains hooks, a narration master, evidence requirements, an
+edit timeline, captions, asset checklist, disclosure note, and any claims that
+must be verified before production. See
+`docs/curio/FOUNDER_JOURNAL_ENGINE.md` for the strategy and first concept bank.
 
 Statuses: `draft → generated → (needs_revision ⇄) → ready_for_review → approved → published`,
 plus `rejected` / `failed`. Illegal transitions return **409** — the queue can't be

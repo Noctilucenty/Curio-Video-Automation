@@ -341,3 +341,14 @@ the ambiguity; these resolve it):**
   loudness unknown (if captioned via the Captions.ai app without re-mux, audio
   is likely renormalized to ≈ −13.3 LUFS; the 270×480 source-resolution
   hypothesis for IG suppression stays a hypothesis).
+
+---
+## SUPERSEDED 2026-07-19 — Harrison advocacy/reach figures
+Facebook-native capture replaces every earlier Harrison metric claim in this file:
+**FB 35.8K views · 15s avg watch · 56% completion · 99.3% of watch time from
+Recommendations (~135x the Page's typical post) · 4 shares + 8 saves (~0.03%).
+IG 176 views · reach 113 · 1 IG-native like.** Advocacy is **WEAK, not zero** — the gate
+still fails, but "all zero" is retracted. FB skewed 88% men 45–64 US/UK; IG 18–34, so
+the platforms tested DIFFERENT DEMOGRAPHICS. **The FB retention curve kills the "AI hand
+defects hurt watch behaviour" hypothesis** (56% completion with defects present); the
+defects remain suspect only for advocacy. Evidence tier: CONFIRMED (platform-native).
