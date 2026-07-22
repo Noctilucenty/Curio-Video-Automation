@@ -10,6 +10,10 @@ export interface JsonRequest {
   schema: Record<string, unknown>;
   /** Judge/learning calls want stricter, lower-temperature behavior. */
   purpose: "package" | "judge" | "factcheck" | "learning" | "ingest";
+  /** Optional per-request response window for larger strict schemas. The
+   * default stays 120s; callers may extend it without weakening the model or
+   * reasoning setting. */
+  timeoutMs?: number;
   /** Called with the EXACT model id the API response reports (snapshot, not
    * the request alias) so generation records can pin what actually ran. */
   onModel?: (model: string) => void;
@@ -66,7 +70,7 @@ export class OpenAiClient implements LlmClient {
               },
             },
           }),
-          signal: AbortSignal.timeout(120_000),
+          signal: AbortSignal.timeout(req.timeoutMs ?? 120_000),
         });
         if (res.status === 429 || res.status >= 500) {
           // transient — retry with backoff

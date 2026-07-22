@@ -58,6 +58,16 @@ describe("generatePackage", () => {
     expect(prompt).not.toContain("Judge viral potential colder.");
   });
 
+  it("uses the current growth, caption, and loop-safe conversion contract", () => {
+    const prompt = packageSystemPrompt([]);
+    expect(prompt).toContain("2-4 words per caption card");
+    expect(prompt).toContain("GO DEEPER WITH CURIO");
+    expect(prompt).toContain("0.6–0.9s");
+    expect(prompt).toContain("OMIT it when there is no loop-safe placement");
+    expect(prompt).not.toContain("Silences and fillers get cut in post");
+    expect(prompt).not.toContain("one deep clean boom on the Curio");
+  });
+
   it("returns a domain package with normalized, valid captions", async () => {
     const { pkg, promptVersion } = await generatePackage(new MockLlmClient(), topic, []);
     expect(promptVersion).toBe(PROMPT_VERSIONS.package);
@@ -78,7 +88,7 @@ describe("generatePackage", () => {
     const { pkg } = await generatePackage(llm, topic, []);
     expect(validateCaptions(pkg.captionLines)).toEqual([]);
     for (const l of pkg.captionLines) {
-      expect(l.text.split(/\s+/).length).toBeLessThanOrEqual(7);
+      expect(l.text.split(/\s+/).length).toBeLessThanOrEqual(4);
     }
   });
 

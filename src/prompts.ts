@@ -9,8 +9,8 @@
 import type { JudgeScores, LearningRule, Topic } from "./types.js";
 
 export const PROMPT_VERSIONS = {
-  package: "pkg_v5_one_outcome",
-  judge: "judge_v5_outcome_check",
+  package: "pkg_v6_growth_conversion",
+  judge: "judge_v6_growth_conversion",
   factcheck: "factcheck_v2_overclaims_block",
   learning: "learn_v2_compounding",
   ingest: "ingest_v2_surface",
@@ -23,8 +23,8 @@ export const OPERATING_MINDSET = `OPERATING MINDSET (non-negotiable): work as if
 retention engineer whose job is to keep users in the app. The algorithm only
 distributes videos that maximize watch time — so every single second must earn
 the next second. Apply MAXIMUM capability to every package; no coasting.
-For every line ask: does it stop the scroll (0-2s)? does it hold (no beat a
-viewer can safely skip)? does it trigger a rewatch, send, save, or comment?
+For every line ask: does it stop the scroll (frame zero)? does it hold (no beat a
+viewer can safely skip)? does it serve the ONE declared primary outcome?
 Engineer the ending to loop — the last line should land so the first line hits
 again on rewatch (completion + replay are the strongest distribution signals).
 Generic lines a thousand accounts could post are retention poison: cut them.`;
@@ -65,54 +65,72 @@ rhythm. Write the script FOR that delivery:
 - The final reveal sentence is the shortest and heaviest — it gets read slower.
 - Put the key word late in the sentence so the emphasis lands on it.
 - ZERO filler words: no "so", "basically", "actually", "you know", "kind of",
-  "literally", no throat-clearing intros. Silences and fillers get cut in post —
-  a script that needs cutting was written wrong.
+  "literally", no throat-clearing intros. A script that needs filler/silence
+  trimming was written wrong; locked-master trimming is forbidden.
 - Curious, serious, slightly unsettling. Never theatrical, cheerful, hyped, or salesy.
 
 Hard bans (never output these patterns):
 - "Did you know that..." / "Here are 5 facts..."
 - "Unlock your potential..." / "Like and follow for more..."
 - "Meet Curio" / "Introducing Curio" / "the best learning app"
-- "download now" / "try Curio now"  (the app may still be in App Store review)
+- "download now" / "try Curio now" unless current live App Store availability
+  has been explicitly verified in the production brief
 - emoji, exclamation-mark hype, meme tone, fake stats, "studies show" filler.
 
-CTA rule: end with a soft Curio signature, never a download screen. Use
-"Real rabbit holes live in Curio." or "More rabbit holes inside Curio."
-If a store CTA is explicitly needed: "Curio is in final App Store review.
-Get notified when it opens."`;
+Conversion rule: NEVER withhold the story's payoff. Set the package's cta field
+to "GO DEEPER WITH CURIO", but treat it as a conditional POST-PRODUCTION overlay,
+not spoken narration and not part of the script. It may appear for only 0.6–0.9s
+over continuing story footage, after the payoff, without extending runtime, and
+must clear before the loop reset. OMIT it when there is no loop-safe placement.
+The conversion CTA belongs in the post caption/profile layer; never append a
+traditional outro, logo card, App Store badge, spoken sales line, or musical sting.`;
 
 export const CAPTION_RULES = `Caption rules (enforced by a validator — violations get auto-repaired or rejected):
-- 3-7 words per caption line; punch beats can be 1-3 words. One idea per beat.
-- Metronome pacing: tight sync with the voice, fast line turnover.
+- 2-4 words per caption card where practical; max 4 words per generated line,
+  max 2 lines and max 6 total words on screen. A one-word card is reserved for
+  a load-bearing reveal.
+- The opening caption is a COMPLETE plain-language thought visible essentially
+  on frame zero; never reveal it one karaoke word at a time.
+- Stable lower-center alignment. Tight voice sync, but no one-word karaoke,
+  rolling accumulation, orphan words, or function-word strobing.
 - Cream/off-white premium type; emphasis comes from timing, scale and weight —
   set "emphasis" to the one load-bearing phrase per line (must appear verbatim).
 - Must be fully understandable with sound OFF (high mute-rate platforms).
-- Fragments over sentences. No paragraphs, no emoji, no clutter.
-- Use curiosity tension ("But here's the strange part...").`;
+- Groups may be fragments only when their antecedent stays clear. Never compress
+  away grammar or factual qualifiers. No paragraphs, emoji, or clutter.
+- Intentional silence stays caption-free; the reveal caption never arrives
+  before the spoken/visual reveal; the final caption clears before the loop.`;
 
-export const STRUCTURE = `Target structure — default 12-16 seconds total; only exceed (max ~30s) when the
-story genuinely earns it. Slow visuals are allowed; slow information is not.
-- 0-2s: reveal the ENTIRE mystery/tension (the hook, on screen immediately).
-- 2-6s: disturbing or strange evidence.
-- 6-11s: the twist or the mechanism behind it.
-- 11-14s: unresolved or memorable ending that makes people comment or send it.
-- Final 1-2s: soft Curio signature ("Real rabbit holes live in Curio.").
+export const STRUCTURE = `Target structure — obey the supplied runtime, normally ~15-20 seconds
+(Friday short stories: 12-15s; shipping QA range: 12-25s). Runtime is locked
+before production and the script is iterated against measured ElevenLabs v3 WPM.
+Slow visuals are allowed; slow information is not.
+- Frame zero / ~0.25s: the complete visible contradiction in roughly 4-8 plain words.
+- Escalate with evidence, consequences, and micro-payoffs; withhold only the
+  explanation or phenomenon name, never the premise or the factual payoff.
+- Explain the mechanism, then finish on a transferable fact a viewer can repeat.
+- Return cleanly to the opening; captions clear before the loop-reset frames.
+- After the payoff only: optionally overlay "GO DEEPER WITH CURIO" for 0.6-0.9s
+  over continuing footage. It must not extend runtime or damage the loop; omit it
+  when unsafe. The cta field records this candidate overlay, not a mandatory outro.
 Scene direction should assume: obsidian black space, cinematic volumetric light,
 dark editorial textures, no stock lifestyle footage, no neon, no meme effects.
-Include audio notes in scene_direction: low sub-bass drone bed, subtle ticking,
-near-dead silence right before the final line, one deep clean boom on the Curio
-signature. Mute the voiceover during any staring/tension hold.`;
+Include audio notes in scene_direction: a continuous atmospheric bed and motivated
+event-driven sound design. Engineered silence is measured on the final mix and
+must carry visual motion; never add a musical sting or boom to the Curio signature.`;
 
 // Leon's design doctrine (2026-07-12): reduce cognitive load and design for
 // ONE clear viewer action. Stacking tactics makes a video feel manipulative,
 // dense, and confusing. Think in VIEWER MECHANISMS, not "psychology effects":
 // first-frame comprehension → curiosity → evidence → payoff → natural response.
 export const ONE_OUTCOME_DOCTRINE = `DESIGN DOCTRINE — low cognitive load, one primary behavioral outcome:
-- The premise must be understandable within 1-2 seconds, including with sound off.
+- The complete premise must be understandable essentially on frame zero,
+  including with sound off.
 - Show the concrete subject or anomaly immediately; never make viewers decode vague setup.
 - One idea per beat; short, plain-language captions.
 - Every visual change must clarify the story, provide evidence, or escalate tension.
 - Create ONE open loop, then deliver a satisfying payoff.
+- Never hold the current story's payoff hostage to Curio, a profile visit, or a CTA.
 - BEFORE writing, select the one primary outcome (set primary_outcome):
   - retention: immediate anomaly, escalating evidence, delayed explanation, loopable ending.
   - shares: emotionally specific recognition, or surprising information relevant to another person.
@@ -222,13 +240,18 @@ Scoring guidance — score the way the platform's retention model would:
 - retention_score: simulate second-by-second drop-off. Any beat a viewer can
   skip without losing the thread = a leak; a sagging middle or over-explaining
   scores <=6. Escalation must be evidence -> twist -> payoff.
-- caption_readability: 3-7 word beats, sound-off comprehensible, one emphasis.
+- caption_readability: 2-4 word groups where practical, max 4 generated words per
+  line and 2 lines on screen; complete frame-zero thought; sound-off comprehensible;
+  stable placement; no karaoke or orphan words; qualifiers preserved.
 - brand_fit: premium/dark-editorial/mysterious; any hard-banned phrase = automatic <=4;
   ad-speak, emoji or hype = <=5.
-- viral_potential: count the concrete triggers — send-to-someone, comment bait,
-  save-worthiness, loop-back ending for rewatch. No trigger = <=6.
+- viral_potential: judge the declared primary outcome and at most one secondary;
+  stacking send, comment, save, like, and replay tactics is a defect, not a bonus.
 - factual_safety: claims defensible, no invented stats, no medical/financial advice,
-  no fake mystery presented as verified fact.
+  no fake mystery presented as verified fact; every modifier and qualifier is
+  no stronger than its source or narration.
+- conversion_integrity: the Reel gives the complete payoff. The Curio signature is
+  post-payoff, 0.6-0.9s, unspoken, non-extending, and loop-safe—or omitted.
 
 OUTCOME CHECK (mandatory, machine-enforced): identify the package's intended
 primary outcome and name the EXACT moment in the script/captions that produces
@@ -249,7 +272,7 @@ with EVERY analytics drop. The payload contains:
 - current: top-20% and bottom-20% videos (hooks, categories, lengths, caption
   stats, metrics) plus per-(platform,surface) aggregates, plus "cohorts":
   FULL-population aggregates by package prompt version and by primary outcome.
-  Judge design cohorts (pkg_v4 vs pkg_v5, retention-first vs shares-first)
+  Judge design cohorts (for example pkg_v5 vs pkg_v6, retention-first vs shares-first)
   ONLY from cohorts — the top/bottom lists are the extremes and carry
   selection bias. Treat small cohort n as noisy and say so.
 - history: summaries of previous learning runs and the rules they issued.
@@ -300,9 +323,9 @@ units. Extract one entry per video. Rules:
 // Seed rules active before any analytics exist — the starting "content rules",
 // pre-loaded with the launch brief's known platform lessons.
 export const SEED_RULES: Array<{ category: LearningRule["category"]; rule: string }> = [
-  { category: "hook", rule: "Reveal the entire mystery/tension in the first line in <=12 words; never open with context, a logo beat, a vague mood line, or a question answerable with 'no'." },
-  { category: "caption", rule: "3-7 words per line, metronome pacing, one emphasized phrase per beat (weight/scale, not loud color), fully readable with sound off." },
-  { category: "structure", rule: "Escalate: evidence by 6s, twist by 11s, memorable/unresolved ending that triggers comments or sends; make the last line loop back into the first for rewatch; close with a soft Curio signature, never a download screen." },
+  { category: "hook", rule: "Put the complete visible contradiction on frame zero in roughly 4-8 plain words; never open with context, a logo beat, atmosphere, or a question answerable with 'no'." },
+  { category: "caption", rule: "Use 2-4 word groups where practical (max 4 generated words per line, max 2 lines), a complete frame-zero thought, stable lower-center placement, one restrained emphasis, and no karaoke/orphan words; preserve every factual qualifier." },
+  { category: "structure", rule: "Build visible contradiction -> escalating evidence -> explanation -> transferable final fact -> clean loop. Give the full payoff. Use GO DEEPER WITH CURIO only as an optional 0.6-0.9s post-payoff, non-extending, loop-safe overlay; otherwise omit it." },
   { category: "tone", rule: "Calm, premium, dark editorial, slightly mysterious; no exclamation marks, no hype adjectives, no emoji." },
-  { category: "length", rule: "Default to 12-16 seconds; only exceed when the story genuinely earns it (never past ~30s for IG/TikTok)." },
+  { category: "length", rule: "Default to about 15-20 seconds (Friday short stories 12-15); lock the target first, budget from measured ElevenLabs v3 WPM, and keep shipping masters inside the 12-25s QA range." },
 ];

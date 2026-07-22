@@ -2,10 +2,13 @@
   "profile": "locked_master_retention_captions",
   "version": 1,
   "created": "2026-07-14",
-  "purpose": "Reusable caption pass for a FINISHED master whose timeline is sacred (engineered silences, synced payoffs). Captions only; nothing about the video's audio or pacing may change. This is a production capability, not a REP-3 workaround — retrieve it (plus validated caption doctrine) before any future caption job instead of re-reading production history.",
-
+  "purpose": "Reusable caption pass for a FINISHED master whose timeline is sacred (engineered silences, synced payoffs). Captions only; nothing about the video's audio or pacing may change. This is a production capability, not a REP-3 workaround \u2014 retrieve it (plus validated caption doctrine) before any future caption job instead of re-reading production history.",
   "timeline_policy": "locked_master",
-  "operations": { "captions": true, "cutFillers": false, "cutSilences": false },
+  "operations": {
+    "captions": true,
+    "cutFillers": false,
+    "cutSilences": false
+  },
   "guarantees": {
     "direct_file_upload": "Multipart upload of the local MP4 (<=50MB, 9:16). No temp hosting.",
     "captions_only": "resolveOperations() forces cutFillers/cutSilences false and REJECTS any request that asks to cut.",
@@ -14,7 +17,6 @@
     "reveal_spoiler_prevention": "An answer caption must not appear before its visual/audio payoff; blank screens allowed.",
     "post_export_structural_verification": "tools/rep3_captions_verify.py pattern (duration/frames, silence survival, payoff onset, audio identity, band-empty-through-silence, reveal timing)."
   },
-
   "provider": {
     "current_live": "Mirage (api.mirage.app)",
     "endpoint": "POST /v1/videos/captions (multipart: video + caption_template_id)",
@@ -23,9 +25,8 @@
     "auth": "x-api-key header",
     "max_upload": "50MB, formats MP4/MOV, 9:16",
     "legacy": "api.captions.ai /edit/submit + /poll accepted a custom SRT + trim flags but returned HTTP 502 on 2026-07-14 (degraded/deprecated).",
-    "capability_gate": "Mirage public contract is AUTO-TRANSCRIPTION ONLY (no custom SRT, no reveal timing, no trim flags). For a locked_master with a curated caption track, an auto-caption-only provider is REFUSED (CAPABILITY_BLOCKER) — never silently fall back to auto captions. Set MIRAGE_CUSTOM_CAPTION_TIMING=1 only if the account is provisioned for custom caption timing."
+    "capability_gate": "Mirage public contract is AUTO-TRANSCRIPTION ONLY (no custom SRT, no reveal timing, no trim flags). For a locked_master with a curated caption track, an auto-caption-only provider is REFUSED (CAPABILITY_BLOCKER) \u2014 never silently fall back to auto captions. Set MIRAGE_CUSTOM_CAPTION_TIMING=1 only if the account is provisioned for custom caption timing."
   },
-
   "captions_ai_app_automation": {
     "added": "2026-07-16",
     "why": "API path is DEAD (CAPTIONS_API_KEY empty; api.captions.ai 502; Mirage auto-transcribe-only + wrong style). The reusable path is the logged-in captions.ai WEB APP via browser automation. file_upload accepts the local project path.",
@@ -39,9 +40,9 @@
     "style": {
       "chosen": "Flair (elegant serif, DISCRETE word-pop; dignified). Search it in the style picker.",
       "discrete_vs_rolling": "Prism/Cove/Quintessence are ROLLING single-phrase (words accumulate/collide, no silence gap, title contamination) -> BANNED for low-cognitive/silence-protected edits. Verify discreteness by SCRUBBING (old group gone before next pops), NOT by the phrase object (all styles store the whole transcript as one phrase).",
-      "grouping": "Uniform Words-per-line/Character-count auto-segmentation ORPHANS sentence tails (single words). Fix requires VARIABLE 2-4 word grouping. VERIFIED 2026-07-16: Captions.ai CANNOT do this — manual transcript line breaks are STRIPPED; fast-list commas are below any pause threshold so word-caps cross clauses; char-caps orphan 3-4 word clauses; long comma-free sentences and lists have conflicting needs. For low-cognitive/silence-protected edits needing EXACT variable groups, use the CUSTOM Pillow engine (data/productions/*/tools/tl_captions_final.py: word-timed groups, one warm-cream active word, Baskerville serif, silence-protected, composited on the clean master) instead of Captions.ai.",
-      "font_MODERNIZED_2026-07-17": "Leon: the thin Baskerville SERIF 'looks old' and hurts mobile legibility. The custom Pillow engine now uses a BOLD CLEAN SANS (Avenir Next Bold, /System/Library/Fonts/Avenir Next.ttc index 0) for retention — reads faster at feed size = lower cognitive load = longer hold, and matches the Captions.ai modern look. Colour mechanism UNCHANGED (amber-cream active word 255,206,132 + near-white inactive 232,234,231). Size ~0.086*W, outline sw~0.052*fs. This supersedes the Baskerville-serif appearance for NEW videos; posted videos are frozen. (Ref impl: data/productions/CPR-CONSCIOUSNESS/tools/cpr_captions.py.)",
-      "font_size": "Third Man mobile benchmark ~90-96 at 1080x1920 reference; verify legibility at 270x480 (thin serif read too small — another reason for the bold-sans switch).",
+      "grouping": "Uniform Words-per-line/Character-count auto-segmentation ORPHANS sentence tails (single words). Fix requires VARIABLE 2-4 word grouping. VERIFIED 2026-07-16: Captions.ai CANNOT do this \u2014 manual transcript line breaks are STRIPPED; fast-list commas are below any pause threshold so word-caps cross clauses; char-caps orphan 3-4 word clauses; long comma-free sentences and lists have conflicting needs. For low-cognitive/silence-protected edits needing EXACT variable groups, use the CUSTOM Pillow engine (data/productions/*/tools/tl_captions_final.py: word-timed groups, one warm-cream active word, Baskerville serif, silence-protected, composited on the clean master) instead of Captions.ai.",
+      "font_MODERNIZED_2026-07-17": "Leon: the thin Baskerville SERIF 'looks old' and hurts mobile legibility. The custom Pillow engine now uses a BOLD CLEAN SANS (Avenir Next Bold, /System/Library/Fonts/Avenir Next.ttc index 0) for retention \u2014 reads faster at feed size = lower cognitive load = longer hold, and matches the Captions.ai modern look. Colour mechanism UNCHANGED (amber-cream active word 255,206,132 + near-white inactive 232,234,231). Size ~0.086*W, outline sw~0.052*fs. This supersedes the Baskerville-serif appearance for NEW videos; posted videos are frozen. (Ref impl: data/productions/CPR-CONSCIOUSNESS/tools/cpr_captions.py.)",
+      "font_size": "Third Man mobile benchmark ~90-96 at 1080x1920 reference; verify legibility at 270x480 (thin serif read too small \u2014 another reason for the bold-sans switch).",
       "position": "lower-center, clear of faces/hands; max 2 lines.",
       "emphasis": "one active warm/cream word."
     },
@@ -56,16 +57,19 @@
     },
     "caption_requirements": "each phrase independent 2-4 words (never 1 unless the reveal token); old words gone before next; no captions during engineered silence; reveal caption clears before the loop-tail caption; loop-tail clears before the endpoint hold."
   },
-
   "code": {
     "module": "src/postprocess.ts",
-    "policy_fn": "resolveOperations(policy, requested) — the one place trimming can be enabled; throws on a locked_master cut request",
+    "policy_fn": "resolveOperations(policy, requested) \u2014 the one place trimming can be enabled; throws on a locked_master cut request",
     "guard_fn": "revealProtectionBlocker(req, ops, supportsCustomCaptionTiming)",
     "provider_class": "MiragePostProcessor (current) / CaptionsAiPostProcessor (legacy)",
-    "config_env": ["CAPTIONS_API_KEY", "CAPTIONS_API_BASE", "MIRAGE_CAPTION_TEMPLATE_ID", "MIRAGE_CUSTOM_CAPTION_TIMING"],
+    "config_env": [
+      "CAPTIONS_API_KEY",
+      "CAPTIONS_API_BASE",
+      "MIRAGE_CAPTION_TEMPLATE_ID",
+      "MIRAGE_CUSTOM_CAPTION_TIMING"
+    ],
     "verifier": "data/productions/*/tools/rep3_captions_verify.py (generalize into tracked tools/ when infra freeze lifts)"
   },
-
   "caption_design": {
     "primary_outcome": "retention",
     "secondary_outcome": "shares",
@@ -75,14 +79,20 @@
     "max_lines": 2,
     "emphasis": "exactly one phrase of 1-3 words, by WEIGHT+SCALE only (cream stays cream)",
     "placement": "stable lower-center, clear of platform UI and the evidence in frame",
-    "forbidden": ["bounce", "karaoke", "emoji", "colored-word overload", "constant animation", "transcript dump"],
+    "forbidden": [
+      "bounce",
+      "karaoke",
+      "emoji",
+      "colored-word overload",
+      "constant animation",
+      "transcript dump"
+    ],
     "timing": "show important text just before / as its spoken beat lands; first caption up by ~0.25s (no dead captionless opening)",
     "blank_screens": "allowed for tension",
     "reveal": "never show the answer in text before the visual/audio payoff"
   },
-
   "verify_thresholds": {
-    "duration_frames": "exact (e.g. 18.00s / 540f) — any change means a cut ran",
+    "duration_frames": "exact (e.g. 18.00s / 540f) \u2014 any change means a cut ran",
     "audio_lag_ms": 0,
     "audio_correlation_min": 0.98,
     "designed_silence": "must survive",
@@ -90,12 +100,121 @@
     "band_empty_through_silence": true,
     "reveal_caption": "appears at the payoff, never before"
   },
-
   "analytics_binding": {
-    "attach_at": ["24h", "72h", "7d"],
-    "primary": ["three_second_hold", "avg_watch_duration", "completion", "replay"],
-    "secondary_diagnostics": ["shares_or_sends_per_reach", "saves", "comments", "likes"],
-    "promotion_rule": "Promote a creative caption strategy only when REPEATED Curio analytics support it — one video cannot rewrite the strategy.",
-    "failure_rule": "On underperformance, record WHICH component failed (hook split, blank beat, emphasis, turnover rate) — do not reject the whole format. Next production starts from the strongest validated profile and changes ONE controlled variable."
+    "attach_at": [
+      "24h",
+      "72h",
+      "7d"
+    ],
+    "primary": [
+      "three_second_hold",
+      "avg_watch_duration",
+      "completion",
+      "replay"
+    ],
+    "secondary_diagnostics": [
+      "shares_or_sends_per_reach",
+      "saves",
+      "comments",
+      "likes"
+    ],
+    "promotion_rule": "Promote a creative caption strategy only when REPEATED Curio analytics support it \u2014 one video cannot rewrite the strategy.",
+    "failure_rule": "On underperformance, record WHICH component failed (hook split, blank beat, emphasis, turnover rate) \u2014 do not reject the whole format. Next production starts from the strongest validated profile and changes ONE controlled variable."
+  },
+  "captionsai_ui_model_2026_07_19": {
+    "scopes": {
+      "global": "DESELECT (click outside) FIRST, then 'Captions style' (2nd left-sidebar icon) -> tabs Captions|Paragraph|Active word|Emphasize",
+      "per_word": "click the word chip in the caption track -> Word panel (text, Breaks None/Auto/Line/Page, Focus, Delete)"
+    },
+    "order": "GLOBAL Paragraph pass FIRST; per-word Breaks are for EXCEPTIONS only",
+    "hazard": "Opening 'Captions style' without deselecting opened the WRONG style (Chronicle) and switched the video to it; Cancel did NOT revert. Verify panel header names the intended style before editing; re-check preview font after.",
+    "paragraph_defaults_observed": {
+      "nova": {
+        "words_per_line": 0,
+        "pause_seconds": 0.4,
+        "character_count": 10,
+        "split_seconds": 0,
+        "lines_per_page": 3,
+        "page_breaks": 3,
+        "max_lines": 0,
+        "autofit": false,
+        "hide_punctuation": false,
+        "alignment": "Random"
+      },
+      "chronicle": {
+        "words_per_line": 1,
+        "pause_seconds": 0.4,
+        "character_count": 8,
+        "split_seconds": 0,
+        "lines_per_page": 2,
+        "page_breaks": 2,
+        "max_lines": 0,
+        "autofit": false,
+        "hide_punctuation": true,
+        "alignment": "Center"
+      }
+    },
+    "pause_seconds_rule": "This is the sentence-splitter threshold. Set it from the VO's MEASURED inter-sentence gaps. BRINE v7 gaps <=0.12s vs default 0.40 => splitter could fire in only ONE place, which is why cards crossed sentences.",
+    "brine_v7_applied": {
+      "style": "Nova",
+      "words_per_line": 2,
+      "page_breaks_on": [
+        "Animals",
+        "Their",
+        "They're",
+        "Yet",
+        "And"
+      ],
+      "word_text_fixes": [
+        "pools, -> pools.",
+        "yet -> Yet"
+      ]
+    },
+    "export_rule": "An export renders whatever state the project is in. Confirm style + a sample caption frame immediately before pressing Download; discard exports of unverified provenance.",
+    "open_question": "Nova ships Alignment=Random (caption blocks jump position). Stable centre may read better at feed speed - needs a Leon/Codex ruling, do not change unilaterally."
+  },
+  "codex_locked_caption_config_2026_07_19": {
+    "status": "LOCKED by Codex; supersedes my provisional P-26 conclusion",
+    "style": "Nova",
+    "paragraph": {
+      "words_per_line": 2,
+      "lines_per_page": 2,
+      "character_count": 22,
+      "pause_seconds": 0.4,
+      "autofit": false,
+      "page_breaks": 2,
+      "alignment": "Center",
+      "placement": "stable lower-centre"
+    },
+    "hard_no_go": "ONE word per line. Viewer must assemble the premise across flashes; the opening thought never appears whole; turnover competes with the visuals.",
+    "word_page_breaks_11": [
+      "Some",
+      "They",
+      "and",
+      "Their",
+      "dense",
+      "sinks",
+      "Animals",
+      "They're",
+      "Yet",
+      "along",
+      "And"
+    ],
+    "opening_exception": "lakes. -> Breaks: None, so the complete four-word premise appears immediately. One line preferred; two lines acceptable ONLY if both illuminate together.",
+    "target_cards_12": [
+      "The ocean has lakes.",
+      "Some are deadly.",
+      "They ripple",
+      "and have shorelines.",
+      "Their water is so",
+      "dense with salt it",
+      "sinks, barely mixing.",
+      "Animals entering can suffocate.",
+      "They're called brine pools.",
+      "Yet life thrives",
+      "along their edges.",
+      "And the impossible part?"
+    ],
+    "my_error_note": "I tested words_per_line=2 while character_count was still 10 and lines_per_page 3, saw fragmentation ('are deadly.' stranded from 'Some'), and wrongly blamed words_per_line. Co-dependent fields in the same panel must be varied as a GROUP before attributing a defect to one of them."
   }
 }

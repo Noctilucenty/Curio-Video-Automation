@@ -172,6 +172,28 @@ describe("api flow", () => {
     expect((await request(app).post("/api/videos/generate").send({ topic_id: "nope" })).status).toBe(404);
   });
 
+  it("generates and persists a faceless founder edit kit without creating a rendered video", async () => {
+    const { app, repo } = await makeApp();
+    const beforeVideos = (await repo.listVideos()).length;
+    const response = await request(app).post("/api/founder-videos/kit").send({
+      story_seed: "I loved falling into online rabbit holes but hated realizing I remembered nothing afterward.",
+      proof_points: ["I built Curio to make scrolling leave a useful idea behind."],
+      available_assets: ["Curio feed recording", "card iteration screenshots"],
+      target_platform: "reels",
+      target_length_seconds: 30,
+      delivery_mode: "synthetic_voiceover",
+    });
+    expect(response.status).toBe(201);
+    expect(response.body.kit_id).toMatch(/^fkit_/);
+    expect(response.body.kit.edit_beats.length).toBeGreaterThanOrEqual(5);
+    expect(response.body.kit.disclosure_note.toLowerCase()).toContain("ai");
+    expect((await repo.listVideos()).length).toBe(beforeVideos);
+
+    const listed = await request(app).get("/api/founder-videos/kits");
+    expect(listed.body.kits).toHaveLength(1);
+    expect(listed.body.kits[0].kit_id).toBe(response.body.kit_id);
+  });
+
   it("paste-analytics ingest matches published videos and feeds the summary", async () => {
     const { app, queue } = await makeApp();
     const gen = await request(app).post("/api/videos/generate").send({ topic: "Analytics flow topic about tides" });

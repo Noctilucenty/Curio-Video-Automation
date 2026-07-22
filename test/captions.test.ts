@@ -30,10 +30,35 @@ describe("caption validation", () => {
     const issues = validateCaptions([line("hello there", { startHint: 3, endHint: 1 })]);
     expect(issues.some((i) => i.problem.includes("end must be after start"))).toBe(true);
   });
+
+  it("rejects more than six total words across overlapping lines", () => {
+    const issues = validateCaptions([
+      line("four words fit here", { startHint: 0, endHint: 2 }),
+      line("three more words", { startHint: 0, endHint: 2 }),
+    ]);
+    expect(issues.some((i) => i.problem.includes("too many words on screen (7 > 6)"))).toBe(true);
+  });
+
+  it("allows six words across two lines and adjacent four-word cards", () => {
+    expect(validateCaptions([
+      line("three words here", { startHint: 0, endHint: 2 }),
+      line("three more here", { startHint: 0, endHint: 2 }),
+      line("four adjacent words work", { startHint: 2, endHint: 4 }),
+    ])).toEqual([]);
+  });
+
+  it("rejects more than two overlapping lines", () => {
+    const issues = validateCaptions([
+      line("one two", { startHint: 0, endHint: 2 }),
+      line("three four", { startHint: 0, endHint: 2 }),
+      line("five six", { startHint: 0, endHint: 2 }),
+    ]);
+    expect(issues.some((i) => i.problem.includes("too many lines on screen (3 > 2)"))).toBe(true);
+  });
 });
 
 describe("caption normalization", () => {
-  it("splits paragraph captions into <=7-word beats and re-times them", () => {
+  it("splits paragraph captions into <=4-word beats and re-times them", () => {
     const out = normalizeCaptions([
       line("Your brain remembers negative experiences more strongly than positive ones because of a psychological mechanism called negativity bias"),
     ]);

@@ -19,7 +19,13 @@ export const CAPTION_STYLE = {
   emphasisColor: "#F5EFE2",
   backgroundColor: "rgba(11,11,15,0.0)",
   strokeColor: "rgba(0,0,0,0.55)",
-  maxWordsPerLine: 7,
+  // Current Growth OS / locked caption contract: 2-4 words where practical.
+  // Four is the generated-line ceiling; a renderer may place at most two such
+  // lines on screen after mobile-size verification. The combined screen may
+  // never exceed six words, even when each individual line is compliant.
+  maxWordsPerLine: 4,
+  maxWordsPerScreen: 6,
+  maxLinesPerScreen: 2,
   minLineSeconds: 0.8,
   maxLineSeconds: 4.0,
   defaultPosition: "lower_center" as const,
@@ -54,6 +60,45 @@ export function validateCaptions(lines: CaptionLine[]): CaptionIssue[] {
       issues.push({ index: i, problem: `line on screen too long (${dur.toFixed(1)}s)` });
     }
   });
+
+  // Per-line limits are insufficient when timed lines overlap: two legal
+  // four-word lines would otherwise create an illegal eight-word screen.
+  // Evaluate every interval between timing boundaries and report each active
+  // combination once. Adjacent captions (one ends as another starts) do not
+  // overlap.
+  const validTimedLines = lines
+    .map((line, index) => ({ line, index }))
+    .filter(({ line }) => Number.isFinite(line.startHint)
+      && Number.isFinite(line.endHint)
+      && line.endHint > line.startHint);
+  const boundaries = [...new Set(validTimedLines.flatMap(({ line }) => [line.startHint, line.endHint]))]
+    .sort((a, b) => a - b);
+  const reported = new Set<string>();
+  for (let i = 0; i < boundaries.length - 1; i++) {
+    const start = boundaries[i];
+    const end = boundaries[i + 1];
+    if (!(end > start)) continue;
+    const active = validTimedLines.filter(({ line }) => line.startHint < end && line.endHint > start);
+    if (active.length === 0) continue;
+    const key = active.map(({ index }) => index).join(",");
+    if (reported.has(key)) continue;
+    reported.add(key);
+    if (active.length > CAPTION_STYLE.maxLinesPerScreen) {
+      issues.push({
+        index: active[0].index,
+        problem: `too many lines on screen (${active.length} > ${CAPTION_STYLE.maxLinesPerScreen})`,
+      });
+    }
+    const screenWords = active.reduce((total, { line }) => (
+      total + line.text.trim().split(/\s+/).filter(Boolean).length
+    ), 0);
+    if (screenWords > CAPTION_STYLE.maxWordsPerScreen) {
+      issues.push({
+        index: active[0].index,
+        problem: `too many words on screen (${screenWords} > ${CAPTION_STYLE.maxWordsPerScreen})`,
+      });
+    }
+  }
   return issues;
 }
 
@@ -104,10 +149,16 @@ function splitLine(text: string): string[] {
     }
   }
   if (current.length) {
-    // Avoid a 1-word orphan chunk: merge back if the previous chunk has room.
+    // Avoid a 1-word orphan chunk: merge back if the previous chunk has room,
+    // otherwise rebalance one word from the previous full chunk.
     const prev = chunks[chunks.length - 1];
-    if (current.length === 1 && prev && prev.split(/\s+/).length < CAPTION_STYLE.maxWordsPerLine) {
+    const prevWords = prev?.split(/\s+/) ?? [];
+    if (current.length === 1 && prev && prevWords.length < CAPTION_STYLE.maxWordsPerLine) {
       chunks[chunks.length - 1] = `${prev} ${current[0]}`;
+    } else if (current.length === 1 && prevWords.length > 2) {
+      const moved = prevWords.pop()!;
+      chunks[chunks.length - 1] = prevWords.join(" ");
+      chunks.push(`${moved} ${current[0]}`);
     } else {
       chunks.push(current.join(" "));
     }

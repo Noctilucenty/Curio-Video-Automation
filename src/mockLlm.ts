@@ -13,12 +13,97 @@ const BANNED = [
 
 export function mockGenerate(req: JsonRequest): unknown {
   switch (req.purpose) {
-    case "package": return mockPackage(req.user);
+    case "package": return req.schemaName === "curio_founder_video_kit"
+      ? mockFounderKit(req.user)
+      : mockPackage(req.user);
     case "judge": return mockJudge(req.user);
     case "factcheck": return mockFactcheck(req.user);
     case "learning": return mockLearning(req.user);
     case "ingest": return mockIngest(req.user);
   }
+}
+
+function mockFounderKit(user: string): unknown {
+  const jsonStart = user.indexOf("{");
+  let input: any = {};
+  try { input = JSON.parse(user.slice(jsonStart)); } catch { /* deterministic fallback */ }
+  const length = Math.max(20, Math.min(35, Number(input.target_length_seconds) || 30));
+  const hook = "I loved scrolling. I hated remembering none of it.";
+  const script = [
+    hook,
+    "I could lose half an hour in a rabbit hole and come away with nothing.",
+    "Educational apps felt like homework, so I kept opening the empty feed instead.",
+    "That contradiction became Curio: scrolling that still feels effortless, but leaves an idea behind.",
+    "Building it was the manageable part. Getting anyone to notice it is the part I am learning now.",
+    "I'm documenting what happens next.",
+  ].join(" ");
+  const beats = [
+    [0, 3.5, hook, "Open on a real Curio feed screen recording already mid-scroll.", "NOTHING STUCK", "app_capture", "Show the problem and product on frame zero."],
+    [3.5, 8, "I could lose half an hour in a rabbit hole and come away with nothing.", "Show a neutral scrolling timeline, then cut to an empty notes/search state; do not show a fake social account.", "30 MINUTES. NOTHING.", "typography", "Make the personal frustration concrete."],
+    [8, 13, "Educational apps felt like homework, so I kept opening the empty feed instead.", "Use two real Curio UI iterations or supplied product notes, not a generic classroom image.", "LEARNING FELT LIKE WORK", "build_artifact", "Establish the category tension."],
+    [13, 19, "That contradiction became Curio: scrolling that still feels effortless, but leaves an idea behind.", "Screen-record one Curio card opening into a related rabbit hole.", "SCROLLING THAT LEAVES SOMETHING", "app_capture", "Prove the product idea visually."],
+    [19, 26, "Building it was the manageable part. Getting anyone to notice it is the part I am learning now.", "Show a redacted build artifact followed by an honest low-discovery proof screenshot only if supplied.", "DISCOVERY IS HARDER", "proof_screenshot", "Land the vulnerable present-tense struggle."],
+    [26, length, "I'm documenting what happens next.", "Return to the Curio feed and end on continued motion; small Curio wordmark only if loop-safe.", "WHAT HAPPENS NEXT", "app_capture", "Invite the viewer into the build without a sales push."],
+  ];
+  const captionSeeds = [
+    ["I loved scrolling", "loved scrolling"],
+    ["But remembered nothing", "nothing"],
+    ["Learning felt like homework", "homework"],
+    ["So I built Curio", "built Curio"],
+    ["Scrolling should feel effortless", "feel effortless"],
+    ["And leave an idea behind", "leave an idea"],
+    ["Building was manageable", "manageable"],
+    ["Discovery is harder", "harder"],
+    ["I'm documenting what happens next", "what happens next"],
+  ];
+  return {
+    concept_title: "The scroll I wanted did not exist",
+    pillar: "why_curio_exists",
+    hook_options: [
+      hook,
+      "I built Curio because my favorite habit felt completely empty.",
+      "I wanted to keep scrolling without wasting the hour.",
+      "The app was easier to build than getting anyone to care about it.",
+      "Curio started with a problem I kept pretending I didn't have.",
+    ],
+    selected_hook: hook,
+    story_promise: "Why a familiar scrolling regret became Curio, and why discovery is now the harder problem.",
+    narration_script: script,
+    edit_beats: beats.map(([start, end, narration, visual, overlay, asset, purpose]) => ({
+      start_hint: start, end_hint: end, narration, visual, overlay_text: overlay,
+      asset_type: asset, purpose,
+    })),
+    caption_lines: captionSeeds.map(([text, emphasis], i) => ({
+      start_hint: round1(i * length / captionSeeds.length),
+      end_hint: round1((i + 1) * length / captionSeeds.length),
+      text, emphasis,
+      position: "lower_center", style: "curio_premium",
+    })),
+    proof_requirements: [
+      { claim: "Curio turns scrolling into connected ideas worth remembering.", evidence: "Real app capture showing feed card to related rabbit hole.", blocking: true },
+      { claim: "Discovery is currently harder than building.", evidence: "Founder approval; optionally a redacted real discovery/analytics artifact.", blocking: true },
+    ],
+    asset_checklist: [
+      { asset: "Clean 9:16 Curio feed screen recording", source: "curio_capture", required: true },
+      { asset: "Curio card-to-related-rabbit-hole screen recording", source: "curio_capture", required: true },
+      { asset: "One real UI iteration or build note with private data removed", source: "founder_supplied", required: true },
+      { asset: "Optional abstract phone/desk atmosphere plate with no person", source: "generated", required: false },
+    ],
+    post_caption: "I didn't want to stop scrolling. I wanted the scroll to leave something behind. Building Curio answered one problem; getting it discovered is the next one. I'm documenting that part here.",
+    hashtags: ["#BuildInPublic", "#IndieApp", "#CurioApp", "#ProductJourney"],
+    invitation_cta: "I'm documenting what happens next.",
+    disclosure_note: input.delivery_mode === "synthetic_voiceover"
+      ? "Use the applicable AI-generated-content label for synthetic narration and any generated b-roll."
+      : "Disclose any generated b-roll on platforms that require it.",
+    verification_needed: [
+      "Confirm that 'building was the manageable part' accurately reflects the founder's experience.",
+      "Supply a real artifact before using the discovery-struggle visual beat.",
+    ],
+    primary_outcome: "comments",
+    secondary_outcome: "shares",
+    outcome_moment: "At ~20s, the admission that discovery is harder than building gives other builders a specific struggle to identify with.",
+    estimated_length_seconds: length,
+  };
 }
 
 /**
@@ -168,9 +253,9 @@ function mockPackage(user: string): unknown {
     caption_lines: captionLines,
     title: cap(firstWords(topic, 8)),
     thumbnail_text: cap(firstWords(subject, 4)),
-    post_caption: `${hook} Some things are too interesting to scroll past. Real rabbit holes live in Curio.`,
+    post_caption: `${hook} Some things are too interesting to scroll past. More rabbit holes like this live in Curio.`,
     hashtags: ["#psychology", "#rabbithole", "#strangefacts", "#curio"],
-    cta: "Real rabbit holes live in Curio.",
+    cta: "GO DEEPER WITH CURIO",
     estimated_length_seconds: length,
     // One-outcome doctrine (Curio default: retention primary, shares secondary).
     primary_outcome: "retention",

@@ -17,6 +17,15 @@ import { normalizeCaptions, captionsToSrt, CAPTION_STYLE } from "./captions.js";
 import { PUBLISH_THRESHOLDS } from "./judge.js";
 import { runLearning, LearningDataError, MIN_VIDEOS_FOR_LEARNING, latestMetricsByVideo, engagementScore } from "./learning.js";
 import { canonicalPlatform, canonicalSurface, ingestRawAnalytics } from "./ingest.js";
+import {
+  FOUNDER_KIT_PROMPT_VERSION,
+  FounderKitValidationError,
+  founderKitFromRaw,
+  founderKitWire,
+  generateFounderVideoKit,
+  normalizeFounderVideoInput,
+  validateRawFounderKit,
+} from "./founder.js";
 
 export interface RouteDeps {
   repo: Repo;
@@ -125,6 +134,75 @@ export function buildRoutes(deps: RouteDeps): Router {
     const video = await createDraftVideo(repo, topic.id, topic.format ?? "narrated");
     const job = queue.enqueue("generate", { videoId: video.id });
     res.status(202).json({ video_id: video.id, job_id: job.id, status: video.status });
+  });
+
+  // --- Faceless founder journals -------------------------------------------
+
+  // Founder-led in point of view, not camera presence. This produces a
+  // persisted edit kit only; it deliberately cannot call voice/render clients.
+  r.post("/founder-videos/kit", async (req, res) => {
+    try {
+      const input = normalizeFounderVideoInput(req.body ?? {});
+      const generated = await generateFounderVideoKit(llm, input);
+      const kitId = makeId("fkit");
+      const generationId = makeId("gen");
+      await repo.addGeneration({
+        id: generationId,
+        videoId: kitId,
+        kind: "package",
+        promptVersion: generated.promptVersion,
+        model: generated.modelUsed,
+        input: generated.input,
+        output: generated.rawOutput,
+        createdAt: Date.now(),
+      });
+      res.status(201).json({
+        kit_id: kitId,
+        prompt_version: generated.promptVersion,
+        model: generated.modelUsed,
+        kit: founderKitWire(generated.kit),
+      });
+    } catch (e) {
+      if (e instanceof FounderKitValidationError) {
+        res.status(400).json({ error: e.message, issues: e.issues });
+        return;
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      if (/429|insufficient_quota|exceeded your current quota/i.test(message)) {
+        res.status(503).json({
+          error: "founder kit generation is temporarily unavailable: OpenAI quota is exhausted; restore quota and retry this same request",
+        });
+        return;
+      }
+      if (/timeout|aborted/i.test(message)) {
+        res.status(504).json({
+          error: "founder kit generation timed out before a valid strict-schema response was returned; no usable kit was persisted",
+        });
+        return;
+      }
+      throw e;
+    }
+  });
+
+  r.get("/founder-videos/kits", async (_req, res) => {
+    const records = (await repo.listGenerations())
+      .filter((record) => record.promptVersion === FOUNDER_KIT_PROMPT_VERSION)
+      .sort((a, b) => b.createdAt - a.createdAt);
+    const kits = records.flatMap((record) => {
+      try {
+        if (validateRawFounderKit(record.output).length) return [];
+        return [{
+          kit_id: record.videoId,
+          prompt_version: record.promptVersion,
+          model: record.model,
+          created_at: record.createdAt,
+          kit: founderKitWire(founderKitFromRaw(record.output)),
+        }];
+      } catch {
+        return [];
+      }
+    });
+    res.json({ kits });
   });
 
   // --- Videos ---------------------------------------------------------------

@@ -118,7 +118,7 @@ describe("learning payload cohort metadata", () => {
     expect(example.primary_outcome).toBe("retention");
     expect(example.secondary_outcome).toBe("shares");
     expect(typeof example.outcome_moment).toBe("string");
-    expect(example.package_prompt_version).toBe("pkg_v5_one_outcome");
+    expect(example.package_prompt_version).toBe("pkg_v6_growth_conversion");
     // aggregates group per (platform, surface), never a merged reels bucket
     const keys = Object.keys(payload.current.platforms);
     expect(keys).toContain("reels:instagram");
@@ -128,10 +128,10 @@ describe("learning payload cohort metadata", () => {
     // cohort aggregates span the FULL population, not just the extremes:
     // all 10 scored rows must be counted in each grouping
     const cohorts = payload.current.cohorts;
-    const v5 = cohorts.by_prompt_version.pkg_v5_one_outcome;
-    expect(v5.n_rows).toBe(10);
-    expect(v5.distinct_videos).toBe(10);
-    expect(typeof v5.avg_engagement).toBe("number");
+    const v6 = cohorts.by_prompt_version.pkg_v6_growth_conversion;
+    expect(v6.n_rows).toBe(10);
+    expect(v6.distinct_videos).toBe(10);
+    expect(typeof v6.avg_engagement).toBe("number");
     const retention = cohorts.by_primary_outcome.retention;
     expect(retention.n_rows).toBe(10);
   });
@@ -160,7 +160,7 @@ describe("learning payload cohort metadata", () => {
 
     const cohorts = payload.current.cohorts.by_prompt_version;
     expect(cohorts.manual_edit?.n_rows).toBe(1);
-    expect(cohorts.pkg_v5_one_outcome?.n_rows).toBe(9);
+    expect(cohorts.pkg_v6_growth_conversion?.n_rows).toBe(9);
   });
 });
 
@@ -181,7 +181,7 @@ describe("seed rule sync", () => {
     expect(stale.rule).toContain("superseded seed");
     const activeSeeds = all.filter((r) => r.source === "seed" && r.active);
     expect(activeSeeds.length).toBe(SEED_RULES.length);
-    expect(activeSeeds.some((r) => r.rule.includes("12-16 seconds"))).toBe(true);
+    expect(activeSeeds.some((r) => r.rule.includes("15-20 seconds"))).toBe(true);
 
     // Idempotent: a second boot neither duplicates nor re-touches anything.
     await ensureSeedRules(repo);

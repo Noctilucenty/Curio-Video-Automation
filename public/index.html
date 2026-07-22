@@ -81,6 +81,22 @@
   </section>
 
   <section>
+    <h2>Faceless founder journal</h2>
+    <form class="card" onsubmit="generateFounderKit(event)">
+      <textarea name="story" rows="4" style="width:100%" required placeholder="True story seed — what happened, why it mattered, and what is hard now. Only include facts the video may say."></textarea>
+      <textarea name="proof" rows="3" style="width:100%;margin-top:8px" placeholder="Proof points, one per line — e.g. I built Curio to make scrolling leave a useful idea behind."></textarea>
+      <textarea name="assets" rows="3" style="width:100%;margin-top:8px" placeholder="Available real assets, one per line — e.g. Curio feed screen recording&#10;AI-card before/after&#10;redacted build note"></textarea>
+      <div class="row" style="margin-top:10px">
+        <select name="platform"><option>reels</option><option>tiktok</option><option>shorts</option></select>
+        <select name="delivery"><option value="synthetic_voiceover">synthetic voiceover</option><option value="founder_voiceover">founder voiceover</option><option value="text_only">text only</option></select>
+        <input name="length" type="number" min="20" max="35" value="30" style="width:80px" title="target seconds">
+        <button class="primary">Generate edit kit</button>
+      </div>
+    </form>
+    <div id="founder-kits"><div class="empty">No founder kits yet.</div></div>
+  </section>
+
+  <section>
     <h2>Needs your review</h2>
     <div id="queue"><div class="empty">Loading…</div></div>
   </section>
@@ -227,12 +243,31 @@ function insightsPanel(run) {
   </div>`;
 }
 
+function founderKitCard(record) {
+  const k = record.kit;
+  const beats = (k.edit_beats || []).map((b) =>
+    `<div class="rule"><span class="cat">${b.start_hint}-${b.end_hint}s · ${esc(b.asset_type)}</span>${esc(b.visual)}</div>`
+  ).join('');
+  const verify = (k.verification_needed || []).length
+    ? `<div class="problems" style="margin-top:10px">Verify before production: ${k.verification_needed.map(esc).join(' · ')}</div>`
+    : '';
+  return `<div class="card">
+    <div class="row"><span class="badge">${esc(k.pillar).replace(/_/g, ' ')}</span>
+      <span class="meta" style="color:var(--dim);font-size:12px">${esc(record.kit_id)} · ${esc(record.model)} · ${k.estimated_length_seconds}s</span></div>
+    <div class="hook">${esc(k.selected_hook)}</div>
+    <div class="script">${esc(k.narration_script)}</div>
+    <div style="margin-top:10px">${beats}</div>
+    ${verify}
+    <div class="script" style="margin-top:10px">Disclosure: ${esc(k.disclosure_note)}</div>
+  </div>`;
+}
+
 async function refresh() {
   // Each section renders independently — one flaky endpoint (e.g. during a
   // server restart) must not blank the whole dashboard.
-  const [meta, queue, all, rules, perf, runs] = await Promise.allSettled([
+  const [meta, queue, all, rules, perf, runs, founderKits] = await Promise.allSettled([
     api('/meta'), api('/review-queue'), api('/videos'), api('/learning/rules'),
-    api('/performance/summary'), api('/learning/runs'),
+    api('/performance/summary'), api('/learning/runs'), api('/founder-videos/kits'),
   ]);
   if (meta.status === 'fulfilled') {
     $('meta').textContent = `brain ${meta.value.llm_model} · voice ${meta.value.voice} · render ${meta.value.renderer} · post ${meta.value.post}`;
@@ -249,13 +284,18 @@ async function refresh() {
   }
   if (perf.status === 'fulfilled') $('perf').innerHTML = perfTable(perf.value.videos);
   if (runs.status === 'fulfilled') $('insights').innerHTML = insightsPanel(runs.value.runs[0]);
+  if (founderKits.status === 'fulfilled') {
+    $('founder-kits').innerHTML = founderKits.value.kits.length
+      ? founderKits.value.kits.map(founderKitCard).join('')
+      : '<div class="empty">No founder kits yet.</div>';
+  }
   if (rules.status === 'fulfilled') {
     $('rules').innerHTML = rules.value.rules.length
       ? rules.value.rules.slice().reverse().map((r) =>
           `<div class="rule ${r.active ? '' : 'inactive'}"><span class="cat">${r.category} · ${r.source}</span>${esc(r.rule)}</div>`).join('')
       : '<div class="empty">No rules yet.</div>';
   }
-  const failed = [meta, queue, all, rules, perf, runs].filter((r) => r.status === 'rejected');
+  const failed = [meta, queue, all, rules, perf, runs, founderKits].filter((r) => r.status === 'rejected');
   if (failed.length) toast(`Load failed for ${failed.length} section(s): ${failed[0].reason?.message ?? failed[0].reason}`, false);
 }
 
@@ -295,6 +335,24 @@ async function generate(ev) {
     toast('Generation queued — refresh in a few seconds.');
     setTimeout(refresh, 1200); setTimeout(refresh, 5000);
   } catch (e) { toast('Generate failed: ' + e.message, false); }
+}
+
+async function generateFounderKit(ev) {
+  ev.preventDefault();
+  const f = ev.target;
+  const lines = (value) => value.split('\n').map((line) => line.trim()).filter(Boolean);
+  try {
+    await api('/founder-videos/kit', { method: 'POST', headers: headers(true), body: JSON.stringify({
+      story_seed: f.story.value,
+      proof_points: lines(f.proof.value),
+      available_assets: lines(f.assets.value),
+      target_platform: f.platform.value,
+      target_length_seconds: Number(f.length.value),
+      delivery_mode: f.delivery.value,
+    }) });
+    toast('Founder edit kit generated — verify every flagged claim before production.');
+    refresh();
+  } catch (e) { toast('Founder kit failed: ' + e.message, false); }
 }
 
 async function act(id, action) {
