@@ -1,0 +1,36 @@
+{
+  "collectedAt": "2026-07-21T21:02:54-07:00",
+  "source": "vidIQ live Codex MCP sweep (40 credits)",
+  "queries": [
+    "instant freezing water",
+    "quantum levitation superconductors",
+    "impossible science experiment",
+    "levitating magnet superconductor",
+    "water flows uphill physics",
+    "liquid nitrogen science experiment",
+    "acoustic levitation",
+    "floating water droplets sound",
+    "fire in space microgravity",
+    "round flame in space"
+  ],
+  "videos": [
+    {
+      "videoId": "yt:7C_zjXuSDoU",
+      "title": "sigma science | This looks impossible...but it's perfectly timed | #science #physics #experiment",
+      "url": "https://youtube.com/shorts/7C_zjXuSDoU",
+      "platform": "shorts",
+      "views": 10284604,
+      "outlierScore": 74.34,
+      "durationSeconds": 16,
+      "channelFollowers": 93500,
+      "engagementRate": 0.01,
+      "hookType": "visible impossible-looking physics result",
+      "retentionMechanic": "UNVERIFIED — metrics/title only; visual sequence was not watched",
+      "engagementMechanic": "UNVERIFIED — engagement rate observed, causal mechanism not inspected",
+      "curioAdaptation": "Candidate support for Tuesday's visually-impossible-science content class only. It does not validate the selected microgravity-flame topic or any specific execution pattern.",
+      "status": "candidate"
+    }
+  ],
+  "_negativeFinding": "Direct queries for spherical flames/fire in microgravity and acoustic levitation returned no relevant science outlier under the filters. The selected microgravity-flame concept therefore has authoritative factual and production-feasibility support, but no topic-specific outlier validation.",
+  "_discipline": "External evidence only. Do not add to approved-patterns.json without Curio publishing evidence or the independent-outlier threshold plus review."
+}

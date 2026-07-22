@@ -1,0 +1,44 @@
+{
+  "collectedAt": "2026-07-21T21:19:36-07:00",
+  "source": "vidIQ Instagram/TikTok outlier search (5 credits; Instagram section only)",
+  "query": "A real strange-science phenomenon looks physically impossible in frame zero, then a concise visual mechanism explains why; examples include spherical fire in microgravity",
+  "audience": "Global English-speaking; ages 18-40; Gen Z/Millennial curious scrollers",
+  "reels": [
+    {
+      "contentId": "ig:DXp4NrHjYYl",
+      "creator": "@seeing_into_the_unknown",
+      "concept": "Bubble cymatics frequency sweep",
+      "views": 4400000,
+      "outlierScore": 75.4,
+      "creatorFollowers": 280100,
+      "durationSeconds": 16,
+      "format": "static-camera physical demonstration; complete anomaly visible immediately; raw phenomenon-linked audio; looped",
+      "status": "candidate"
+    },
+    {
+      "contentId": "ig:DXjUq2go_cM",
+      "creator": "@zorancodes",
+      "concept": "Geiger-counter comparison of uranium and radium",
+      "views": 1800000,
+      "outlierScore": 105.4,
+      "creatorFollowers": 22500,
+      "durationSeconds": 25,
+      "format": "POV physical demonstration; instrument response in frame zero; phenomenon-linked sound; looped",
+      "status": "candidate"
+    },
+    {
+      "contentId": "ig:DYApEZuR0Rn",
+      "creator": "@floridafox_anthillart",
+      "concept": "Dry ice versus banana",
+      "views": 26400000,
+      "outlierScore": 88.7,
+      "creatorFollowers": 529000,
+      "durationSeconds": 14,
+      "format": "POV macro physical reaction; contact/reaction immediately visible; raw hissing sound; looped",
+      "status": "candidate"
+    }
+  ],
+  "candidatePattern": "Three independent Instagram outliers support the broad format of showing a real physical anomaly immediately, keeping the camera/composition simple, and letting phenomenon-linked sound carry part of the evidence. This does not validate spherical fire specifically.",
+  "_negativeFinding": "The format search returned no microgravity-flame-specific Instagram outlier. No topic-specific trend claim is made.",
+  "_discipline": "External evidence only. Keep as candidate; do not add to approved-patterns.json without Curio-published evidence or a reviewed qualifying evidence threshold."
+}

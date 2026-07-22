@@ -1,0 +1,42 @@
+{
+  "collectedAt": "2026-07-21T21:27:16-07:00",
+  "source": "Signed-in manual Facebook Reels search in the visible browser UI; no API, cookie access, or automated feed scraping",
+  "query": "strange science experiment",
+  "scope": "Two directly inspected public science Reels returned by one focused Facebook search",
+  "reels": [
+    {
+      "contentId": "fb:1021701093586524",
+      "url": "https://www.facebook.com/reel/1021701093586524/",
+      "creator": "Larry Laser",
+      "concept": "Create a DIY rainbow with a mirror and bucket of water",
+      "postedAtLabel": "2026-06-27",
+      "durationSeconds": 10,
+      "viewsDetailPage": 5100000,
+      "viewsSearchResult": 2400000,
+      "viewCountNote": "Facebook's search result and detail page displayed different counts during the same session; the two figures are preserved separately and are not reconciled or combined.",
+      "likeOrReactionCountDetailPage": 44100,
+      "commentsDetailPage": 1000,
+      "sharesDetailPage": 2900,
+      "observableFormat": "Short hands-on optics demonstration with the result and mechanism described in plain language",
+      "status": "observation"
+    },
+    {
+      "contentId": "fb:1292135122902611",
+      "url": "https://www.facebook.com/reel/1292135122902611/",
+      "creator": "Museum of Science, Boston",
+      "creatorVerified": true,
+      "concept": "Make cosmic-ray tracks visible at home with a cloud-chamber experiment",
+      "postedAtLabel": "2026-06-13",
+      "durationSeconds": 57,
+      "viewsSearchResult": 322000,
+      "likeOrReactionCountDetailPage": 8500,
+      "commentsDetailPage": 268,
+      "sharesDetailPage": 1000,
+      "observableFormat": "Hands-on demonstration makes an invisible physical phenomenon visible, then explains what the tracks represent",
+      "status": "observation"
+    }
+  ],
+  "candidateInterpretation": "These two results suggest that plainly demonstrated physical phenomena can earn meaningful Facebook sharing, including when the experiment is easy to reproduce or makes something invisible visible. Creator baselines, reach sources, retention, and follower counts were not available, so neither Reel is classified as an outlier and no platform rule is promoted.",
+  "topicFinding": "No microgravity-flame-specific Facebook Reel was established by this search.",
+  "_discipline": "Observation only. Do not add to approved-patterns.json or the rules database without comparison against Curio's own platform-separated results or qualifying independent evidence."
+}
