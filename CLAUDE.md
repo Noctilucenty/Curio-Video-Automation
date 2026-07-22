@@ -38,16 +38,24 @@ in TREND_INTELLIGENCE, and only reach `approved-patterns.json` / the rules DB
 after Curio's own posted results (or ≥2 independent outliers) support them.
 Separate observations, hypotheses, confirmed rules, rejected rules — always.
 
-## This machine (8GB Mac) — run heavy processes ONE AT A TIME
-Uncapped Node balloons into swap and macOS SIGKILLs it (exit 137) with no
-error output — repeated tsc/vitest deaths on 2026-07-14 cost an hour. The repo
-scripts are now hardened: `npm run typecheck` / `npm test` / `npm run build`
-carry `NODE_OPTIONS='--max-old-space-size=1408'`, tsconfig is `incremental`
-(cache in node_modules/.cache), and vitest.config.ts forces a single forked
-worker with no file parallelism. USE THE NPM SCRIPTS, not bare `npx tsc`/`npx
-vitest`. Never run two of tsc/vitest/ffmpeg-render at once; check for other
-sessions' node processes (`ps aux | grep node`) before starting a heavy one.
-Renders: ONE process, ≤2 threads, RSS <750MB hard cap (see PRODUCTION_DOCTRINE).
+## This machine (Apple M4, 24GB — migrated 2026-07-22) — heavy processes
+The workstation is NO LONGER the 8GB Mac these rules were written for. The
+hardening below stays in force because it costs nothing and the render caps
+were derived from ffmpeg/render behaviour, not just from RAM — but a job dying
+here is no longer presumed to be memory pressure, so diagnose before assuming.
+`npm run typecheck` / `npm test` / `npm run build` carry
+`NODE_OPTIONS='--max-old-space-size=1408'`, tsconfig is `incremental` (cache in
+node_modules/.cache), and vitest.config.ts forces a single forked worker with no
+file parallelism. USE THE NPM SCRIPTS, not bare `npx tsc`/`npx vitest`. Raising
+the 1408MB cap is now safe if a real job needs it — do it deliberately, in the
+script, not by bypassing the scripts. Renders: ONE process, ≤2 threads, RSS
+<750MB hard cap (see PRODUCTION_DOCTRINE) — unchanged, these are quality/
+determinism limits. Still check for other sessions' node processes
+(`ps aux | grep node`) before starting a heavy one: Codex and Claude share this
+working tree.
+Toolchain installed on the new machine 2026-07-22: Homebrew ffmpeg 8.1.2 and
+whisper.cpp 1.9.1 with `large-v3-turbo-q5_0`, so narration ASR/QA runs locally
+and does not depend on the OpenAI key.
 
 ## Hard rules
 - Model: newest full-strength GPT — currently `gpt-5.6-sol` (official resolver,
