@@ -1,5 +1,46 @@
 # MICROGRAVITY-FLAME — spherical fire
 
+> ## SCRIPT REVISED 2026-07-22 (v3) — narration locked, take F selected
+>
+> Leon rejected the v1 audio on his ear ("cognitive dissonance is too high and
+> the gaps are too much"), then asked twice for **easier grammar and easier
+> words**. The nine-sentence v1 script is SUPERSEDED by this one:
+>
+> > Fire can be round in space. On Earth, hot air rises and pulls cool air in
+> > below, shaping the flame into a teardrop. In orbit, hot air cannot rise, so
+> > fuel and air spread evenly, and fire tends to be round. Gravity gives fire
+> > its everyday shape.
+>
+> **47 words, 4 stops averaging 12 words** (was 9 stops averaging 4.2 — the
+> "sentence-fact-cards" structure the playbook rejects as reading like a list).
+> Flow is carried by commas, conjunctions and gerunds; em dashes stay banned in
+> TTS input. Selected narration: **take F** (16.64s, 169.5 WPM, word-exact,
+> delivery UNTOUCHED — no gap surgery). Master `micro-audiostory-final.wav`
+> 16.940s, seamless-loop wrapped; measurements in the production log.
+>
+> Every claim and both qualifiers survive: **can** (Fire can be round), **tends
+> to** (fire tends to be round). Two Rule 44 defects were caught in my own draft
+> and fixed before narration: "every flame" was an unsupported absolute (the
+> source describes the candle/low-momentum case), and dropping "everyday" from
+> the payoff would have implied gravity is the only influence on flame shape.
+>
+> Plain-language swaps: "spherical"->"round", "buoyant flow/diffusion" gone,
+> and **"in microgravity that buoyant flow fades" -> "In orbit, hot air cannot
+> rise"** — the true observable consequence, avoiding both the jargon and the
+> banned "no gravity". This also deletes "Airflow", the word that made
+> whisper.cpp and Captions.ai transcribe "Air flow" under the bed.
+>
+> One science-wording tradeoff for Leon: the plain "In orbit, hot air cannot
+> rise" replaces the technical term "microgravity". It is accurate (that is why
+> the flame goes round, and it is where NASA's ISS experiments run) and far
+> easier, but if you want the technical term restored for brand precision, say
+> so and I will re-cut and regenerate.
+>
+> **The sections below still carry v1 wording** in the claim map, beat table and
+> caption plan. They are superseded by this block and must be regenerated before
+> any visual work; the verified caption plan for the new script is in
+> `data/productions/MICROGRAVITY-FLAME/production-log.md`.
+
 Status: **SCRIPT APPROVED 2026-07-22 — AUDIO RUNTIME HOLD: measured delivery requires a 19.0s lock or a newly approved script cut**
 
 Date: 2026-07-21 (Tuesday)  

@@ -806,3 +806,51 @@ pixel identity, is what must hold. Re-verify after splicing anyway: frame count,
 duration, `audio corr vs LOCKED = 1.0000`, LUFS/peak, and the caption ink count.
 BRINE v5: 520f / 17.333s / corr 1.0000 / −16.0 LUFS / −1.6 dBFS.
 
+## 58 — SEAMLESS AUDIO LOOP: crossfade the bed, never fade both ends to zero (LOCKED, 2026-07-22)
+
+A click-free seam is NOT a seamless loop. Forcing the first and last samples to zero
+with short boundary fades (to guarantee no click) leaves a brief **dip to silence at
+every loop point** — an audible blip the viewer registers as "it restarted."
+MICROGRAVITY-FLAME v3 did this: ~8ms notch, quietest 5ms window across the join
+**−40 dB** against a −16 dB bed.
+
+**Engineered technique (built, then measured):**
+- Render the BED to length `L + XF` (the loop length plus a crossfade tail); the extra
+  `XF` is bed-only continuation past the loop point.
+- Equal-power crossfade the tail onto the head: `bed[0:XF] = bed[0:XF]·sin + bed[L:L+XF]·cos`.
+  Now `bed[L-1] -> bed[0]` is contiguous — no dip, and the phase discontinuity is spread
+  over `XF` (≈140ms) instead of being a click.
+- Mix the VOICE on TOP of the looped bed, **un-crossfaded**, so the hook word keeps its
+  full attack every loop. The bed-only loop breath (Rule 56) gives room to wrap; the
+  voice track is silence→silence across the seam, so there is no voice jump.
+- Leave the drone rising unresolved and the motif on its resolved tail so the ending
+  pulls musically back into the opening.
+
+**Measure the join on the loopx2/x3 file, not the single-file endpoints.** Pass = no
+sub-floor dip across the seam (v4: quietest 5ms **−26 dB**, continuous; sample step
+0.005; restart step within a few dB, easing to level by ~80ms).
+
+## 59 — Do NOT flatten pause variation to hit a caption-split number (LOCKED, 2026-07-22)
+
+Rule 52's 0.35-0.45s sentence pauses exist ONLY so Captions.ai can split cards on a
+pause threshold. **Rule 55.3 already splits sentences deterministically with a Page
+Break on each sentence's first word — with no pause requirement.** So never re-time the
+narration to manufacture those pauses: clamping MICROGRAVITY-FLAME's gaps into the band
+cut pause-variation std **0.152s → 0.066s (−56%)** and turned **18.7%** of the master
+into inter-sentence dead air, destroying the "one connected thought" (VIRAL_PLAYBOOK:
+uniform gaps read as a list). **Use the selected take's delivery UNTOUCHED; split
+captions with Page Breaks.** Guard: report pause-variation std before and after any
+timing edit — a drop is a defect, not a pass. Corollary (script side): a narration of
+short 3-5 word fact-sentences IS the list at its source; write ONE connected thought in
+plain words (SEED_RULE, src/prompts.ts) rather than repairing choppiness in the mix.
+
+## 60 — Sound design must not corrupt the caption transcript (LOCKED, 2026-07-22)
+
+Captions.ai ASRs the LOCKED audio, so the bed can change what the captions say. A bed
+partial sweeping the vowel-formant band made whisper.cpp (and thus Captions.ai) hear
+"Air flow" for "Airflow" — a Rule 55.1 mismatch created purely by the mix; the isolated
+stem read clean. **Run ASR on the FINAL MUX, not just the narration stem (doctrine 17),
+and prefer caption-safe wording.** If a word mis-transcribes under the bed: keep pitched
+bed content out of the ~1-3 kHz formant band, duck pitched layers harder than the floor
+under speech, or choose a plainer word — the simpler rewrite removed the offending word
+entirely.

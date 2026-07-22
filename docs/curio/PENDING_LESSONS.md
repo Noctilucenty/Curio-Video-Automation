@@ -444,3 +444,48 @@ stronger than trying to pixel-match two distant moments of a moving shot.
 motion test instead of SSIM, rather than emitting a FAIL that a human must overrule.
 An overrulable check trains the operator to ignore failures — which is how a real defect
 eventually ships. **Do not fix this by lowering 0.90.**
+
+## 2026-07-22 — MICROGRAVITY-FLAME audio: four producer-side lessons (maker == reviewer)
+
+Context: Codex was out of usage, so producer and reviewer were the same party.
+Leon's ear caught two defects my own measurement pass had passed, then a third on
+the loop. All four were mine, and all four are now measurable so they cannot recur
+silently. (Related engine changes stay in [[PRODUCTION_DOCTRINE]].)
+
+**P-45. NEVER flatten pause variation to satisfy a caption-split number.**
+v1 clamped every sentence gap into Rule 52's 0.35-0.45s band. Measured cost: pause
+variation std **0.152s -> 0.066s (-56%)**, +0.795s of silence, **18.7%** of the
+master turned to inter-sentence dead air. VIRAL_PLAYBOOK is explicit: *"uniform
+sentence gaps read as a list ... pause variation is the only measurable proxy for
+one thought."* I optimised the number and destroyed the thing it serves.
+**The surgery was never needed:** Rule 52's pauses exist ONLY so Captions.ai can
+split cards on a pause threshold, and Rule 55.3 achieves sentence-aligned cards
+deterministically with a Page Break on each sentence's first word — no pause
+requirement. **Use the selected take's delivery UNTOUCHED; split captions with Page
+Breaks, never by stretching the narration.** Guard: report pause-variation std
+before/after any timing edit; a drop is a red flag, not a pass.
+
+**P-46. The SCRIPT structure was the root cause, not the mix.** Nine sentence-fact
+-cards averaging 4.2 words is the "list" the doctrine rejects at the source. The fix
+that finally worked was rewriting to ONE connected thought (commas + conjunctions +
+gerunds) in plain words, then using the take as delivered. Now a SEED_RULE
+(src/prompts.ts, structure + tone) so generation starts connected and plain instead
+of emitting choppy fact-cards a producer has to repair.
+
+**P-47. Sound design can CORRUPT the caption transcript.** A bed partial sweeping the
+vowel-formant band made whisper.cpp (and therefore Captions.ai, which ASRs the locked
+audio) hear "Air flow" for "Airflow" — a Rule 55.1 caption mismatch created purely by
+the mix. Reproducible: the isolated stem read "Airflow" clean, the mix did not.
+**Always run ASR on the FINAL MUX, not just the narration stem (doctrine 17), and
+prefer caption-safe wording** — the simpler rewrite removed "Airflow" entirely and the
+problem with it. Two knobs if it recurs: keep pitched bed content out of the
+1-3 kHz formant band, and duck pitched layers harder than the floor under speech.
+
+**P-48. A looping mix must be built to loop; a click-free seam is not enough.** v3
+faded BOTH boundaries to zero to kill the seam click — which put an **~8ms dip to
+silence at every loop point**, an audible blip (Leon: "so the user doesn't notice
+when it ends and starts"). Correct technique in [[PRODUCTION_DOCTRINE]]: render the
+bed PAST the loop point and equal-power crossfade its tail onto its own head, mix the
+voice on top un-crossfaded. Result: quietest 5ms window across the join **-40 dB (a
+notch) -> -26 dB (continuous)**, sample step 0.005, tail swells into the restart.
+Measure the join on the loopx2/x3 file, not just the single-file endpoints.
