@@ -267,6 +267,7 @@ export function buildRoutes(deps: RouteDeps): Router {
       });
       res.status(201).json({
         plan_id: planId,
+        prompt_version: CAPTION_PLAN_PROMPT_VERSION,
         plan_text: planToText(generated.cards),
         cards: generated.cards,
         report: generated.report,

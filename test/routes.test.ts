@@ -311,12 +311,24 @@ describe("api flow", () => {
   });
 
   it("generates a verified caption plan and refuses an empty script explicitly", async () => {
-    const { app } = await makeApp();
+    const { app, repo } = await makeApp();
     const script = "Flames can turn spherical in space. On Earth, gases rise. Gravity gives fire its familiar shape.";
     const res = await request(app).post("/api/captions/plan").send({ script });
     expect(res.status).toBe(201);
     expect(res.body.report.verdict).toBe("PASS");
     expect(res.body.plan_text.split("\n").length).toBeGreaterThanOrEqual(3);
+    expect(res.body.plan_id).toMatch(/^cplan_/);
+    expect(res.body.prompt_version).toBe("caption_plan_v1_verbatim_grouping");
+
+    const records = await repo.listGenerations(res.body.plan_id);
+    expect(records).toHaveLength(1);
+    expect(records[0]).toMatchObject({
+      kind: "package",
+      promptVersion: "caption_plan_v1_verbatim_grouping",
+      model: "mock-llm",
+      input: { script },
+    });
+    expect(records[0].output).toMatchObject({ verdict: "PASS" });
 
     const empty = await request(app).post("/api/captions/plan").send({ script: "  " });
     expect(empty.status).toBe(400);

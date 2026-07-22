@@ -128,6 +128,16 @@ describe("checkCaptionPlan — verbatim contract", () => {
     expect(problems).not.toMatch(/5 words/);
   });
 
+  it("rejects a standalone punctuation-only card instead of silently passing it", () => {
+    const report = checkCaptionPlan(
+      "Flames can turn spherical.",
+      parsePlanText("---\nFLAMES CAN TURN SPHERICAL"),
+    );
+    expect(report.verdict).toBe("FAIL");
+    expect(report.cards[0].problems.join(" ")).toMatch(/contains no caption words/);
+    expect(report.cards[1].status).toBe("pass");
+  });
+
   it("never emits a one-word orphan card for a one-word opening sentence", () => {
     const script = "Silence. The engines ran at full power.";
     const cards = deterministicCaptionCards(script);

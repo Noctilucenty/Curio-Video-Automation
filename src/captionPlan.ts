@@ -141,6 +141,11 @@ export function checkCaptionPlan(script: string, cards: CaptionCardInput[]): Cap
     }
     for (const line of lines) {
       const n = lineWordCount(line);
+      if (n === 0) {
+        problems.push(
+          `line "${line}" contains no caption words — punctuation-only cards cannot be timed or verified against the narration (Rule 55.1)`,
+        );
+      }
       if (n > CAPTION_STYLE.maxWordsPerLine) {
         problems.push(
           `line "${line}" has ${n} words — the generated-line ceiling is ${CAPTION_STYLE.maxWordsPerLine} (GROWTH_OS §4)`,
