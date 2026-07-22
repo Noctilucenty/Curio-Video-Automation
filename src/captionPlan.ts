@@ -58,15 +58,19 @@ interface Token {
   sentenceEnd: boolean;
 }
 
+/** Normalize one whitespace word; "" when it has no letter/digit (bare dash). */
+function normWord(raw: string): string {
+  const norm = raw.toLowerCase().replace(/[‘’]/g, "'").replace(/[^a-z0-9'-]/g, "");
+  return /[a-z0-9]/.test(norm) ? norm : "";
+}
+
 export function tokenizeNarration(text: string): Token[] {
   return text
-    .replace(/[‘’]/g, "'")
-    .replace(/[“”]/g, '"')
     .split(/\s+/)
     .filter(Boolean)
     .map((raw) => ({
       raw,
-      norm: raw.toLowerCase().replace(/[^a-z0-9'-]/g, ""),
+      norm: normWord(raw),
       sentenceEnd: /[.!?…]["')]*$/.test(raw),
     }))
     .filter((t) => t.norm.length > 0);
@@ -75,11 +79,14 @@ export function tokenizeNarration(text: string): Token[] {
 function tokenizeCard(card: CaptionCardInput): string[] {
   return card.lines
     .join(" ")
-    .toLowerCase()
-    .replace(/[‘’]/g, "'")
     .split(/\s+/)
-    .map((w) => w.replace(/[^a-z0-9'-]/g, ""))
+    .map(normWord)
     .filter(Boolean);
+}
+
+/** Real words in a caption line — punctuation-only "words" don't count. */
+function lineWordCount(line: string): number {
+  return line.split(/\s+/).map(normWord).filter(Boolean).length;
 }
 
 function cardDisplay(card: CaptionCardInput): string {
@@ -133,7 +140,7 @@ export function checkCaptionPlan(script: string, cards: CaptionCardInput[]): Cap
       );
     }
     for (const line of lines) {
-      const n = line.split(/\s+/).filter(Boolean).length;
+      const n = lineWordCount(line);
       if (n > CAPTION_STYLE.maxWordsPerLine) {
         problems.push(
           `line "${line}" has ${n} words — the generated-line ceiling is ${CAPTION_STYLE.maxWordsPerLine} (GROWTH_OS §4)`,
@@ -260,7 +267,8 @@ export function parsePlanText(planText: string): CaptionCardInput[] {
     .split("\n")
     .map((row) => row.trim())
     .filter(Boolean)
-    .map((row) => ({ lines: row.split("/").map((l) => l.trim()).filter(Boolean) }));
+    .map((row) => ({ lines: row.split("/").map((l) => l.trim()).filter(Boolean) }))
+    .filter((card) => card.lines.length > 0); // a row of just "/" is noise, not a card
 }
 
 export function planToText(cards: CaptionCardInput[]): string {
@@ -273,6 +281,11 @@ export function planToText(cards: CaptionCardInput[]): string {
 // ---------------------------------------------------------------------------
 
 export const CAPTION_PLAN_SCHEMA_NAME = "curio_caption_plan";
+export const CAPTION_PLAN_PROMPT_VERSION = "caption_plan_v1_verbatim_grouping";
+
+/** Curio masters run 12–25s (~30–75 spoken words). A "script" far beyond that
+ * is almost certainly a wrong paste, and it would spend LLM tokens on it. */
+const MAX_SCRIPT_WORDS = 200;
 
 export const CAPTION_PLAN_SCHEMA = {
   type: "object",
@@ -331,9 +344,15 @@ const MAX_PLAN_ATTEMPTS = 2;
 export async function generateCaptionPlan(llm: LlmClient, script: string): Promise<GeneratedCaptionPlan> {
   const trimmed = script.trim();
   if (!trimmed) throw new CaptionPlanError("narration script is required", ["script must not be empty"]);
-  if (tokenizeNarration(trimmed).length < 2) {
+  const wordCount = tokenizeNarration(trimmed).length;
+  if (wordCount < 2) {
     throw new CaptionPlanError("narration script is too short to caption", [
       "the script has fewer than two words — captions need a real narration",
+    ]);
+  }
+  if (wordCount > MAX_SCRIPT_WORDS) {
+    throw new CaptionPlanError("narration script is implausibly long for a Curio master", [
+      `the script has ${wordCount} words; Curio masters run 12–25s (~30–75 spoken words, hard ceiling ${MAX_SCRIPT_WORDS}) — this looks like the wrong text was pasted, so no tokens were spent on it`,
     ]);
   }
 
@@ -386,9 +405,27 @@ export function deterministicCaptionCards(script: string): CaptionCardInput[] {
   }
   if (current.length) sentences.push(current);
 
+  // A one-word sentence ("Silence.") can never be a legal card on its own.
+  // Merge it into a neighboring sentence's word stream BEFORE chunking so the
+  // chunker rebalances the lines itself and no orphan can arise.
+  const wordGroups: string[][] = sentences.map((sentence) =>
+    sentence.map((t) => t.raw.replace(/[.,;:!?…"]+$/g, "").replace(/^["']+/g, "")),
+  );
+  for (let i = 0; i < wordGroups.length; i++) {
+    if (wordGroups[i].length !== 1) continue;
+    if (i + 1 < wordGroups.length) {
+      wordGroups[i + 1].unshift(wordGroups[i][0]);
+    } else if (i > 0) {
+      wordGroups[i - 1].push(wordGroups[i][0]);
+    } else {
+      continue; // a one-word script — nothing to merge with
+    }
+    wordGroups.splice(i, 1);
+    i--;
+  }
+
   const cards: CaptionCardInput[] = [];
-  for (const sentence of sentences) {
-    const words = sentence.map((t) => t.raw.replace(/[.,;:!?…"]+$/g, "").replace(/^["']+/g, ""));
+  for (const words of wordGroups) {
     const chunks = chunkWords(words);
     if (chunks.length === 2 && words.length <= CAPTION_STYLE.maxWordsPerScreen) {
       cards.push({ lines: chunks });
@@ -396,22 +433,7 @@ export function deterministicCaptionCards(script: string): CaptionCardInput[] {
       for (const chunk of chunks) cards.push({ lines: [chunk] });
     }
   }
-  // A trailing/isolated one-word sentence would be an orphan card: merge it
-  // into the previous card's final line when the contract allows.
-  return cards.filter((card, i) => {
-    if (card.lines.length !== 1) return true;
-    const words = card.lines[0].split(/\s+/);
-    if (words.length !== 1) return true;
-    const prev = cards[i - 1];
-    if (!prev) return true;
-    const prevLast = prev.lines[prev.lines.length - 1].split(/\s+/);
-    const prevTotal = prev.lines.join(" ").split(/\s+/).length;
-    if (prevLast.length < CAPTION_STYLE.maxWordsPerLine && prevTotal < CAPTION_STYLE.maxWordsPerScreen) {
-      prev.lines[prev.lines.length - 1] = `${prev.lines[prev.lines.length - 1]} ${words[0]}`;
-      return false;
-    }
-    return true;
-  });
+  return cards;
 }
 
 /** Split a sentence's words into 2–4 word chunks with no 1-word remainder. */

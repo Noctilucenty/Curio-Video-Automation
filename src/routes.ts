@@ -27,6 +27,7 @@ import {
   validateRawFounderKit,
 } from "./founder.js";
 import {
+  CAPTION_PLAN_PROMPT_VERSION,
   CaptionPlanError,
   checkCaptionPlan,
   generateCaptionPlan,
@@ -251,7 +252,21 @@ export function buildRoutes(deps: RouteDeps): Router {
     }
     try {
       const generated = await generateCaptionPlan(llm, b.script);
+      // Hard rule (CLAUDE.md): the exact response model is recorded per
+      // generation — caption plans are generations like any other.
+      const planId = makeId("cplan");
+      await repo.addGeneration({
+        id: makeId("gen"),
+        videoId: planId,
+        kind: "package",
+        promptVersion: CAPTION_PLAN_PROMPT_VERSION,
+        model: generated.modelUsed,
+        input: { script: b.script },
+        output: { cards: generated.cards, verdict: generated.report.verdict },
+        createdAt: Date.now(),
+      });
       res.status(201).json({
+        plan_id: planId,
         plan_text: planToText(generated.cards),
         cards: generated.cards,
         report: generated.report,

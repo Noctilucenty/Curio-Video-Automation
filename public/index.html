@@ -432,6 +432,8 @@ async function capValidate() {
 async function capGenerate() {
   const script = $('cap-script').value.trim();
   if (!script) { toast('Paste the locked narration script first.', false); return; }
+  if ($('cap-plan').value.trim()
+      && !confirm('Replace the caption plan currently in the box with a newly generated one?')) return;
   $('cap-status').textContent = 'asking OpenAI for break points, then re-verifying in code…';
   const { ok, status, data } = await capApi('/captions/plan', { script });
   if (!ok) {

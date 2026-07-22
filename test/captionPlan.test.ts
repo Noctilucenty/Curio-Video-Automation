@@ -110,6 +110,31 @@ describe("checkCaptionPlan — verbatim contract", () => {
     const report = checkCaptionPlan(longOpen, cards);
     expect(report.warnings.join(" ")).toMatch(/cannot be fixed at the caption stage/);
   });
+
+  it("ignores blank rows and bare-slash rows in plan text", () => {
+    const cards = parsePlanText("\n\nFLAMES CAN TURN / SPHERICAL IN SPACE\n / \nON EARTH / GASES RISE\n");
+    const report = checkCaptionPlan("Flames can turn spherical in space. On Earth, gases rise.", cards);
+    expect(report.verdict).toBe("PASS");
+    expect(report.cards).toHaveLength(2);
+  });
+
+  it("treats a bare dash as punctuation, not a word or a verbatim mismatch", () => {
+    const report = checkCaptionPlan(
+      "Flames can turn spherical.",
+      parsePlanText("FLAMES CAN - TURN SPHERICAL"),
+    );
+    const problems = report.cards[0].problems.join(" ");
+    expect(problems).not.toMatch(/Rule 55\.1/);
+    expect(problems).not.toMatch(/5 words/);
+  });
+
+  it("never emits a one-word orphan card for a one-word opening sentence", () => {
+    const script = "Silence. The engines ran at full power.";
+    const cards = deterministicCaptionCards(script);
+    const report = checkCaptionPlan(script, cards);
+    expect(report.verdict).toBe("PASS");
+    expect(cards.every((c) => c.lines.every((l) => l.split(/\s+/).length >= 2))).toBe(true);
+  });
 });
 
 describe("generateCaptionPlan (mock LLM path)", () => {
@@ -125,5 +150,13 @@ describe("generateCaptionPlan (mock LLM path)", () => {
 
   it("rejects an empty script with an explicit reason instead of a bare failure", async () => {
     await expect(generateCaptionPlan(new MockLlmClient(), "  ")).rejects.toThrowError(CaptionPlanError);
+  });
+
+  it("refuses an implausibly long paste before spending tokens, and says why", async () => {
+    const notAScript = Array.from({ length: 300 }, (_, i) => `word${i}`).join(" ");
+    const err = await generateCaptionPlan(new MockLlmClient(), notAScript).catch((e) => e);
+    expect(err).toBeInstanceOf(CaptionPlanError);
+    expect(err.issues.join(" ")).toMatch(/wrong text was pasted/);
+    expect(err.issues.join(" ")).toMatch(/300 words/);
   });
 });
