@@ -6,10 +6,10 @@
 // (July 2026): premium dark-editorial rabbit-hole storytelling, mathematical
 // virality via first-second clarity + escalation + payoff + soft signature.
 
-import type { JudgeScores, LearningRule, Topic } from "./types.js";
+import type { JudgeScores, LearningRule, Topic, VideoPackage } from "./types.js";
 
 export const PROMPT_VERSIONS = {
-  package: "pkg_v6_growth_conversion",
+  package: "pkg_v7_targeted_revision",
   judge: "judge_v6_growth_conversion",
   factcheck: "factcheck_v2_overclaims_block",
   learning: "learn_v2_compounding",
@@ -179,9 +179,21 @@ The post caption should run emotional-first (make them recognize themselves),
 product-second, and end with the soft signature — never ad copy.`;
 }
 
-export function packageUserPrompt(topic: Topic, feedback?: JudgeScores): string {
+export function packageUserPrompt(topic: Topic, feedback?: JudgeScores, revisionBase?: VideoPackage): string {
   const fb = feedback
     ? `\nA previous attempt failed quality review. Problems: ${feedback.problems.join("; ")}. Required fix: ${feedback.fix}. Address every problem — do not repeat them.`
+    : "";
+  const branch = feedback && revisionBase
+    ? `\n\nREVISION BRANCH — do not brainstorm a replacement package from zero.
+Preserve every base-package field that is not directly implicated by the review.
+Keep the topic, verified factual claims, declared outcomes, working hook/structure,
+and useful captions. Make the smallest coherent edits needed to resolve every
+listed problem. Recompute dependent fields only when the changed script requires
+it (caption wording/timing, estimated length, scene direction, title/copy).
+Never add an unsupported claim merely to raise a score.
+
+BASE PACKAGE TO REVISE:
+${JSON.stringify(revisionBase)}`
     : "";
   const card = topic.format === "card"
     ? `\nFormat: STATIC TEXT CARD — a ~6s full-screen read-a-card short with NO
@@ -212,7 +224,7 @@ Category: ${topic.category}
 Platform: ${topic.targetPlatform}
 Tone: ${topic.tone}
 Target length: ${topic.targetLengthSeconds}s
-Language: ${topic.language}${topic.sourceRef ? `\nSource reference: ${topic.sourceRef}` : ""}${card}${fb}`;
+Language: ${topic.language}${topic.sourceRef ? `\nSource reference: ${topic.sourceRef}` : ""}${card}${fb}${branch}`;
 }
 
 export function judgeSystemPrompt(calibration: LearningRule[] = []): string {

@@ -4,7 +4,7 @@ Two engines exist. Do not conflate them.
 
 ## 1. Video factory (THIS repo)
 
-Pipeline: topic → gpt-5.6 package (hooks/script/captions/copy) → FACT-CHECK
+Pipeline: topic → gpt-5.6-sol package (hooks/script/captions/copy) → FACT-CHECK
 gate (contested-claims screen in code + xhigh-reasoning LLM pass; rejects
 before judging) → judge with rewrite loop (max 2 regens; calibration rules
 tune the judge) → ElevenLabs narration → renderer (loudness-gated: −16 LUFS
@@ -21,7 +21,7 @@ never guess them. Snapshot at 2026-07-12 (post-import):
 era, 6 ready_for_review, 2 generated, 1 needs_revision, 1 failed) ·
 9 active rules · 21 metrics rows · 2 learning runs · 54 recorded generations.
 
-Provider state: OpenAI LIVE (gpt-5.6) · ElevenLabs LIVE (narrator
+Provider state: OpenAI LIVE (gpt-5.6-sol) · ElevenLabs LIVE (narrator
 `UBtJzywcDa3wB8w48g0v`) · renderer = local ffmpeg (no-avatar; HeyGen dormant
 behind `RENDERER=heygen`, no avatar will be used) · Captions.ai parked (key was
 rejected; likely unnecessary — TTS scripts have no fillers/silences and we burn

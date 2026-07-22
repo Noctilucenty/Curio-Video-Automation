@@ -118,7 +118,7 @@ describe("learning payload cohort metadata", () => {
     expect(example.primary_outcome).toBe("retention");
     expect(example.secondary_outcome).toBe("shares");
     expect(typeof example.outcome_moment).toBe("string");
-    expect(example.package_prompt_version).toBe("pkg_v6_growth_conversion");
+    expect(example.package_prompt_version).toBe("pkg_v7_targeted_revision");
     // aggregates group per (platform, surface), never a merged reels bucket
     const keys = Object.keys(payload.current.platforms);
     expect(keys).toContain("reels:instagram");
@@ -128,10 +128,10 @@ describe("learning payload cohort metadata", () => {
     // cohort aggregates span the FULL population, not just the extremes:
     // all 10 scored rows must be counted in each grouping
     const cohorts = payload.current.cohorts;
-    const v6 = cohorts.by_prompt_version.pkg_v6_growth_conversion;
-    expect(v6.n_rows).toBe(10);
-    expect(v6.distinct_videos).toBe(10);
-    expect(typeof v6.avg_engagement).toBe("number");
+    const v7 = cohorts.by_prompt_version.pkg_v7_targeted_revision;
+    expect(v7.n_rows).toBe(10);
+    expect(v7.distinct_videos).toBe(10);
+    expect(typeof v7.avg_engagement).toBe("number");
     const retention = cohorts.by_primary_outcome.retention;
     expect(retention.n_rows).toBe(10);
   });
@@ -160,7 +160,7 @@ describe("learning payload cohort metadata", () => {
 
     const cohorts = payload.current.cohorts.by_prompt_version;
     expect(cohorts.manual_edit?.n_rows).toBe(1);
-    expect(cohorts.pkg_v6_growth_conversion?.n_rows).toBe(9);
+    expect(cohorts.pkg_v7_targeted_revision?.n_rows).toBe(9);
   });
 });
 

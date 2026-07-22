@@ -5,6 +5,7 @@ export interface Config {
   port: number;
   adminToken: string | null;
   dataDir: string;
+  intelligenceDir: string;
   /** "local" = no-avatar dark-editorial renderer (default); "heygen" = avatar. */
   renderer: "local" | "heygen" | "mock";
   openai: { apiKey: string | null; model: string };
@@ -28,17 +29,18 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     port: Number(env.PORT) || 8790,
     adminToken: env.ADMIN_TOKEN?.trim() || null,
     dataDir: env.DATA_DIR?.trim() || "./data",
+    intelligenceDir: env.INTELLIGENCE_DIR?.trim() || `${env.DATA_DIR?.trim() || "./data"}/viral-intelligence`,
     renderer: renderer === "heygen" || renderer === "mock" ? renderer : "local",
     cardsFrozen: env.CARDS_FROZEN?.trim() !== "0",
     openai: {
       apiKey: env.OPENAI_API_KEY?.trim() || null,
       // Leon's rule (updated 2026-07-12): the video factory uses the newest
       // full-strength GPT model — best quality over cost, never mini/nano for
-      // content decisions. "gpt-5.6" is OpenAI's latest alias (routes to the
-      // flagship gpt-5.6-sol); the EXACT model each response used is recorded
+      // content decisions. The official latest-model resolver returned the
+      // flagship gpt-5.6-sol; the EXACT model each response used is recorded
       // per generation. Pin a snapshot id via OPENAI_MODEL during controlled
       // A/B cohorts so silent model updates can't contaminate an experiment.
-      model: env.OPENAI_MODEL?.trim() || "gpt-5.6",
+      model: env.OPENAI_MODEL?.trim() || "gpt-5.6-sol",
     },
     heygen: {
       apiKey: env.HEYGEN_API_KEY?.trim() || null,
@@ -49,7 +51,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       apiKey: env.ELEVENLABS_API_KEY?.trim() || null,
       // The Zack D Films-style narration voice cloned/selected in the account.
       voiceId: env.ELEVENLABS_VOICE_ID?.trim() || "",
-      modelId: env.ELEVENLABS_MODEL?.trim() || "eleven_multilingual_v2",
+      modelId: env.ELEVENLABS_MODEL?.trim() || "eleven_v3",
     },
     captions: {
       apiKey: env.CAPTIONS_API_KEY?.trim() || null,

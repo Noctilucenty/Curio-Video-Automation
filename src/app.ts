@@ -37,7 +37,7 @@ export function createApp(deps: AppDeps): App {
     repo, llm, renderer, voice, post,
     avatarId: config.heygen.avatarId,
     voiceId: config.heygen.voiceId,
-    intelligenceDir: join(config.dataDir, "viral-intelligence"),
+    intelligenceDir: config.intelligenceDir,
   };
 
   const queue = new JobQueue({
@@ -71,7 +71,11 @@ export function createApp(deps: AppDeps): App {
     res.status(401).json({ error: "missing or invalid admin token" });
   });
 
-  app.use("/api", buildRoutes({ repo, llm, renderer, voice, post, queue, cardsFrozen: config.cardsFrozen }));
+  app.use("/api", buildRoutes({
+    repo, llm, renderer, voice, post, queue,
+    cardsFrozen: config.cardsFrozen,
+    intelligenceDir: config.intelligenceDir,
+  }));
 
   // Review dashboard (static single page hitting the API above).
   const publicDir = join(dirname(fileURLToPath(import.meta.url)), "..", "public");
@@ -79,6 +83,10 @@ export function createApp(deps: AppDeps): App {
 
   // Locally rendered MP4s (LocalRenderer writes <dataDir>/videos/*.mp4).
   app.use("/videos", express.static(join(config.dataDir, "videos")));
+
+  // Review artifacts named by production gates. express.static does not list
+  // directories; the dashboard only receives explicit URLs persisted on a gate.
+  app.use("/production-artifacts", express.static(join(config.dataDir, "productions")));
 
   // Central error handler: anything async that leaked through becomes a clean 500.
   app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

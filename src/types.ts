@@ -243,6 +243,41 @@ export interface LearningRun {
   createdAt: number;
 }
 
+export type ProductionGateStage =
+  | "concept_script"
+  | "runtime"
+  | "audio_story"
+  | "visual_preview"
+  | "final_master"
+  | "posting";
+
+export type ProductionGateStatus = "pending" | "approved" | "denied";
+
+export interface ProductionGateArtifact {
+  label: string;
+  url: string;
+  kind: "audio" | "video" | "file";
+}
+
+/** A human-visible production stop. The producer creates a gate, the dashboard
+ * records Leon's decision, and the waiting production process resumes from the
+ * persisted status instead of requiring a chat reply. */
+export interface ProductionGate {
+  id: string;
+  /** Stable caller-supplied key makes creation idempotent across retries. */
+  key: string;
+  productionId: string;
+  stage: ProductionGateStage;
+  title: string;
+  summary: string;
+  artifacts: ProductionGateArtifact[];
+  status: ProductionGateStatus;
+  requestedAt: number;
+  decidedAt?: number;
+  decisionNote?: string;
+  payload?: Record<string, unknown>;
+}
+
 // ---------------------------------------------------------------------------
 // Status machine. Transitions outside this map are bugs (or bad API calls) and
 // are rejected with 409 so the review queue can never reach a nonsense state.

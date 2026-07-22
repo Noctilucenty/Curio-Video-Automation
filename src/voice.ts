@@ -53,7 +53,7 @@ export class ElevenLabsVoice implements VoiceSynth {
 
   constructor(private apiKey: string, opts: ElevenLabsOptions) {
     this.voiceId = opts.voiceId;
-    this.modelId = opts.modelId ?? "eleven_multilingual_v2";
+    this.modelId = opts.modelId ?? "eleven_v3";
   }
 
   async synthesize(script: string): Promise<SynthesisResult> {

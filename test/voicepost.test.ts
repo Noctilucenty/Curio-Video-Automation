@@ -32,7 +32,7 @@ describe("ElevenLabsVoice", () => {
     expect(calls[0].init.headers["xi-api-key"]).toBe("el-key");
     const body = JSON.parse(calls[0].init.body);
     expect(body.text).toBe("Short. Punchy. Zero filler.");
-    expect(body.model_id).toBe("eleven_multilingual_v2");
+    expect(body.model_id).toBe("eleven_v3");
     expect(body.voice_settings.use_speaker_boost).toBe(true);
   });
 

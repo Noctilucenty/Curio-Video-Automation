@@ -134,8 +134,8 @@ No paid visuals before the audio story passes.
 
 ### Narration
 
-- ElevenLabs **v3** is the standing narration model. Do not fall back to
-  `eleven_multilingual_v2` without explicit approval.
+- ElevenLabs **v3** (`eleven_v3`) is the standing narration model. Do not fall
+  back to `eleven_multilingual_v2` without explicit approval.
 - Generate the emotional arc as one continuous block. Sentence-by-sentence TTS
   creates prosodic resets and is rejected.
 - Use minimal emotion direction; emotion tags must not be spoken and must not

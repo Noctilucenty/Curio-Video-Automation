@@ -9,7 +9,17 @@ import type { Renderer } from "./heygen.js";
 import type { VoiceSynth } from "./voice.js";
 import type { PostProcessor } from "./postprocess.js";
 import type { JobQueue } from "./queue.js";
-import type { LearningRule, Platform, Topic, Video, VideoStatus } from "./types.js";
+import type {
+  LearningRule,
+  Platform,
+  ProductionGate,
+  ProductionGateArtifact,
+  ProductionGateStage,
+  ProductionGateStatus,
+  Topic,
+  Video,
+  VideoStatus,
+} from "./types.js";
 import { assertTransition, TransitionError } from "./types.js";
 import { makeId } from "./config.js";
 import { createDraftVideo } from "./pipeline.js";
@@ -34,6 +44,7 @@ import {
   parsePlanText,
   planToText,
 } from "./captionPlan.js";
+import { loadTopicDiscoverySnapshot } from "./topicDiscovery.js";
 
 export interface RouteDeps {
   repo: Repo;
@@ -45,18 +56,158 @@ export interface RouteDeps {
   /** Leon 2026-07-12: static cards are frozen — no generation spend on them.
    * Defaults to frozen; unfreeze deliberately via CARDS_FROZEN=0. */
   cardsFrozen?: boolean;
+  /** Reviewed imports from live vidIQ/connectors plus Curio's evidence ledger. */
+  intelligenceDir?: string;
 }
 
 const PLATFORMS = new Set<Platform>(["tiktok", "reels", "shorts"]);
 const CARDS_FROZEN_ERROR =
   "card format is FROZEN (Leon 2026-07-12): no card generation spend until an atmospheric-mystery baseline exists. Set CARDS_FROZEN=0 to unfreeze deliberately.";
+const PRODUCTION_GATE_STAGES = new Set<ProductionGateStage>([
+  "concept_script", "runtime", "audio_story", "visual_preview", "final_master", "posting",
+]);
 
 export function buildRoutes(deps: RouteDeps): Router {
   const { repo, llm, queue } = deps;
   const cardsFrozen = deps.cardsFrozen ?? true;
+  const intelligenceDir = deps.intelligenceDir ?? "./data/viral-intelligence";
   const r = Router();
 
+  // --- Human production gates ---------------------------------------------
+
+  r.post("/production-gates", async (req, res) => {
+    const b = req.body ?? {};
+    const key = typeof b.key === "string" ? b.key.trim() : "";
+    const productionId = typeof b.production_id === "string" ? b.production_id.trim() : "";
+    const title = typeof b.title === "string" ? b.title.trim() : "";
+    const summary = typeof b.summary === "string" ? b.summary.trim() : "";
+    const stage = String(b.stage ?? "") as ProductionGateStage;
+    if (!key || !productionId || !title || !summary || !PRODUCTION_GATE_STAGES.has(stage)) {
+      res.status(400).json({
+        error: "key, production_id, title, summary, and a valid stage are required",
+        stages: [...PRODUCTION_GATE_STAGES],
+      });
+      return;
+    }
+    const existing = await repo.getProductionGateByKey(key);
+    if (existing) {
+      res.json(productionGateWire(existing));
+      return;
+    }
+    const artifacts: ProductionGateArtifact[] = Array.isArray(b.artifacts)
+      ? b.artifacts.flatMap((raw: unknown) => normalizeProductionArtifact(raw))
+      : [];
+    if (artifacts.length > 6) {
+      res.status(400).json({ error: "a production gate supports at most 6 artifacts" });
+      return;
+    }
+    const gate: ProductionGate = {
+      id: makeId("gate"),
+      key,
+      productionId,
+      stage,
+      title,
+      summary,
+      artifacts,
+      status: "pending",
+      requestedAt: Date.now(),
+      payload: isPlainObject(b.payload) ? b.payload : undefined,
+    };
+    await repo.createProductionGate(gate);
+    res.status(201).json(productionGateWire(gate));
+  });
+
+  r.get("/production-gates", async (req, res) => {
+    const requested = req.query.status ? String(req.query.status) : null;
+    const valid = new Set<ProductionGateStatus>(["pending", "approved", "denied"]);
+    if (requested && !valid.has(requested as ProductionGateStatus)) {
+      res.status(400).json({ error: "status must be pending | approved | denied" });
+      return;
+    }
+    let gates = await repo.listProductionGates();
+    if (requested) gates = gates.filter((g) => g.status === requested);
+    res.json({ gates: gates.map(productionGateWire) });
+  });
+
+  r.get("/production-gates/:id", async (req, res) => {
+    const gate = await repo.getProductionGate(req.params.id);
+    if (!gate) { res.status(404).json({ error: "production gate not found" }); return; }
+    res.json(productionGateWire(gate));
+  });
+
+  r.post("/production-gates/:id/approve", (req, res) =>
+    decideProductionGate(repo, req.params.id, "approved", req.body?.note, res));
+  r.post("/production-gates/:id/deny", (req, res) =>
+    decideProductionGate(repo, req.params.id, "denied", req.body?.note, res));
+
   // --- Topics ---------------------------------------------------------------
+
+  r.get("/topic-discovery", async (_req, res) => {
+    const snapshot = loadTopicDiscoverySnapshot(intelligenceDir);
+    if (!snapshot) {
+      res.status(503).json({
+        error: "no reviewed topic-research snapshot is available; run the live vidIQ research import first",
+      });
+      return;
+    }
+    const selected = new Map(
+      (await repo.listTopics())
+        .filter((t) => t.sourceRef?.startsWith("topic-discovery:"))
+        .map((t) => [t.sourceRef!.slice("topic-discovery:".length), t.id]),
+    );
+    res.json({
+      ...snapshot,
+      candidates: snapshot.candidates.map((c) => ({ ...c, selected_topic_id: selected.get(c.id) ?? null })),
+    });
+  });
+
+  r.post("/topic-discovery/:candidateId/select", async (req, res) => {
+    const snapshot = loadTopicDiscoverySnapshot(intelligenceDir);
+    if (!snapshot) {
+      res.status(503).json({ error: "no reviewed topic-research snapshot is available" });
+      return;
+    }
+    const candidate = snapshot.candidates.find((c) => c.id === req.params.candidateId);
+    if (!candidate) {
+      res.status(404).json({ error: "topic candidate not found in the current research snapshot" });
+      return;
+    }
+    if (candidate.recommendation === "hold") {
+      res.status(409).json({ error: `candidate is on hold: ${candidate.productionRisk}` });
+      return;
+    }
+    const sourceRef = `topic-discovery:${candidate.id}`;
+    const existing = (await repo.listTopics()).find((t) => t.sourceRef === sourceRef);
+    if (existing) {
+      res.json({ topic: topicWire(existing), production_status: existing.status, idempotent: true });
+      return;
+    }
+    const platform = String(req.body?.target_platform ?? "reels").toLowerCase() as Platform;
+    if (!PLATFORMS.has(platform)) {
+      res.status(400).json({ error: "target_platform must be tiktok | reels | shorts" });
+      return;
+    }
+    const topic: Topic = {
+      id: makeId("top"),
+      topic: candidate.topic,
+      category: candidate.category,
+      targetPlatform: platform,
+      tone: "calm, premium, mysterious",
+      targetLengthSeconds: clampLength(candidate.targetLengthSeconds),
+      language: "en",
+      sourceRef,
+      format: "narrated",
+      status: "queued",
+      createdAt: Date.now(),
+    };
+    await repo.createTopic(topic);
+    res.status(201).json({
+      topic: topicWire(topic),
+      production_status: "queued",
+      next_gate: "concept_script",
+      message: "Topic selected and queued for the producer. Research and script must pass the concept/script gate before narration.",
+    });
+  });
 
   r.post("/video-topics", async (req, res) => {
     const b = req.body ?? {};
@@ -351,6 +502,43 @@ export function buildRoutes(deps: RouteDeps): Router {
     res.status(202).json({ video_id: video.id, job_id: job.id, status: video.status });
   });
 
+  // Surgical revision branch: use the current package + persisted judge
+  // feedback as the base, then re-run fact-check, judge, voice, and render.
+  // The prior package remains in generation history for comparison/rollback.
+  r.post("/videos/:id/fix-feedback", async (req, res) => {
+    const video = await repo.getVideo(req.params.id);
+    if (!video) { res.status(404).json({ error: "video not found" }); return; }
+    if (video.format === "card" && cardsFrozen) {
+      res.status(403).json({ error: CARDS_FROZEN_ERROR });
+      return;
+    }
+    if (!video.pkg || !video.judge || (!video.judge.problems.length && !video.judge.fix.trim())) {
+      res.status(409).json({ error: "video has no saved package with actionable judge feedback" });
+      return;
+    }
+    if (!["ready_for_review", "needs_revision", "rejected"].includes(video.status)) {
+      res.status(409).json({ error: `cannot revise feedback in status ${video.status}` });
+      return;
+    }
+    try {
+      if (video.status !== "needs_revision") transition(video, "needs_revision");
+    } catch (e) {
+      if (e instanceof TransitionError) { res.status(409).json({ error: e.message }); return; }
+      throw e;
+    }
+    video.judge.pass = false; // makes the pipeline consume this feedback branch
+    video.reviewNote = `targeted revision from judge feedback: ${video.judge.fix}`.slice(0, 1000);
+    await repo.updateVideo(video);
+    const job = queue.enqueue("generate", { videoId: video.id });
+    res.status(202).json({
+      video_id: video.id,
+      job_id: job.id,
+      status: video.status,
+      mode: "targeted_revision",
+      preserved_generation_count: video.generationIds.length,
+    });
+  });
+
   // Manual edit: the human outranks the judge. Edits are re-judged for the
   // record and re-rendered (the avatar has to speak the new script), then the
   // video returns to ready_for_review.
@@ -615,6 +803,73 @@ export function buildRoutes(deps: RouteDeps): Router {
     await repo.updateVideo(video);
     res.json(videoWire(video));
   }
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function normalizeProductionArtifact(raw: unknown): ProductionGateArtifact[] {
+  if (!isPlainObject(raw)) return [];
+  const label = typeof raw.label === "string" ? raw.label.trim() : "";
+  const url = typeof raw.url === "string" ? raw.url.trim() : "";
+  const kind = String(raw.kind ?? "") as ProductionGateArtifact["kind"];
+  if (!label || !safeProductionArtifactUrl(url) || !["audio", "video", "file"].includes(kind)) {
+    return [];
+  }
+  return [{ label, url, kind }];
+}
+
+function safeProductionArtifactUrl(url: string): boolean {
+  if (url.startsWith("/production-artifacts/")) return true;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" && !parsed.username && !parsed.password;
+  } catch {
+    return false;
+  }
+}
+
+async function decideProductionGate(
+  repo: Repo,
+  id: string,
+  decision: Exclude<ProductionGateStatus, "pending">,
+  rawNote: unknown,
+  res: any,
+): Promise<void> {
+  const gate = await repo.getProductionGate(id);
+  if (!gate) { res.status(404).json({ error: "production gate not found" }); return; }
+  if (gate.status !== "pending") {
+    if (gate.status === decision) {
+      res.json(productionGateWire(gate));
+      return;
+    }
+    res.status(409).json({ error: `production gate is already ${gate.status}` });
+    return;
+  }
+  gate.status = decision;
+  gate.decidedAt = Date.now();
+  const note = typeof rawNote === "string" ? rawNote.trim() : "";
+  if (note) gate.decisionNote = note.slice(0, 1000);
+  await repo.updateProductionGate(gate);
+  res.json(productionGateWire(gate));
+}
+
+function productionGateWire(g: ProductionGate) {
+  return {
+    id: g.id,
+    key: g.key,
+    production_id: g.productionId,
+    stage: g.stage,
+    title: g.title,
+    summary: g.summary,
+    artifacts: g.artifacts,
+    status: g.status,
+    requested_at: g.requestedAt,
+    decided_at: g.decidedAt ?? null,
+    decision_note: g.decisionNote ?? null,
+    payload: g.payload ?? null,
+  };
 }
 
 function transition(video: Video, to: VideoStatus): void {

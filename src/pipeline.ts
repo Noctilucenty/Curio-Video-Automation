@@ -73,12 +73,16 @@ export async function runGenerationPipeline(deps: PipelineDeps, videoId: string)
   const generatorRules = activeRules.filter((r) => r.category !== "calibration");
   const calibrationRules = activeRules.filter((r) => r.category === "calibration");
   let feedback: JudgeScores | undefined = video.judge?.pass === false ? video.judge : undefined;
+  // A feedback-driven retry is a revision branch from the exact rejected
+  // package. Preserve it before generation overwrites video.pkg so the model
+  // fixes named defects instead of re-brainstorming the whole concept.
+  let revisionBase = feedback && video.pkg ? structuredClone(video.pkg) : undefined;
 
   // 1 fresh attempt + up to MAX_AUTO_REGENS rewrites fed with judge feedback.
   for (let attempt = 0; attempt <= MAX_AUTO_REGENS; attempt++) {
     video.attempts += 1;
     try {
-      const gen = await generatePackage(llm, topic, generatorRules, feedback, trendPatterns(deps));
+      const gen = await generatePackage(llm, topic, generatorRules, feedback, trendPatterns(deps), revisionBase);
       video.pkg = gen.pkg;
       // Cohort key for later rule validation: which rules shaped this package.
       video.appliedRuleIds = generatorRules.map((r) => r.id);
@@ -100,6 +104,7 @@ export async function runGenerationPipeline(deps: PipelineDeps, videoId: string)
     await recordGeneration(repo, video, "factcheck", facts.promptVersion, facts.modelUsed, facts.input, facts.rawOutput);
     if (!facts.pass) {
       feedback = factCheckFeedback(facts);
+      revisionBase = structuredClone(video.pkg!);
       if (attempt < MAX_AUTO_REGENS) {
         setStatus(video, "needs_revision");
         await repo.updateVideo(video);
@@ -114,6 +119,7 @@ export async function runGenerationPipeline(deps: PipelineDeps, videoId: string)
     if (judged.scores.pass) break;
 
     feedback = judged.scores;
+    revisionBase = structuredClone(video.pkg!);
     if (attempt < MAX_AUTO_REGENS) {
       setStatus(video, "needs_revision"); // transparent trail: generated -> needs_revision -> generated
       await repo.updateVideo(video);

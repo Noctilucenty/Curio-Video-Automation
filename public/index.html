@@ -51,6 +51,18 @@
   .scores .bad b { color: var(--red); }
   .problems { color: var(--red); font-size: 12.5px; }
   video { max-width: 220px; border-radius: 10px; margin-top: 8px; }
+  audio { width: min(100%, 520px); margin-top: 8px; }
+  .gate-card.pending { border-color: rgba(232,180,79,.62); box-shadow: 0 0 0 1px rgba(232,180,79,.08); }
+  .gate-card.approved { border-left: 3px solid var(--green); }
+  .gate-card.denied { border-left: 3px solid var(--red); }
+  .gate-artifact video { max-width: 360px; width: 100%; }
+  .gate-note { width: min(100%, 620px); min-height: 42px; resize: vertical; }
+  .topic-card.recommended { border-color: rgba(111,207,151,.48); }
+  .topic-card.hold { opacity: .72; }
+  .topic-score { margin-left: auto; color: var(--gold); font-weight: 800; font-size: 18px; }
+  .evidence { margin: 9px 0 0; padding-left: 18px; color: var(--dim); font-size: 12.5px; }
+  .evidence li { margin: 4px 0; }
+  .source-status { color: var(--dim); font-size: 12.5px; margin: 8px 0 12px; }
   a { color: var(--blue); }
   .empty { color: var(--dim); font-style: italic; padding: 8px 2px; }
   .rule { font-size: 13px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
@@ -59,6 +71,18 @@
   #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
     background: var(--panel2); border: 1px solid var(--gold); border-radius: 10px;
     padding: 10px 18px; display: none; z-index: 10; }
+  @media (max-width: 620px) {
+    header { padding: 12px 14px; gap: 8px; flex-wrap: wrap; }
+    header h1 { width: 100%; }
+    header .meta { max-width: calc(100% - 72px); overflow-wrap: anywhere; }
+    header .spacer { display: none; }
+    header input { width: 140px; }
+    main { padding: 12px 14px 60px; }
+    section h2 { margin-top: 24px; }
+    .card { padding: 15px; }
+    .gen input[name=topic] { min-width: 100%; }
+    .topic-score { margin-left: 0; }
+  }
 </style>
 </head>
 <body>
@@ -70,6 +94,24 @@
   <button onclick="refresh()">Refresh</button>
 </header>
 <main>
+  <section>
+    <h2>Find the next topic</h2>
+    <div class="card">
+      <div class="script" style="margin-top:0">Runs Curio's reviewed discovery stack: live vidIQ outliers imported from Instagram, TikTok and YouTube; Curio analytics; weekday/category strategy; factual-source strength; visual feasibility; payoff and production risk. External patterns remain candidates until Curio's results confirm them.</div>
+      <div class="row" style="margin-top:10px">
+        <button class="primary" id="find-topics-button" onclick="findTopics()">Find topics</button>
+        <select id="topic-platform"><option value="reels">Instagram / Facebook Reels</option><option value="tiktok">TikTok</option><option value="shorts">YouTube Shorts</option></select>
+        <span class="meta" id="topic-search-status" style="color:var(--dim);font-size:12.5px"></span>
+      </div>
+    </div>
+    <div id="topic-candidates"></div>
+  </section>
+
+  <section>
+    <h2>Production approvals <span id="gate-count" class="badge" style="display:none"></span></h2>
+    <div id="production-gates"><div class="empty">Loading…</div></div>
+  </section>
+
   <section>
     <h2>Generate</h2>
     <form class="gen" onsubmit="generate(event)">
@@ -167,6 +209,101 @@ function toast(msg, ok = true) {
 }
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+function gateArtifact(a) {
+  const open = `<a href="${esc(a.url)}" target="_blank" rel="noopener">Open ${esc(a.label)}</a>`;
+  if (a.kind === 'audio') return `<div class="gate-artifact"><audio src="${esc(a.url)}" controls preload="metadata"></audio><div>${open}</div></div>`;
+  if (a.kind === 'video') return `<div class="gate-artifact"><video src="${esc(a.url)}" controls preload="metadata"></video><div>${open}</div></div>`;
+  return `<div class="gate-artifact" style="margin-top:8px">${open}</div>`;
+}
+
+function productionGateCard(g) {
+  const artifacts = (g.artifacts || []).map(gateArtifact).join('');
+  const pending = g.status === 'pending';
+  const note = pending
+    ? `<textarea class="gate-note" id="gate-note-${g.id}" placeholder="Optional approval note or required revision"></textarea>`
+    : g.decision_note ? `<div class="script">Decision note: ${esc(g.decision_note)}</div>` : '';
+  const actions = pending ? `<div class="row" style="margin-top:10px">
+      <button class="primary" onclick="decideGate('${g.id}','approve')">Approve and continue</button>
+      <button class="reject" onclick="decideGate('${g.id}','deny')">Deny / request revision</button>
+    </div>` : '';
+  return `<div class="card gate-card ${esc(g.status)}">
+    <div class="row"><span class="badge ${esc(g.status)}">${esc(g.status)}</span>
+      <span class="badge">${esc(g.stage).replace(/_/g, ' ')}</span>
+      <span class="meta" style="color:var(--dim);font-size:12px">${esc(g.production_id)} · ${new Date(g.requested_at).toLocaleString()}</span></div>
+    <div class="hook">${esc(g.title)}</div>
+    <div class="script">${esc(g.summary)}</div>
+    ${artifacts}${note}${actions}
+  </div>`;
+}
+
+function productionGatesPanel(gates) {
+  if (!gates.length) return '<div class="empty">No production decisions yet.</div>';
+  const pending = gates.filter((g) => g.status === 'pending');
+  const decided = gates.filter((g) => g.status !== 'pending').slice(0, 8);
+  const pendingHtml = pending.length
+    ? pending.map(productionGateCard).join('')
+    : '<div class="empty">Nothing waiting on you.</div>';
+  const history = decided.length
+    ? `<details style="margin-top:12px"><summary style="cursor:pointer;color:var(--dim)">Recent decisions (${decided.length})</summary><div style="margin-top:10px">${decided.map(productionGateCard).join('')}</div></details>`
+    : '';
+  return pendingHtml + history;
+}
+
+function topicCandidateCard(c) {
+  const evidence = (c.evidence || []).map((e) => `<li><a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.label)}</a> — ${esc(e.metric)} <span class="badge">${esc(e.status)}</span></li>`).join('');
+  const selected = Boolean(c.selected_topic_id);
+  const held = c.recommendation === 'hold';
+  const action = selected
+    ? `<button disabled>Selected · queued</button>`
+    : held
+      ? `<button disabled title="Resolve the production risk before selection">On hold</button>`
+      : `<button class="primary" onclick="selectTopic('${c.id}')">Choose and start video</button>`;
+  return `<div class="card topic-card ${esc(c.recommendation)}">
+    <div class="row"><span class="badge ${c.recommendation === 'recommended' ? 'approved' : ''}">${esc(c.recommendation)}</span><span class="badge">${esc(c.category)}</span><span class="badge">${esc(c.targetLengthSeconds)}s target</span><span class="topic-score">${esc(c.scores.total)}/100</span></div>
+    <div class="hook">${esc(c.topic)}</div>
+    <div class="script"><b>Frame zero:</b> ${esc(c.frameZero)}<br><b>Payoff:</b> ${esc(c.payoff)}</div>
+    <div class="script">${esc(c.whyNow)}</div>
+    <div class="problems" style="color:${held ? 'var(--red)' : 'var(--dim)'}"><b>Production check:</b> ${esc(c.productionRisk)}</div>
+    <div class="scores">
+      <span>hook <b>${esc(c.scores.frameZero)}</b></span><span>facts <b>${esc(c.scores.factualStrength)}</b></span>
+      <span>visual <b>${esc(c.scores.visualTeachability)}</b></span><span>payoff <b>${esc(c.scores.payoff)}</b></span>
+      <span>share <b>${esc(c.scores.socialTransfer)}</b></span><span>feasible <b>${esc(c.scores.feasibility)}</b></span>
+      <span>diversity <b>${esc(c.scores.diversity)}</b></span><span>outliers <b>${esc(c.scores.outlierEvidence)}</b></span>
+    </div>
+    <ul class="evidence">${evidence}</ul>
+    <div class="row" style="margin-top:12px">${action}</div>
+  </div>`;
+}
+
+async function findTopics() {
+  const button = $('find-topics-button');
+  button.disabled = true;
+  $('topic-search-status').textContent = 'Loading reviewed live research…';
+  try {
+    const snapshot = await api('/topic-discovery');
+    const ageHours = Math.max(0, (Date.now() - Date.parse(snapshot.collectedAt)) / 3_600_000);
+    const freshness = ageHours < 24 ? `fresh · ${ageHours.toFixed(1)}h old` : `stale · ${Math.floor(ageHours)}h old`;
+    $('topic-search-status').textContent = `${snapshot.contentSlot} · ${freshness}`;
+    const unavailable = snapshot.unavailableProviders?.length
+      ? `<div class="source-status">Unavailable: ${snapshot.unavailableProviders.map(esc).join(' · ')}</div>` : '';
+    $('topic-candidates').innerHTML = `<div class="source-status"><b>Evidence:</b> ${snapshot.liveProviders.map(esc).join(' · ')}</div>${unavailable}${snapshot.candidates.map(topicCandidateCard).join('')}`;
+  } catch (e) {
+    $('topic-search-status').textContent = '';
+    $('topic-candidates').innerHTML = `<div class="card problems">${esc(e.message)}</div>`;
+  } finally { button.disabled = false; }
+}
+
+async function selectTopic(candidateId) {
+  try {
+    const result = await api(`/topic-discovery/${candidateId}/select`, {
+      method: 'POST', headers: headers(true),
+      body: JSON.stringify({ target_platform: $('topic-platform').value }),
+    });
+    toast(result.message || 'Topic selected and queued for production.');
+    await findTopics();
+  } catch (e) { toast(`Selection failed: ${e.message}`, false); }
+}
+
 function scoreRow(j) {
   if (!j) return '';
   const cells = [
@@ -211,6 +348,8 @@ function videoCard(v, withActions) {
       ${v.status === 'ready_for_review' ? `<button class="approve" onclick="act('${v.id}','approve')">Approve</button>
       <button class="reject" onclick="act('${v.id}','reject')">Reject</button>` : ''}
       ${v.status === 'approved' ? `<button class="primary" onclick="act('${v.id}','publish')">Mark published</button>` : ''}
+      ${v.judge && ((v.judge.problems || []).length || v.judge.fix) && ['ready_for_review','needs_revision','rejected'].includes(v.status)
+        ? `<button class="primary" onclick="act('${v.id}','fix-feedback')">Fix from feedback</button>` : ''}
       <button onclick="act('${v.id}','regenerate')">Regenerate</button>
       <button onclick="editVideo('${v.id}')">Edit script/hook</button>
       ${p ? `<a href="/api/videos/${v.id}/captions.srt" download>captions.srt</a>` : ''}
@@ -280,12 +419,19 @@ function founderKitCard(record) {
 async function refresh() {
   // Each section renders independently — one flaky endpoint (e.g. during a
   // server restart) must not blank the whole dashboard.
-  const [meta, queue, all, rules, perf, runs, founderKits] = await Promise.allSettled([
-    api('/meta'), api('/review-queue'), api('/videos'), api('/learning/rules'),
-    api('/performance/summary'), api('/learning/runs'), api('/founder-videos/kits'),
+  const [meta, gates, queue, all, rules, perf, runs, founderKits] = await Promise.allSettled([
+    api('/meta'), api('/production-gates'), api('/review-queue'), api('/videos'),
+    api('/learning/rules'), api('/performance/summary'), api('/learning/runs'), api('/founder-videos/kits'),
   ]);
   if (meta.status === 'fulfilled') {
     $('meta').textContent = `brain ${meta.value.llm_model} · voice ${meta.value.voice} · render ${meta.value.renderer} · post ${meta.value.post}`;
+  }
+  if (gates.status === 'fulfilled') {
+    const pendingCount = gates.value.gates.filter((g) => g.status === 'pending').length;
+    $('production-gates').innerHTML = productionGatesPanel(gates.value.gates);
+    $('gate-count').textContent = pendingCount ? `${pendingCount} waiting` : '';
+    $('gate-count').style.display = pendingCount ? 'inline-block' : 'none';
+    document.title = pendingCount ? `(${pendingCount}) Curio approvals` : 'Curio Automation — Review';
   }
   if (queue.status === 'fulfilled') {
     $('queue').innerHTML = queue.value.videos.length
@@ -310,8 +456,19 @@ async function refresh() {
           `<div class="rule ${r.active ? '' : 'inactive'}"><span class="cat">${r.category} · ${r.source}</span>${esc(r.rule)}</div>`).join('')
       : '<div class="empty">No rules yet.</div>';
   }
-  const failed = [meta, queue, all, rules, perf, runs, founderKits].filter((r) => r.status === 'rejected');
+  const failed = [meta, gates, queue, all, rules, perf, runs, founderKits].filter((r) => r.status === 'rejected');
   if (failed.length) toast(`Load failed for ${failed.length} section(s): ${failed[0].reason?.message ?? failed[0].reason}`, false);
+}
+
+async function decideGate(id, decision) {
+  const note = $(`gate-note-${id}`)?.value.trim() || '';
+  try {
+    await api(`/production-gates/${id}/${decision}`, {
+      method: 'POST', headers: headers(true), body: JSON.stringify({ note }),
+    });
+    toast(decision === 'approve' ? 'Approved — production may continue.' : 'Denied — revision requested.', decision === 'approve');
+    refresh();
+  } catch (e) { toast(`Decision failed: ${e.message}`, false); }
 }
 
 async function ingest() {
@@ -480,7 +637,7 @@ async function runLearning() {
 }
 
 refresh();
-setInterval(refresh, 15000);
+setInterval(refresh, 5000);
 </script>
 </body>
 </html>

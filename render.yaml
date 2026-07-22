@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: curio-video-automation
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: 24.18.0
+      - key: DATA_DIR
+        value: /var/data
+      - key: INTELLIGENCE_DIR
+        value: ./data/viral-intelligence
+      - key: RENDERER
+        value: mock
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: OPENAI_MODEL
+        value: gpt-5.6-sol
+      - key: ELEVENLABS_MODEL
+        value: eleven_v3
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+    disk:
+      name: curio-state
+      mountPath: /var/data
+      sizeGB: 1

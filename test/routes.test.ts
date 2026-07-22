@@ -12,10 +12,10 @@ import type { LearningRule } from "../src/types.js";
 
 function testConfig(adminToken: string | null = null, cardsFrozen = false): Config {
   return {
-    port: 0, adminToken, dataDir: "./data", renderer: "mock" as const, cardsFrozen,
+    port: 0, adminToken, dataDir: "./data", intelligenceDir: "./data/viral-intelligence", renderer: "mock" as const, cardsFrozen,
     openai: { apiKey: null, model: "mock-llm" },
     heygen: { apiKey: null, avatarId: "av", voiceId: "vo" },
-    elevenlabs: { apiKey: null, voiceId: "", modelId: "eleven_multilingual_v2" },
+    elevenlabs: { apiKey: null, voiceId: "", modelId: "eleven_v3" },
     captions: { apiKey: null, apiBase: undefined, captionTemplateId: undefined, supportsCustomCaptionTiming: false },
   };
 }
@@ -136,6 +136,33 @@ describe("api flow", () => {
     expect(vid.body.status).toBe("ready_for_review");
     expect(vid.body.attempts).toBeGreaterThanOrEqual(2);
     expect(vid.body.review_note).toBe("hook feels flat");
+  });
+
+  it("fix from feedback revises the current package instead of re-brainstorming", async () => {
+    const { app, queue, repo } = await makeApp();
+    const gen = await request(app).post("/api/videos/generate").send({ topic: "targeted revision topic" });
+    const videoId = gen.body.video_id;
+    await queue.drain();
+    const before = (await repo.getVideo(videoId))!;
+    const baseScript = before.pkg!.script;
+    before.judge = {
+      ...before.judge!,
+      pass: false,
+      problems: ["The final line weakens the loop."],
+      fix: "Replace only the ending with a factual loop payoff.",
+    };
+    await repo.updateVideo(before);
+
+    const fixed = await request(app).post(`/api/videos/${videoId}/fix-feedback`).send({});
+    expect(fixed.status).toBe(202);
+    expect(fixed.body.mode).toBe("targeted_revision");
+    await queue.drain();
+
+    const packageRuns = (await repo.listGenerations(videoId)).filter((g) => g.kind === "package");
+    const revisionInput = packageRuns.at(-1)!.input as { user: string };
+    expect(revisionInput.user).toContain("REVISION BRANCH");
+    expect(revisionInput.user).toContain(JSON.stringify(baseScript));
+    expect(revisionInput.user).toContain("Replace only the ending");
   });
 
   it("manual edit re-judges, re-renders, and returns to review", async () => {
@@ -285,6 +312,106 @@ describe("api flow", () => {
       .post("/api/video-topics")
       .set("authorization", "Bearer secret-token")
       .send({ topic: "x" })).status).toBe(201);
+  });
+
+  it("persists idempotent production gates and records approve/deny decisions", async () => {
+    const { app, repo } = await makeApp();
+    const input = {
+      key: "MICROGRAVITY-FLAME:runtime:v1",
+      production_id: "MICROGRAVITY-FLAME",
+      stage: "runtime",
+      title: "Approve the measured 19-second runtime",
+      summary: "Keep the exact approved script; measured caption-safe audio is 19.015 seconds.",
+      artifacts: [{
+        label: "Take B",
+        url: "/production-artifacts/MICROGRAVITY-FLAME/micro-narration-B.mp3",
+        kind: "audio",
+      }],
+      payload: { requested_runtime_seconds: 19 },
+    };
+    const created = await request(app).post("/api/production-gates").send(input);
+    expect(created.status).toBe(201);
+    expect(created.body).toMatchObject({
+      production_id: "MICROGRAVITY-FLAME",
+      status: "pending",
+      stage: "runtime",
+      payload: { requested_runtime_seconds: 19 },
+    });
+
+    // A retry with the same stable key returns the original gate, not a duplicate.
+    const duplicate = await request(app).post("/api/production-gates").send(input);
+    expect(duplicate.status).toBe(200);
+    expect(duplicate.body.id).toBe(created.body.id);
+    expect(await repo.listProductionGates()).toHaveLength(1);
+
+    const approved = await request(app)
+      .post(`/api/production-gates/${created.body.id}/approve`)
+      .send({ note: "Approved at 19 seconds." });
+    expect(approved.status).toBe(200);
+    expect(approved.body.status).toBe("approved");
+    expect(approved.body.decision_note).toBe("Approved at 19 seconds.");
+    expect(approved.body.decided_at).toEqual(expect.any(Number));
+
+    // Same-decision retries are idempotent; opposing decisions are conflicts.
+    expect((await request(app).post(`/api/production-gates/${created.body.id}/approve`).send({})).status).toBe(200);
+    expect((await request(app).post(`/api/production-gates/${created.body.id}/deny`).send({})).status).toBe(409);
+
+    const listed = await request(app).get("/api/production-gates?status=approved");
+    expect(listed.status).toBe(200);
+    expect(listed.body.gates.map((g: any) => g.id)).toEqual([created.body.id]);
+  });
+
+  it("validates production gate stages and ignores unsafe artifact URLs", async () => {
+    const { app } = await makeApp();
+    const badStage = await request(app).post("/api/production-gates").send({
+      key: "x", production_id: "P", stage: "anything", title: "T", summary: "S",
+    });
+    expect(badStage.status).toBe(400);
+
+    const safe = await request(app).post("/api/production-gates").send({
+      key: "P:audio:v1", production_id: "P", stage: "audio_story",
+      title: "Audio", summary: "Listen",
+      artifacts: [{ label: "bad", url: "javascript:alert(1)", kind: "audio" }],
+    });
+    expect(safe.status).toBe(201);
+    expect(safe.body.artifacts).toEqual([]);
+
+    const hosted = await request(app).post("/api/production-gates").send({
+      key: "P:audio:v2", production_id: "P", stage: "audio_story",
+      title: "Hosted audio", summary: "Listen",
+      artifacts: [{ label: "preview", url: "https://cdn.example.com/audio/preview.mp3", kind: "audio" }],
+    });
+    expect(hosted.status).toBe(201);
+    expect(hosted.body.artifacts[0].url).toBe("https://cdn.example.com/audio/preview.mp3");
+  });
+
+  it("loads the reviewed topic shortlist and queues a selected topic idempotently", async () => {
+    const { app, repo } = await makeApp();
+    const found = await request(app).get("/api/topic-discovery");
+    expect(found.status).toBe(200);
+    expect(found.body.contentSlot).toContain("Wednesday");
+    expect(found.body.liveProviders.some((p: string) => p.includes("vidIQ"))).toBe(true);
+    expect(found.body.candidates[0].scores.total).toBeGreaterThanOrEqual(found.body.candidates[1].scores.total);
+
+    const candidate = found.body.candidates.find((c: any) => c.recommendation === "recommended");
+    const selected = await request(app)
+      .post(`/api/topic-discovery/${candidate.id}/select`)
+      .send({ target_platform: "reels" });
+    expect(selected.status).toBe(201);
+    expect(selected.body.production_status).toBe("queued");
+    expect(selected.body.next_gate).toBe("concept_script");
+    expect((await repo.listTopics()).find((t) => t.id === selected.body.topic.id)?.sourceRef)
+      .toBe(`topic-discovery:${candidate.id}`);
+
+    const duplicate = await request(app)
+      .post(`/api/topic-discovery/${candidate.id}/select`)
+      .send({ target_platform: "shorts" });
+    expect(duplicate.status).toBe(200);
+    expect(duplicate.body.idempotent).toBe(true);
+    expect(duplicate.body.topic.id).toBe(selected.body.topic.id);
+
+    const held = found.body.candidates.find((c: any) => c.recommendation === "hold");
+    expect((await request(app).post(`/api/topic-discovery/${held.id}/select`).send({})).status).toBe(409);
   });
 
   it("validates a caption plan against the locked script with explicit per-card reasons", async () => {

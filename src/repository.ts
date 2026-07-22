@@ -6,7 +6,7 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import type {
-  Topic, Video, GenerationRecord, PerformanceMetrics, LearningRule, LearningRun,
+  Topic, Video, GenerationRecord, PerformanceMetrics, LearningRule, LearningRun, ProductionGate,
 } from "./types.js";
 
 export interface Repo {
@@ -32,6 +32,12 @@ export interface Repo {
 
   addLearningRun(r: LearningRun): Promise<void>;
   listLearningRuns(): Promise<LearningRun[]>;
+
+  createProductionGate(g: ProductionGate): Promise<ProductionGate>;
+  getProductionGate(id: string): Promise<ProductionGate | null>;
+  getProductionGateByKey(key: string): Promise<ProductionGate | null>;
+  updateProductionGate(g: ProductionGate): Promise<ProductionGate>;
+  listProductionGates(): Promise<ProductionGate[]>;
 }
 
 interface Snapshot {
@@ -41,6 +47,7 @@ interface Snapshot {
   metrics: PerformanceMetrics[];
   rules: LearningRule[];
   learningRuns: LearningRun[];
+  productionGates?: ProductionGate[];
 }
 
 export class InMemoryRepo implements Repo {
@@ -50,6 +57,7 @@ export class InMemoryRepo implements Repo {
   protected metrics: PerformanceMetrics[] = [];
   protected rules = new Map<string, LearningRule>();
   protected learningRuns: LearningRun[] = [];
+  protected productionGates = new Map<string, ProductionGate>();
 
   /** Hook for persistent subclasses; no-op in memory. */
   protected persist(): void {}
@@ -112,6 +120,22 @@ export class InMemoryRepo implements Repo {
   async listLearningRuns(): Promise<LearningRun[]> {
     return [...this.learningRuns].sort((a, b) => b.createdAt - a.createdAt);
   }
+
+  async createProductionGate(g: ProductionGate): Promise<ProductionGate> {
+    this.productionGates.set(g.id, g); this.persist(); return g;
+  }
+  async getProductionGate(id: string): Promise<ProductionGate | null> {
+    return this.productionGates.get(id) ?? null;
+  }
+  async getProductionGateByKey(key: string): Promise<ProductionGate | null> {
+    return [...this.productionGates.values()].find((g) => g.key === key) ?? null;
+  }
+  async updateProductionGate(g: ProductionGate): Promise<ProductionGate> {
+    this.productionGates.set(g.id, g); this.persist(); return g;
+  }
+  async listProductionGates(): Promise<ProductionGate[]> {
+    return [...this.productionGates.values()].sort((a, b) => b.requestedAt - a.requestedAt);
+  }
 }
 
 /**
@@ -136,6 +160,7 @@ export class JsonFileRepo extends InMemoryRepo {
         this.metrics = snap.metrics ?? [];
         for (const r of snap.rules ?? []) this.rules.set(r.id, r);
         this.learningRuns = snap.learningRuns ?? [];
+        for (const g of snap.productionGates ?? []) this.productionGates.set(g.id, g);
       } catch (e) {
         // A corrupt snapshot must not brick the server; start fresh but loudly.
         console.error(`[repo] could not parse ${this.file}, starting empty:`, e);
@@ -160,6 +185,7 @@ export class JsonFileRepo extends InMemoryRepo {
       metrics: this.metrics,
       rules: [...this.rules.values()],
       learningRuns: this.learningRuns,
+      productionGates: [...this.productionGates.values()],
     };
     writeFileSync(this.file, JSON.stringify(snap, null, 2));
   }

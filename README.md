@@ -5,7 +5,7 @@ Automated short-form video factory for Curio.
 **OpenAI = brain · ElevenLabs = voice · local ffmpeg = renderer ·
 this DB = memory + learning loop · platform analytics = feedback signal.**
 
-OpenAI (`gpt-5.6`, reasoning routed per task) controls the hook, script, caption
+OpenAI (`gpt-5.6-sol`, reasoning routed per task) controls the hook, script, caption
 rhythm, fact-checking, pre-publish scoring, and the learning analysis;
 ElevenLabs narrates (documentary-narrator voice, settings pinned in `src/voice.ts`);
 the LOCAL renderer composites and burns captions itself and enforces a loudness
@@ -70,29 +70,33 @@ pipeline — including the fail→rewrite loop — works end-to-end offline.
 | var | purpose |
 | --- | --- |
 | `OPENAI_API_KEY` | real script/judge/learning generation (empty = mock) |
-| `OPENAI_MODEL` | default `gpt-5.6` (newest flagship alias; hard rule: never mini/nano; pin a snapshot id during A/B cohorts) |
+| `OPENAI_MODEL` | default `gpt-5.6-sol` (current flagship; never mini/nano for content decisions; pin a snapshot id during A/B cohorts) |
 | `CARDS_FROZEN` | default frozen — card topics/generation return 403; set `0` to unfreeze deliberately |
 | `ELEVENLABS_API_KEY` | real narration (empty = mock voice) |
 | `ELEVENLABS_VOICE_ID` | the documentary-narrator voice (see `VOICE_DIRECTION`) |
-| `ELEVENLABS_MODEL` | default `eleven_multilingual_v2` |
+| `ELEVENLABS_MODEL` | default `eleven_v3` (current expressive TTS flagship) |
 | `HEYGEN_API_KEY` | real avatar rendering (empty = mock) |
 | `HEYGEN_AVATAR_ID` / `HEYGEN_VOICE_ID` | avatar id; voice id is only the TTS fallback |
 | `CAPTIONS_API_KEY` | Captions.ai post-processing (empty = mock passthrough) |
 | `CAPTIONS_API_BASE` | only if your account docs show a different API base |
 | `ADMIN_TOKEN` | when set, all POSTs need `Authorization: Bearer <token>` |
 | `PORT` / `DATA_DIR` | server port, JSON snapshot location |
+| `INTELLIGENCE_DIR` | reviewed viral-research snapshots; defaults to `<DATA_DIR>/viral-intelligence` |
 
 ## API
 
 ```
 POST /api/video-topics            create a topic (topic, category, target_platform, tone, …)
 GET  /api/video-topics
+GET  /api/topic-discovery         ranked, evidence-backed topic shortlist
+POST /api/topic-discovery/:id/select  queue a chosen topic for production
 POST /api/videos/generate         {topic_id} or inline topic — returns 202 + video_id
 POST /api/founder-videos/kit      faceless founder-journal edit kit (no auto-render)
 GET  /api/founder-videos/kits     persisted founder edit kits
 GET  /api/videos[?status=]        GET /api/videos/:id[?include=generations]
 GET  /api/videos/:id/captions.srt
 POST /api/videos/:id/regenerate   back through the pipeline (judge feedback carried)
+POST /api/videos/:id/fix-feedback targeted revision branch from the current package
 POST /api/videos/:id/edit         manual hook/script/caption_lines — re-judged + re-rendered
 POST /api/videos/:id/approve      ready_for_review → approved
 POST /api/videos/:id/reject       … → rejected ({reason})

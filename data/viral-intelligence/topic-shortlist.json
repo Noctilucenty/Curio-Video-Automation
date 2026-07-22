@@ -1,0 +1,77 @@
+{
+  "collectedAt": "2026-07-22T07:32:00-07:00",
+  "contentSlot": "Wednesday — strongest hero video of the week",
+  "strategyVersion": "growth-os-v1 + outcome-topic-gate-v1 + live-outlier-sweep-2026-07-22",
+  "liveProviders": [
+    "vidIQ Instagram/TikTok outlier search",
+    "vidIQ YouTube Shorts outlier search",
+    "Curio published analytics and viral-intelligence ledger"
+  ],
+  "unavailableProviders": [
+    "Meta has no open public-Reels viral-discovery API; Facebook observations require a separate evidence import"
+  ],
+  "candidates": [
+    {
+      "id": "pitch-drop-slowest-experiment",
+      "topic": "The world's slowest experiment has produced only nine drops in nearly a century",
+      "category": "strange-science",
+      "targetLengthSeconds": 19,
+      "recommendation": "recommended",
+      "frameZero": "THIS LIQUID TAKES YEARS TO DROP",
+      "payoff": "Pitch looks solid, but its viscosity is so high that one drop can take years to form.",
+      "whyNow": "A current YouTube Short about the world's slowest experiment is a 14.65x channel outlier with 889,824 views and about 32,849 views per hour. The topic also has unusually strong primary-source documentation and a visible, singular hero object.",
+      "productionRisk": "The outlier validates demand, not reuse rights. Build from University of Queensland facts and permission-qualified imagery; do not download or imitate the outlier's footage.",
+      "scores": {"frameZero": 9, "factualStrength": 10, "visualTeachability": 9, "payoff": 9, "socialTransfer": 9, "feasibility": 8, "diversity": 9, "outlierEvidence": 8, "total": 89},
+      "evidence": [
+        {"provider": "vidIQ YouTube outliers", "label": "The World's Slowest Experiment", "url": "https://www.youtube.com/shorts/490Y3Vn-10U", "metric": "889,824 views · 14.65x breakout · ~32,849 VPH", "status": "candidate"},
+        {"provider": "University of Queensland", "label": "Pitch Drop Experiment", "url": "https://smp.uq.edu.au/pitch-drop-experiment", "metric": "Primary factual source and official experiment page", "status": "confirmed"}
+      ]
+    },
+    {
+      "id": "glacier-blue-core",
+      "topic": "A collapsing glacier can expose ice that looks electrically blue",
+      "category": "nature-wonder",
+      "targetLengthSeconds": 18,
+      "recommendation": "viable",
+      "frameZero": "THE GLACIER IS BLUE INSIDE",
+      "payoff": "Dense old ice absorbs red wavelengths and returns more blue light, revealing its age and compression.",
+      "whyNow": "A current Instagram Reel built around a glacier calving and revealing deep blue ice is a 20.0x creator outlier. It matches Curio's immediate-anomaly and raw-phenomenon-audio architecture.",
+      "productionRisk": "The visual is footage-dependent and the discovered Reel is not a licensed source. Proceed only if a genuine 1080x1920-capable public-domain or licensed calving shot can be secured.",
+      "scores": {"frameZero": 9, "factualStrength": 9, "visualTeachability": 9, "payoff": 8, "socialTransfer": 8, "feasibility": 5, "diversity": 9, "outlierEvidence": 8, "total": 81},
+      "evidence": [
+        {"provider": "vidIQ Instagram outliers", "label": "Glacier calving reveals a deep blue core", "url": "https://www.instagram.com/reel/DZ4OdDuoylH/", "metric": "112,900 views · 20.0x creator median · 18s", "status": "candidate"},
+        {"provider": "USGS", "label": "Why glacier ice is blue", "url": "https://www.usgs.gov/faqs/why-glacier-ice-blue", "metric": "Authoritative factual source", "status": "confirmed"}
+      ]
+    },
+    {
+      "id": "water-balloon-slow-motion",
+      "topic": "A sliced water balloon keeps its shape for an instant after the rubber is gone",
+      "category": "strange-science",
+      "targetLengthSeconds": 16,
+      "recommendation": "viable",
+      "frameZero": "THE BALLOON IS ALREADY GONE",
+      "payoff": "Inertia keeps the water nearly still for a moment while the torn rubber snaps away.",
+      "whyNow": "A current TikTok slow-motion experiment montage is a 920x creator outlier. Its opening water-balloon slice supplies a strong format signal: the impossible state is fully visible before explanation.",
+      "productionRisk": "The discovered montage is reference evidence only. Original high-speed capture is expensive; production needs licensed high-speed footage or a verified reusable source before approval.",
+      "scores": {"frameZero": 10, "factualStrength": 8, "visualTeachability": 10, "payoff": 8, "socialTransfer": 8, "feasibility": 4, "diversity": 8, "outlierEvidence": 9, "total": 81},
+      "evidence": [
+        {"provider": "vidIQ TikTok outliers", "label": "Invisible Moments at 1000 FPS", "url": "https://www.tiktok.com/@endlessillusion_/video/7663280380803403026", "metric": "248,400 views · 920.0x creator median · 22s", "status": "candidate"}
+      ]
+    },
+    {
+      "id": "raccoon-lake-rescue",
+      "topic": "Boaters found a raccoon swimming in the middle of a Texas lake",
+      "category": "nature-survival",
+      "targetLengthSeconds": 19,
+      "recommendation": "hold",
+      "frameZero": "THIS RACCOON IS MILES FROM SHORE",
+      "payoff": "The rescue is emotionally clear, but the story needs a verified distance and outcome before it has a transferable factual ending.",
+      "whyNow": "A current local-news YouTube Short is a 545.34x channel outlier with 883,303 views and about 11,521 views per hour. It is strong demand evidence for a compact animal-rescue arc.",
+      "productionRisk": "Hold until the original report, exact location, distance, outcome, and footage rights are verified. Virality alone cannot fill factual gaps.",
+      "scores": {"frameZero": 8, "factualStrength": 5, "visualTeachability": 8, "payoff": 6, "socialTransfer": 7, "feasibility": 4, "diversity": 8, "outlierEvidence": 10, "total": 70},
+      "evidence": [
+        {"provider": "vidIQ YouTube outliers", "label": "Heartwarming Raccoon Rescue on a Texas Lake", "url": "https://www.youtube.com/shorts/mxsVCvJX6MM", "metric": "883,303 views · 545.34x breakout · ~11,521 VPH", "status": "candidate"}
+      ]
+    }
+  ]
+}

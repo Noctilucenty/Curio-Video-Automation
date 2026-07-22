@@ -50,8 +50,8 @@ sessions' node processes (`ps aux | grep node`) before starting a heavy one.
 Renders: ONE process, ≤2 threads, RSS <750MB hard cap (see PRODUCTION_DOCTRINE).
 
 ## Hard rules
-- Model: newest full-strength GPT — currently the `gpt-5.6` alias (flagship
-  gpt-5.6-sol). Leon's call 2026-07-12: best reasoning quality; never mini/nano
+- Model: newest full-strength GPT — currently `gpt-5.6-sol` (official resolver,
+  2026-07-22). Leon's call: best reasoning quality; never mini/nano
   for content decisions. This does NOT authorize unlimited visual-generation
   spend: as of 2026-07-17, Veo is not the default and multi-clip Veo batches are
   rejected. Use Seedance-2 via vidIQ for at most one indispensable hero-motion

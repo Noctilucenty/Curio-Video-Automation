@@ -144,9 +144,10 @@ export async function generatePackage(
   activeRules: LearningRule[],
   feedback?: JudgeScores,
   patterns: PromptPattern[] = [],
+  revisionBase?: VideoPackage,
 ): Promise<GeneratedPackage> {
   const system = packageSystemPrompt(activeRules, patterns);
-  const user = packageUserPrompt(topic, feedback);
+  const user = packageUserPrompt(topic, feedback, revisionBase);
   let modelUsed = llm.model;
   const raw: any = await llm.generateJson({
     system,
