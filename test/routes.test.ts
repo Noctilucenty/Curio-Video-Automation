@@ -286,4 +286,40 @@ describe("api flow", () => {
       .set("authorization", "Bearer secret-token")
       .send({ topic: "x" })).status).toBe(201);
   });
+
+  it("validates a caption plan against the locked script with explicit per-card reasons", async () => {
+    const { app } = await makeApp();
+    const script = "Flames can turn spherical in space. On Earth, gases rise.";
+    const fail = await request(app).post("/api/captions/validate").send({
+      script,
+      plan_text: "FIRE CAN TURN / SPHERICAL IN SPACE\nON EARTH / GASES RISE",
+    });
+    expect(fail.status).toBe(200);
+    expect(fail.body.verdict).toBe("FAIL");
+    expect(fail.body.cards[0].problems.join(" ")).toMatch(/Rule 55\.1/);
+
+    const pass = await request(app).post("/api/captions/validate").send({
+      script,
+      plan_text: "FLAMES CAN TURN / SPHERICAL IN SPACE\nON EARTH / GASES RISE",
+    });
+    expect(pass.status).toBe(200);
+    expect(pass.body.verdict).toBe("PASS");
+
+    const missing = await request(app).post("/api/captions/validate").send({ script });
+    expect(missing.status).toBe(400);
+    expect(missing.body.error).toMatch(/cards.*plan_text/);
+  });
+
+  it("generates a verified caption plan and refuses an empty script explicitly", async () => {
+    const { app } = await makeApp();
+    const script = "Flames can turn spherical in space. On Earth, gases rise. Gravity gives fire its familiar shape.";
+    const res = await request(app).post("/api/captions/plan").send({ script });
+    expect(res.status).toBe(201);
+    expect(res.body.report.verdict).toBe("PASS");
+    expect(res.body.plan_text.split("\n").length).toBeGreaterThanOrEqual(3);
+
+    const empty = await request(app).post("/api/captions/plan").send({ script: "  " });
+    expect(empty.status).toBe(400);
+    expect(empty.body.error).toMatch(/script/);
+  });
 });

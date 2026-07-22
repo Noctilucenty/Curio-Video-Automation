@@ -4,6 +4,7 @@
 // including the fail->rewrite loop — behaves realistically without a key.
 
 import type { JsonRequest } from "./llm.js";
+import { CAPTION_PLAN_SCHEMA_NAME, deterministicCaptionCards } from "./captionPlan.js";
 
 const BANNED = [
   "did you know", "here are", "unlock your potential", "like and follow",
@@ -13,14 +14,22 @@ const BANNED = [
 
 export function mockGenerate(req: JsonRequest): unknown {
   switch (req.purpose) {
-    case "package": return req.schemaName === "curio_founder_video_kit"
-      ? mockFounderKit(req.user)
-      : mockPackage(req.user);
+    case "package":
+      if (req.schemaName === "curio_founder_video_kit") return mockFounderKit(req.user);
+      if (req.schemaName === CAPTION_PLAN_SCHEMA_NAME) return mockCaptionPlan(req.user);
+      return mockPackage(req.user);
     case "judge": return mockJudge(req.user);
     case "factcheck": return mockFactcheck(req.user);
     case "learning": return mockLearning(req.user);
     case "ingest": return mockIngest(req.user);
   }
+}
+
+function mockCaptionPlan(user: string): unknown {
+  // The narration is quoted between triple-quote fences in the user prompt.
+  const m = user.match(/"""\n([\s\S]*?)\n"""/);
+  const script = m ? m[1] : user;
+  return { cards: deterministicCaptionCards(script) };
 }
 
 function mockFounderKit(user: string): unknown {

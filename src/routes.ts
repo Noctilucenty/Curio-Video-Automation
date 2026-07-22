@@ -26,6 +26,13 @@ import {
   normalizeFounderVideoInput,
   validateRawFounderKit,
 } from "./founder.js";
+import {
+  CaptionPlanError,
+  checkCaptionPlan,
+  generateCaptionPlan,
+  parsePlanText,
+  planToText,
+} from "./captionPlan.js";
 
 export interface RouteDeps {
   repo: Repo;
@@ -203,6 +210,80 @@ export function buildRoutes(deps: RouteDeps): Router {
       }
     });
     res.json({ kits });
+  });
+
+  // --- Caption contract (Rule 55.1 verifier) --------------------------------
+
+  // Deterministic word-for-word verification of a caption plan against the
+  // locked narration. Always 200 with a verdict — a FAIL verdict is a
+  // successful verification, and every failure carries its reason and rule.
+  r.post("/captions/validate", (req, res) => {
+    const b = req.body ?? {};
+    if (typeof b.script !== "string" || !b.script.trim()) {
+      res.status(400).json({ error: "script (string) is required — the locked narration's exact words" });
+      return;
+    }
+    let cards;
+    if (Array.isArray(b.cards)) {
+      cards = b.cards.map((c: { lines?: unknown }) => ({
+        lines: Array.isArray(c?.lines) ? c.lines.map((l: unknown) => String(l)) : [],
+      }));
+    } else if (typeof b.plan_text === "string" && b.plan_text.trim()) {
+      cards = parsePlanText(b.plan_text);
+    } else {
+      res.status(400).json({
+        error: "provide cards (array of {lines}) or plan_text (one card per line, ' / ' between a card's two lines)",
+      });
+      return;
+    }
+    res.json(checkCaptionPlan(b.script, cards));
+  });
+
+  // LLM-assisted grouping of the locked narration into compliant cards. The
+  // model only chooses break points; the deterministic verifier re-checks the
+  // result, and a non-compliant result returns 422 with the exact failures —
+  // never a silently degraded plan.
+  r.post("/captions/plan", async (req, res) => {
+    const b = req.body ?? {};
+    if (typeof b.script !== "string" || !b.script.trim()) {
+      res.status(400).json({ error: "script (string) is required — the locked narration's exact words" });
+      return;
+    }
+    try {
+      const generated = await generateCaptionPlan(llm, b.script);
+      res.status(201).json({
+        plan_text: planToText(generated.cards),
+        cards: generated.cards,
+        report: generated.report,
+        model: generated.modelUsed,
+        attempts: generated.attempts,
+      });
+    } catch (e) {
+      if (e instanceof CaptionPlanError) {
+        res.status(422).json({ error: e.message, issues: e.issues });
+        return;
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      if (/429|insufficient_quota|exceeded your current quota/i.test(message)) {
+        res.status(503).json({
+          error: "caption plan generation is temporarily unavailable: OpenAI quota is exhausted; restore quota and retry this same request",
+        });
+        return;
+      }
+      if (/401|invalid_api_key|incorrect api key/i.test(message)) {
+        res.status(503).json({
+          error: "caption plan generation failed: the OpenAI API key was rejected (401 invalid_api_key) — fix OPENAI_API_KEY in .env and restart the server",
+        });
+        return;
+      }
+      if (/timeout|aborted/i.test(message)) {
+        res.status(504).json({
+          error: "caption plan generation timed out before a valid strict-schema response was returned; nothing was persisted",
+        });
+        return;
+      }
+      throw e;
+    }
   });
 
   // --- Videos ---------------------------------------------------------------
