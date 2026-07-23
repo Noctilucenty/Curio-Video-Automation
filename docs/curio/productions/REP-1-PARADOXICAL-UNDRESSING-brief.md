@@ -1,7 +1,12 @@
 # REP-1 — Paradoxical undressing
 
-Status: **SCRIPT APPROVAL GATE — not produced.** No narration, paid asset, or
-render is authorized by this draft.
+Status: **AUDIO-STORY REVIEW GATE (2026-07-23).** Script approved; narration
+take A locked autonomously (rubric ~89/100, +224.1 Hz rising close, ASR
+word-perfect; lineage in `data/productions/REP-1-UNDRESSING/AUDIO-LINEAGE.md`).
+Complete audio story built and measured: 17.972 s, −17.1 LUFS, TP −2.3 dBTP,
+collapse 0.447 s @83%, seamless-loop wrap verified on loopx2, final-mux ASR
+word-perfect. **Awaiting Leon's ear on the audio story — the single pre-visual
+stop. No paid visuals authorized until it passes.**
 
 Date: 2026-07-23 (Thursday)
 Growth OS slot: psychology / named human phenomenon — **fits**
