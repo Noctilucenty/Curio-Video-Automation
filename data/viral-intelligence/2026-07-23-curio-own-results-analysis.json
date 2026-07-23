@@ -1,0 +1,76 @@
+{
+ "collectedAt": "2026-07-23T16:03:30-07:00",
+ "title": "What actually works for CURIO \u2014 derived from Curio's own 6 posted videos, not external trends",
+ "evidenceTier": "HIGHEST \u2014 Curio's own platform-separated posted analytics",
+ "rankedByRetention": [
+  {
+   "post": "Harrison Okene",
+   "category": "survival-true-story",
+   "opening": "ANOMALY-FIRST (a hand grabs the diver back)",
+   "skip": 0.365,
+   "watchRatio": 0.662,
+   "shares": 0,
+   "saves": 0
+  },
+  {
+   "post": "Third Man Factor",
+   "category": "survival-psychology",
+   "opening": "ANOMALY-FIRST (footprints at t=0)",
+   "skip": 0.386,
+   "watchRatio": 0.595,
+   "shares": 2,
+   "saves": 2
+  },
+  {
+   "post": "Dead Water",
+   "category": "strange-science",
+   "opening": "CONTEXT-FIRST ('IN THE ARCTIC')",
+   "skip": 0.585,
+   "watchRatio": 0.425,
+   "shares": 0,
+   "saves": 0
+  },
+  {
+   "post": "Boat v1",
+   "category": "strange-science",
+   "opening": "slow premise, no anomaly",
+   "skip": 0.591,
+   "watchRatio": 0.255
+  },
+  {
+   "post": "Can't Forget",
+   "category": "psychology-memory",
+   "opening": "generic brain imagery",
+   "skip": 0.677,
+   "watchRatio": 0.245
+  },
+  {
+   "post": "Boat Retry",
+   "category": "strange-science",
+   "opening": "same, held longer",
+   "skip": 0.734
+  }
+ ],
+ "finding_1_archetype": {
+  "status": "CONFIRMED by our own repeated results",
+  "claim": "SURVIVAL + anomaly-first is the only archetype that has ever retained for Curio: 2 of 2 survival posts are the top-2 retainers; 0 of 4 non-survival posts retained.",
+  "caveat": "CONFOUNDED \u2014 both survival posts also had the strongest openings. Category and opening quality cannot be fully separated on n=6. Do not promote 'survival' alone as the cause."
+ },
+ "finding_2_strange_science": {
+  "status": "observation, not yet a rule",
+  "claim": "strange-science is 0 for 3 (skip 58.5 / 59.1 / 73.4%).",
+  "implication": "This retroactively contextualises MICROGRAVITY-FLAME: it was strange-science, the category with no Curio win yet. Worth noting alongside its production problems."
+ },
+ "finding_3_advocacy_is_THE_unsolved_problem": {
+  "status": "CONFIRMED",
+  "claim": "Curio can win retention but has NEVER generated advocacy. Best-ever sharing is Third Man at 2 shares / 2 saves / 2 comments. Harrison won retention decisively (skip 36.5%, watch 66.2%) and still produced 0 shares, 0 saves, 0 comments.",
+  "implication": "Retention is close to solved; ADVOCACY is the open problem. Per Rule 47 the lever is a TRANSFERABLE payoff sentence \u2014 a fact the viewer must repeat to someone. Harrison's procedural ending is the counter-example.",
+  "matches": "CURIO_MASTER_CONTEXT known weakness: 'share/comment triggers under-engineered'."
+ },
+ "rep1_fit": {
+  "archetype_match": "REP-1 is survival + named phenomenon + anomaly-first \u2014 precisely the 2-for-2 pattern.",
+  "advocacy_design": "The payoff must carry the transferable fact: people freezing to death undress because they suddenly feel they are burning, and nearly all then hide like animals. That is a 'tell someone this' fact, unlike Harrison's procedural close.",
+  "risk": "Advocacy has failed on every post including retention winners. REP-1 should be judged on the THREE GATES separately (scroll-stop / retention / advocacy) \u2014 a retention win with zero shares is a partial result, not a success."
+ },
+ "_discipline": "Derived from data/posted-experiments.json. Supersedes nothing; complements VIRAL_PLAYBOOK. External vidIQ outliers stay candidate-tier and never outrank this."
+}
