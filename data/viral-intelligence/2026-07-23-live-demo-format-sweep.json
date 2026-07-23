@@ -1,0 +1,78 @@
+{
+ "collectedAt": "2026-07-23T15:46:07-07:00",
+ "source": "vidIQ IG/TikTok outlier search (live), 2 bounded calls = 10 credits; balance after ~115",
+ "contentSlot": "Thursday \u2014 psychology / named human phenomenon",
+ "finding": "LIVE IN-VIDEO PERCEPTION DEMOS massively outperform self-report topics. Format beats audience: tiny accounts hit millions.",
+ "comparison": {
+  "aphantasia_best": {
+   "handle": "@npr",
+   "views": 301300,
+   "outlier": 26.5,
+   "followers": 1800000
+  },
+  "live_demo_best": {
+   "handle": "@explaining_clear",
+   "views": 3100000,
+   "outlier": 773.4,
+   "followers": 280,
+   "note": "773x from a 280-FOLLOWER account \u2014 the format carried it entirely"
+  }
+ },
+ "troxler_pattern": {
+  "status": "candidate",
+  "instances": 3,
+  "claim": "Troxler's-fading demos are a repeatable outlier format built from pure static motion graphics.",
+  "evidence": [
+   {
+    "handle": "@uvectaexplains",
+    "views": 1900000,
+    "outlier": 87.7,
+    "followers": 2000,
+    "durationSeconds": 16
+   },
+   {
+    "handle": "@neurocore_uae",
+    "views": 477300,
+    "outlier": 257.0,
+    "followers": 81100
+   },
+   {
+    "handle": "@robotscope.aii",
+    "views": 60500,
+    "outlier": 13.8,
+    "followers": 2000
+   }
+  ],
+  "execution_signature": "slow pacing, static text, LOW visual change, music only, LOOPED, within-an-hour effort",
+  "note": "3 independent instances clears the doctrine's 2-outlier bar for a pattern."
+ },
+ "adjacent": [
+  {
+   "handle": "@astromindai",
+   "concept": "flashed face distortion",
+   "views": 3600000,
+   "outlier": 225.0,
+   "rejected_for_us": "requires real human faces (licensing + no-generated-humans rule)"
+  },
+  {
+   "handle": "@sciencemagician",
+   "concept": "induced rotation (Kitaoka)",
+   "views": 80300,
+   "outlier": 111.1
+  },
+  {
+   "handle": "@demojot",
+   "concept": "reversible spin",
+   "views": 660900,
+   "outlier": 67.0
+  }
+ ],
+ "why_beats_aphantasia": [
+  "Aphantasia self-test is INTERNAL and unverifiable; no in-video moment catches the viewer out; payoff informational.",
+  "A live demo DOES something to the viewer; forced fixation IS watch time.",
+  "Pure motion graphics = our exact capability; no archive hunt, no licensing, no AI-human risk.",
+  "Every instance is LOOPED; matches the seamless-loop engine we already built."
+ ],
+ "honest_risk": "SATURATION. Format-market fit proven but heavily replicated. Competitors stop at 'focus on the green circle' with NO explanation; our edge must be premium dark-editorial execution plus a real transferable payoff (WHY it fades), not the trick.",
+ "_discipline": "CANDIDATE external evidence. Topic/packaging guidance only. Never promoted to approved-patterns.json or the rules DB until Curio's own platform-separated analytics confirm."
+}

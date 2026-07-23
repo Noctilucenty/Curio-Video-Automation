@@ -1,0 +1,92 @@
+{
+ "collectedAt": "2026-07-23T15:21:10-07:00",
+ "contentSlot": "Thursday \u2014 psychology or named human phenomenon",
+ "strategyVersion": "growth-os-v1 + elite-topic-gate-v2 + web-research-2026-07-23",
+ "liveProviders": [
+  "WebSearch (peer-reviewed + science press)"
+ ],
+ "unavailableProviders": [
+  "vidIQ MCP DISCONNECTED this session \u2014 no Instagram/TikTok/YouTube outlier sweep, so the elite gate's outlierEvidence leg cannot be scored from live creator data. Scores below leave outlierEvidence UNSCORED rather than invented; these are RESEARCH candidates, not gate-passed."
+ ],
+ "candidates": [
+  {
+   "id": "aphantasia-minds-eye",
+   "topic": "Some people cannot picture an apple \u2014 their mind's eye is blank",
+   "category": "psychology",
+   "targetLengthSeconds": 18,
+   "frameZero": "PICTURE AN APPLE. SOME PEOPLE SEE NOTHING.",
+   "payoff": "About 1 in 25 people have no mind's eye at all. Most never find out, because nobody describes imagining out loud.",
+   "whyNow": "The 'apple test' spreads virally on its own because it makes the viewer TEST THEMSELVES mid-video \u2014 the playbook's strongest confirmed retention mechanism (participation beats passive explanation).",
+   "visualProof": "The 5-step apple-vividness scale is a clean original diagram we can draw ourselves \u2014 no licensing, no AI-human risk.",
+   "productionRisk": "LOW. Original graphics only. Must say 'about 1-4%' (estimate, not a hard number) and attribute the term to Zeman 2015.",
+   "evidence": [
+    {
+     "status": "confirmed",
+     "note": "Zeman coined 'aphantasia' 2015 (Univ. of Exeter), VVIQ-based; prevalence est. 1-4%",
+     "url": "https://en.wikipedia.org/wiki/Aphantasia"
+    },
+    {
+     "status": "confirmed",
+     "note": "Quanta 2024 feature on aphantasia research",
+     "url": "https://www.quantamagazine.org/what-happens-in-a-mind-that-cant-see-mental-images-20240801/"
+    },
+    {
+     "status": "candidate",
+     "note": "apple test spreads as a self-test format across social",
+     "url": "https://www.nationalgeographic.com/science/article/aphantasia-visual-memory-minds-eye"
+    }
+   ]
+  },
+  {
+   "id": "temporal-repetition-effect",
+   "topic": "Things you did many times feel like they happened longer ago",
+   "category": "psychology",
+   "targetLengthSeconds": 18,
+   "frameZero": "REPEATED MEMORIES FEEL OLDER",
+   "payoff": "Your sense of how long ago something happened is built from novelty, not the calendar \u2014 so a routine you repeated for years feels ancient.",
+   "whyNow": "Published 2025 in Psychological Science and robustly replicated across samples; it REVERSES the standard model (stronger memory should feel more recent).",
+   "visualProof": "Abstract \u2014 time perception has no photographable subject. WEAKEST leg; would need a designed diagram.",
+   "productionRisk": "MEDIUM: visual proof must be invented, and doctrine 18 warns against diagram/footage medium mismatch.",
+   "evidence": [
+    {
+     "status": "confirmed",
+     "note": "Sherman & Yousif, 'An Illusion of Time Caused by Repeated Experience', Psychological Science 2025",
+     "url": "https://journals.sagepub.com/doi/10.1177/09567976251330290"
+    },
+    {
+     "status": "candidate",
+     "note": "science-press pickup",
+     "url": "https://www.psypost.org/scientists-just-uncovered-a-surprising-illusion-in-how-we-remember-time/"
+    }
+   ]
+  },
+  {
+   "id": "high-place-phenomenon",
+   "topic": "The urge to jump from a high place means the opposite of what people think",
+   "category": "psychology",
+   "targetLengthSeconds": 18,
+   "frameZero": "THAT URGE ISN'T A DEATH WISH",
+   "payoff": "Researchers call it the high place phenomenon: a fast safety signal your conscious mind misreads. The urge to jump affirms the urge to live.",
+   "whyNow": "Hames et al. 2012 (n=431), replicated in two German samples (BMC Psychiatry 2020) and a 2025 clinical follow-up. Reassuring, highly transferable payoff.",
+   "visualProof": "Strong: real licensed high-place/edge footage, no humans required.",
+   "productionRisk": "HIGH \u2014 SELF-HARM ADJACENCY. Platform self-harm policies are strict and could suppress or flag it, and a vulnerable viewer could be harmed by careless framing. NOT recommended without deliberate duty-of-care review, despite the science being solid and the payoff genuinely reassuring.",
+   "evidence": [
+    {
+     "status": "confirmed",
+     "note": "Hames et al. 2012, J. Affective Disorders, n=431",
+     "url": "https://www.sciencedirect.com/science/article/abs/pii/S0165032711006847"
+    },
+    {
+     "status": "confirmed",
+     "note": "Replication, two German samples",
+     "url": "https://link.springer.com/article/10.1186/s12888-020-02875-8"
+    },
+    {
+     "status": "candidate",
+     "note": "2025 clinical follow-up",
+     "url": "https://onlinelibrary.wiley.com/doi/full/10.1002/cpp.70038"
+    }
+   ]
+  }
+ ]
+}

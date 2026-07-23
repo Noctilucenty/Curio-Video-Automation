@@ -1,0 +1,78 @@
+{
+ "collectedAt": "2026-07-23T15:32:39-07:00",
+ "source": "vidIQ Instagram/TikTok outlier search (live connector), 1 bounded call = 5 credits",
+ "query": "aphantasia \u2014 cannot picture an apple, blind mind's eye, mental imagery self-test",
+ "contentSlot": "Thursday \u2014 psychology / named human phenomenon",
+ "creditsBalanceAfter": 120,
+ "directTopicMatch": {
+  "platform": "TikTok",
+  "handle": "@npr",
+  "url": "https://www.tiktok.com/@npr/video/7663465254621383950",
+  "views": 301300,
+  "outlierMultiple": 26.5,
+  "creatorMedian": 11300,
+  "followers": 1800000,
+  "durationSeconds": 121,
+  "note": "APHANTASIA ITSELF travels: a 121s explainer that walks the viewer through the visualization test hit 26.5x NPR's own median. Confirms topic demand independent of format."
+ },
+ "patternA_selfTest_participation": {
+  "status": "candidate",
+  "claim": "Viewer self-test / 'what do you see' participation formats dominate this niche's outliers.",
+  "instances": [
+   {
+    "handle": "@acelife86",
+    "views": 1200000,
+    "outlier": 58.0,
+    "concept": "can you follow the red ball \u2014 attention test"
+   },
+   {
+    "handle": "@the_mindreader",
+    "views": 56700,
+    "outlier": 41.6,
+    "concept": "which animal do you see first \u2014 personality test"
+   },
+   {
+    "handle": "@_naveedose",
+    "views": 1000000,
+    "outlier": 39.0,
+    "concept": "optical-illusion number test"
+   },
+   {
+    "handle": "@growwithalihub2",
+    "views": 230400,
+    "outlier": 37.2,
+    "concept": "zebra or lion \u2014 what do you see first"
+   },
+   {
+    "handle": "@khalilslife",
+    "views": 177700,
+    "outlier": 32.3,
+    "concept": "what do you see \u2014 brain dominance"
+   }
+  ],
+  "note": "5 of 10 returned outliers are viewer-self-tests, all 32-58x. This CONFIRMS the playbook's existing CONFIRMED rule (participation beats passive explanation) on fresh external data. Aphantasia's apple test is natively this format."
+ },
+ "patternB_faceless_animated_education": {
+  "status": "candidate",
+  "claim": "Faceless motion-graphic education about a perception/brain fact scales \u2014 and does NOT require dense scene changes.",
+  "instances": [
+   {
+    "handle": "@thequantara",
+    "views": 1400000,
+    "outlier": 490.0,
+    "followers": 40000,
+    "concept": "your brain filters out 99.99% of reality \u2014 animated diagram",
+    "execution": "pacing SLOW, static text, visual_changes LOW, music only, looped"
+   },
+   {
+    "handle": "@dopamine.dexter",
+    "views": 1100000,
+    "outlier": 36.4,
+    "concept": "Ganzfeld effect \u2014 3D animation",
+    "execution": "moderate pacing, dynamic captions, voice+music"
+   }
+  ],
+  "note": "IMPORTANT and partly CONTRARY to our recent working assumption. The single highest outlier in the whole sweep (490x, 1.4M views, 40K-follower creator) is SLOW-paced, LOW visual-change, static-text, looped, faceless animation \u2014 i.e. close to what we already build. It suggests our MICROGRAVITY problem was not 'too few scenes' per se but a weak participation hook. n=1 on the 490x; do NOT promote."
+ },
+ "_discipline": "CANDIDATE / external evidence only. Per CLAUDE.md and AUTOPILOT_REVIEW_PROTOCOL, external outliers guide topic and packaging hypotheses but NEVER become Curio rules until our own platform-separated posted analytics support them. Do not write to approved-patterns.json or the rules DB from this file."
+}
