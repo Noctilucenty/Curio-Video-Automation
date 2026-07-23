@@ -55,7 +55,8 @@
       "style_picker_hazard": "The style card grid shifts; clicking a card body switches style (observed accidental Cove / Arion Pink). Click the pencil, then re-verify the style name.",
       "post_export": "Always re-mux the locked audio (Captions.ai renormalises to ~-13.3 LUFS) then re-verify duration/frames/audio-corr/silence."
     },
-    "caption_requirements": "each phrase independent 2-4 words (never 1 unless the reveal token); old words gone before next; no captions during engineered silence; reveal caption clears before the loop-tail caption; loop-tail clears before the endpoint hold."
+    "caption_requirements": "each phrase independent 2-4 words (never 1 unless the reveal token); old words gone before next; no captions during engineered silence; reveal caption clears before the loop-tail caption; loop-tail clears before the endpoint hold.",
+    "RECONFIRMED_2026_07_23": "LIVE EVIDENCE on MICROGRAVITY-FLAME: a completed Captions-mode pass exported at 30fps/SmartHDR-off came back 16.400s/492f vs the 16.770s/503f master (-0.407s) and -14.3 LUFS vs -17.1. The cut was MID-STREAM (leading audio aligned at 0ms offset, tail breath intact), i.e. auto-trim removed ~0.4s of the ENGINEERED COLLAPSE SILENCE. A mid-stream cut cannot be repaired by re-mux and destroys a pixel-exact loop. Captions themselves were word-perfect (whisper ASR matched the locked script). CONCLUSION: for timeline-locked / silence-protected edits, Captions.ai remains UNUSABLE regardless of how good its caption grouping is; ship the custom Pillow engine. Reference impl now: data/productions/MICROGRAVITY-FLAME/tools/micro_captions.py (adaptive pre-roll sized to the real inter-card gap; reveal card cut so the answer word never precedes its spoken payoff; collapse emptiness asserted in code; audio stream COPIED, correlation 1.000000)."
   },
   "code": {
     "module": "src/postprocess.ts",
