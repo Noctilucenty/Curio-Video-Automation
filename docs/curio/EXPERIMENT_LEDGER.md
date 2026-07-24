@@ -352,3 +352,75 @@ still fails, but "all zero" is retracted. FB skewed 88% men 45–64 US/UK; IG 18
 the platforms tested DIFFERENT DEMOGRAPHICS. **The FB retention curve kills the "AI hand
 defects hurt watch behaviour" hypothesis** (56% completion with defects present); the
 defects remain suspect only for advocacy. Evidence tier: CONFIRMED (platform-native).
+
+---
+## 2026-07-23 — Business Suite platform-labeled batch capture (producer-browsed)
+Source: Meta Business Suite object insights, Leon's Chrome session. All splits
+platform-labeled; DERIVED interaction splits are arithmetic (totals minus FB-tab
+natives) and stated as such. Machine copies: `data/posted-experiments.json`
+(checkpoint 4 + three new experiments, imported), FB-surface rows via
+`/api/performance/ingest` (all four matched by id), learning run
+`learn_mry6af2j_0jhx8zht` (10 new rules). Raw capture:
+`data/viral-intelligence/2026-07-23-fb-breakout-capture.json`.
+
+### Harrison Okene — checkpoint 4 (plateaued)
+- FB **77,742** views (second surge ~Jul 19: 9.6K→74.9K in ~2 buckets, then flat)
+  · viewers 52,410 · avg watch **14s** · 3-sec views 39,469 (50.6% of views)
+  · reactions 321 · comments 0 · **shares 5 · saves 21** · follows 0 · link clicks 0
+  · Recommendations 99.5% · men 85%, 45–64 heavy, US/UK/CA.
+- IG 183 views · 1 interaction. IG never re-tested it.
+- **CURVE-READING CORRECTION (important):** today's insights page rendered the
+  "Views over 15 seconds" CONDITIONED toggle (flat ~1.00 through 13s). That is
+  retention among 15s+ viewers, NOT the audience curve. The unconditioned truth
+  remains checkpoint 3: 100% through 3s → **56% completion**. Never quote the
+  conditioned toggle as retention (this ledger's 2026-07-19 entry already
+  recorded both; the toggle default seems to have changed).
+
+### NEW — Ant Mill (posted 2026-07-20, crossposted; FB content_id 122120143335356339)
+- **SECOND FB BREAKOUT, FIRST NON-SURVIVAL ONE.** FB **74,737** / IG 147.
+  Surge began ~27h post-publish, ran ~8 buckets to 72.7K, plateaued.
+  FB: avg watch 12s (video ~16.5s) · 3-sec views 33,829 (45.2%) · likes 110 ·
+  comments 6 · shares 4 · saves 15 · follows 0 · link clicks 0 ·
+  Recommendations 99.8% · men 85%, **65+ largest male bucket (42.7%)**, US/CA/GB.
+- IG: 147 views, 1 like + 1 comment (DERIVED), flatlined in hours.
+- Caption carried EXPLICIT share-bait ("Send this to someone…" + a question) —
+  a ONE-OUTCOME deviation. Result: 4 shares vs Harrison's 5 WITHOUT bait at the
+  same scale. OBSERVED: caption bait moved nothing.
+- Unconditioned FB retention curve NOT captured (conditioned toggle only) —
+  capture it at the 7d checkpoint (2026-07-27) before any retention claim.
+- ARCHETYPE NOTE: anomaly-first non-survival breakout **weakens "survival
+  subject" and strengthens "immediate visible anomaly"** as the operative
+  variable (was confounded in the 6-post analysis). PROVISIONAL — REP-1/2/3
+  still decides.
+
+### NEW — Brine Pool (posted 2026-07-19, crossposted; FB content_id 122119903587356339)
+- **INSTAGRAM'S FIRST REAL DISTRIBUTION EVER: IG 1,608 views** (previous IG
+  best: Third Man 240) — steady organic growth over ~2.5 days (18→1,573), a
+  sustained-delivery shape, not a sample-and-drop. FB 2,014 (small late bump).
+- Interactions **IG 23 / FB 9**; DERIVED: IG 19 likes + 4 saves, FB 9 likes.
+- **FOLLOWS 3 — the only follows ever recorded on any Curio post** (surface
+  split unverified). Link clicks 0. Share-bait caption line → 0 shares.
+- Weakest scroll-stop of the recent posts: 3-sec views 779/3,622 = 21.5%.
+- Duration conflict: Business Suite player shows 0:15 vs the 17.333s v5 local
+  master — posted-export identity UNVERIFIED; reconcile before lineage claims.
+
+### NEW — Terminal Lucidity (posted 2026-07-16, crossposted; FB content_id 122119178811356339)
+- FB 325 / IG 141; both surfaces flatlined within hours; 6 likes total
+  (FB 4 / IG 2, DERIVED), zero advocacy, zero follows, zero link clicks.
+- The only recent post with NO visible frame-zero contradiction (emotion-first
+  bedridden-elder open) and the only one neither recommender tested. Consistent
+  with the anomaly-first rule; n=1, not proof.
+
+### Cross-post OBSERVED facts (this capture)
+1. Both breakouts: ~99.5–99.8% of watch time from FB Recommendations; surge
+   starts 27–44h post-publish; runs <1 day; plateaus. **Do not judge a post
+   before ~48h on FB.**
+2. Conversion is the broken gate at scale: **152K combined breakout views →
+   0 follows, 0 link clicks.** The only conversion signal anywhere is BRINE's
+   3 follows on 3.6K views — the on-persona subject, on IG-led delivery.
+3. FB breakout audience (men 85%, 45–75+, US/UK/CA) is NOT the Curio app
+   persona; IG (which matches the persona better) only ever distributed BRINE.
+4. Advocacy at scale ~0.006% shares/views on both breakouts; caption share-bait
+   ineffective (A/B: 4 with bait vs 5 without).
+5. MICROGRAVITY-FLAME was never posted (absent from IG grid + Business Suite).
+7d checkpoints due: Harrison 2026-07-24 · BRINE 2026-07-26 · Ant Mill 2026-07-27.

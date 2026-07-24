@@ -1,0 +1,175 @@
+{
+  "captured": "2026-07-23",
+  "source": "Meta Business Suite object insights + instagram.com profile, browsed live by producer (Claude) in Leon's Chrome session",
+  "capture_note": "Platform-separated per CLAUDE.md. Values are point-in-time (Harrison ~5d post-publish, ant-mill ~2-3d). 7d checkpoints still pending: Harrison 2026-07-24, ant-mill 2026-07-27.",
+  "account_state": {
+    "instagram": {
+      "handle": "trycurio.app",
+      "followers": 13,
+      "posts": 23,
+      "newest_reel": "ant-mill (Jul 20)",
+      "microgravity_flame_posted": false
+    },
+    "facebook_page": "TryCurio (asset_id 1103436762863414)"
+  },
+  "posts": [
+    {
+      "id": "EXP-202607-18-01",
+      "name": "Harrison Okene rescue-diver reel",
+      "published": "2026-07-17T19:54",
+      "surface_note": "crossposted reel; all metrics below platform-separated",
+      "facebook": {
+        "views": 77742,
+        "viewers": 52410,
+        "interactions": 347,
+        "likes_reactions": 321,
+        "comments": 0,
+        "shares": 5,
+        "saves": 21,
+        "follows": 0,
+        "link_clicks": 0,
+        "avg_watch_time_s": 14,
+        "total_watch_time": "8d 14h",
+        "retention": "CONDITIONED 'views over 15s' toggle read flat ~1.0 through 13s — NOT the audience curve. Unconditioned ground truth (Jul 19 capture): 100% through 3s -> 56% completion.",
+        "distribution": {
+          "recommendations_pct": 99.5,
+          "followers_pct": 0.5,
+          "shares_pct": 0.0,
+          "paid_pct": 0
+        },
+        "audience": {
+          "men_pct": 85,
+          "women_pct": 14,
+          "dominant_ages": "45-54: 20.0%, 55-64: 27.4%, 65+: 20.4% (male buckets)",
+          "top_countries": {
+            "US": 22700,
+            "GB": 4600,
+            "CA": 2500
+          }
+        },
+        "surge_shape": "slow crawl to ~9.4k over ~44h, then 9,570->29,619->74,892 in ~2 buckets, plateau ~77.9k"
+      },
+      "instagram": {
+        "views": 183,
+        "interactions": 1,
+        "note": "flatlined at ~170 within first hours"
+      }
+    },
+    {
+      "id": "EXP-202607-20-01",
+      "name": "Ant mill reel ('Every ant followed perfectly. That was the problem.')",
+      "published": "2026-07-20T18:52",
+      "caption_had_share_bait": "yes — 'Send this to someone…' + 'would you break the circle?' (a ONE-OUTCOME doctrine deviation worth noting: bait produced 4 shares vs Harrison's 5 with none)",
+      "facebook": {
+        "views": 74737,
+        "viewers": 48829,
+        "interactions": 135,
+        "likes_reactions": 110,
+        "comments": 6,
+        "shares": 4,
+        "saves": 15,
+        "follows": 0,
+        "link_clicks": 0,
+        "avg_watch_time_s": 12,
+        "total_watch_time": "6d 13h",
+        "retention": "CONDITIONED toggle only (~1.0 through 15s) — unconditioned audience curve NOT captured; use avg watch 12s / ~16.5s until the 7d checkpoint.",
+        "distribution": {
+          "recommendations_pct": 99.8,
+          "followers_pct": 0.2,
+          "shares_pct": 0.0,
+          "paid_pct": 0
+        },
+        "audience": {
+          "men_pct": 85,
+          "women_pct": 13,
+          "dominant_ages": "55-64: 25.6%, 65+: 42.7% (male buckets)",
+          "top_countries": {
+            "US": 25700,
+            "CA": 3000,
+            "GB": 2000
+          }
+        },
+        "surge_shape": "stalled ~600 for ~27h, then 1,443->2,962->6,072->12,258->25,457->49,206->61,243->72,708 over ~8h-bucket run, plateau",
+        "comments_content": "1 confirmation ('This actually happens'), 1 political analogy — neither from target persona"
+      },
+      "instagram": {
+        "views": 147,
+        "interactions": 2,
+        "note": "flatlined at ~143 within first hours"
+      }
+    },
+    {
+      "id": "BRINE-POOL",
+      "name": "Brine pool reel ('The ocean has lakes—and some are deadly')",
+      "published": "2026-07-19T18:31",
+      "combined_row": {
+        "views": 3622,
+        "reach": 1505,
+        "interactions": 32,
+        "likes": 28
+      },
+      "note": "drilled in second round — full platform split in posted-experiments.json (posted-brine-pool): FB 2,014 / IG 1,608, IG-led interactions 23/32, 3 follows, 21.5% 3-sec rate"
+    },
+    {
+      "id": "TERMINAL-LUCIDITY",
+      "name": "'For a moment, they were themselves…'",
+      "published": "2026-07-16T19:41",
+      "combined_row": {
+        "views": 466,
+        "reach": 254,
+        "interactions": 6,
+        "likes": 6
+      },
+      "note": "drilled in second round — FB 325 / IG 141, both flatlined, zero advocacy (posted-terminal-lucidity)"
+    },
+    {
+      "id": "REP-2-DEAD-WATER",
+      "name": "'Why does this boat look completely f…'",
+      "published": "2026-07-15T19:31",
+      "combined_row": {
+        "views": 2155,
+        "reach": 1514,
+        "interactions": 10,
+        "likes": 10
+      }
+    },
+    {
+      "id": "THIRD-MAN",
+      "name": "'Imagine being completely alone and…' (two posts Jul 12)",
+      "combined_rows": [
+        {
+          "time": "19:49 crossposted",
+          "views": 373
+        },
+        {
+          "time": "16:52 FB-only",
+          "views": 278
+        }
+      ]
+    }
+  ],
+  "observations_tier": {
+    "OBSERVED": [
+      "Both breakouts are ~99.5-99.8% FB Recommendations to a cold audience; IG contributed 147-183 views each; IG account has 13 followers. IG flatlined on the breakouts and Terminal Lucidity — but NOT on BRINE-POOL: IG 1,608 views over ~2.5 days of sustained delivery (first real IG distribution ever), IG-led interactions (23 of 32), and the account's only 3 follows.",
+      "CORRECTION: the 'flat ~100% retention' initially read on both breakouts was Meta's CONDITIONED 'views over 15 seconds' toggle, not the audience curve. Ground truth (Harrison, Jul 19 unconditioned capture): 100% through 3s -> 56% completion, avg watch 14s. Ant's unconditioned curve is uncaptured; avg watch 12s of ~16.5s.",
+      "Advocacy at scale: Harrison 5 shares/21 saves/0 comments on 77.7k; ant 4/15/6 on 74.7k (WITH explicit share bait). Share rate ~0.006%.",
+      "Conversion: 0 follows and 0 link clicks on BOTH breakouts (~152k combined views).",
+      "Audience: 85% men on both; dominated by 45-75+; US/UK/CA. Ant's largest male bucket is 65+ at 42.7%.",
+      "Both surges began ~27-44h AFTER posting (delayed recommendation test), ran hard for <1 day, then plateaued.",
+      "MICROGRAVITY-FLAME was never posted (absent from IG grid and Business Suite through Jul 22).",
+      "Second capture round (same day): BRINE FB 2,014 / IG 1,608 / 3 follows / 21.5% 3-sec rate; Terminal Lucidity FB 325 / IG 141, no distribution on either surface, zero advocacy; 3-second-view rates: Harrison 50.6%, ant 45.2%, BRINE 21.5%."
+    ],
+    "PROVISIONAL": [
+      "Anomaly-first-with-immediate-visual-evidence now has a NON-survival breakout (ant mill), weakening 'survival subject' and strengthening 'immediate visual anomaly' as the operative variable — REP-1/2/3 still needed to separate.",
+      "Caption share-bait does not move shares (4 with bait vs 5 without, similar scale) — single A/B, not promotable.",
+      "FB recommendation audience (older US men) is not the Curio app persona; zero conversion may be audience mismatch rather than creative failure."
+    ],
+    "DO_NOT_PROMOTE": "None of this rewrites playbook rules until 7d checkpoints land and the ledger/learning ingest runs on settled numbers."
+  },
+  "machine_state": {
+    "imported": "posted-experiments.json checkpoint 4 + posted-terminal-lucidity + posted-brine-pool + posted-ant-mill (import_posted_experiments.ts)",
+    "fb_rows_ingested": "4/4 matched by id via /api/performance/ingest (ingest_v2_surface)",
+    "learning_run": "learn_mry6af2j_0jhx8zht (13 rows, 10 new rules)",
+    "known_artifact": "FB rows for ant/brine/TL carry completion/watch nulls that the store records as 0 — the learning run flagged and quarantined them itself; repair at the 7d checkpoint captures"
+  }
+}

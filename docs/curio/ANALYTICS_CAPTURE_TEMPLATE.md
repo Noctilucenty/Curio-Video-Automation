@@ -26,6 +26,19 @@ alongside the posted file.
 - Retention at 25% / 50% / 75% / end:
 - Completion rate:
 - Replay rate (if shown):
+- **FB 3-second views + (3-sec views ÷ views)** — the FB scroll-stop proxy
+  (2026-07-23: Harrison 50.6% · Ant 45.2% · BRINE 21.5%):
+- **UNCONDITIONED retention curve** — Business Suite defaults to the
+  conditioned "Views over 15 seconds" toggle, which reads as a flat ~100% lie;
+  SWITCH THE TOGGLE and record the audience curve, or write `missing`
+  (2026-07-23 correction, EXPERIMENT_LEDGER):
+
+## Capture timing rule (adopted 2026-07-23)
+FB recommendation surges start 27–44h after posting. Capture checkpoints at
+2h/24h stay, but NO performance verdict (GO/NO-GO, archetype claim, "failed")
+before **72h** on the FB stream. Judge every post on FOUR gates:
+scroll-stop / retention / advocacy / **conversion (follows + link clicks per
+surface)**.
 
 ## Engagement & conversion
 - Likes / comments / shares / saves / reposts (RAW COUNTS):
