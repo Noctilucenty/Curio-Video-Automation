@@ -12,8 +12,9 @@ take H + take A's +224.1 Hz rising closing line, joined in true silence;
 full history in `data/productions/REP-1-UNDRESSING/AUDIO-LINEAGE.md`).
 Audio story rebuilt on S and measured: 18.123 s, −17.1 LUFS, TP −3.1 dBTP,
 collapse 0.361 s @84%, reveal 83.3%, loop join continuous (+3.6 dB @100 ms),
-mux ASR word-perfect. **Awaiting Leon's ear — the single pre-visual stop.
-No paid visuals authorized until it passes.**
+mux ASR word-perfect. **AUDIO STORY APPROVED — Leon, 2026-07-23 evening ("perfect… loved this one").
+The pre-visual gate is PASSED; paid visual generation is now authorized.
+Locked audio master: rep1-audiostory-final.wav (18.123 s, take S) — SHA in AUDIO-LINEAGE.md.**
 
 Date: 2026-07-23 (Thursday)
 Growth OS slot: psychology / named human phenomenon — **fits**
