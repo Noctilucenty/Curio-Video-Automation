@@ -27,7 +27,12 @@ OpenAI = brain · ElevenLabs = voice · local ffmpeg = renderer · this DB = mem
    every finished master runs `node tools/finalqa.mjs <mp4>` and passes ALL
    automated checks BEFORE going to any reviewer. Production-defect lessons
    lock immediately; retention/tension lessons stay PROVISIONAL until
-   REP-1/2/3 analytics are compared.
+   REP-1/2/3 analytics are compared. Pass `--words <take-words.json>` to ARM
+   the prosody gate (rule 62): with forced-alignment timings it enforces the
+   rule-59 pause-variation floor and the fact-card word/sentence floor;
+   without them it falls back to local ASR and reports ADVISORY only. Run
+   `.venv/bin/python tools/prosody_audit.py --compare take*.wav` at TAKE
+   SELECTION, where the measurement can still change the outcome.
 
 ## Evidence discipline (non-negotiable)
 Raw findings never become permanent rules automatically. Promotion path:

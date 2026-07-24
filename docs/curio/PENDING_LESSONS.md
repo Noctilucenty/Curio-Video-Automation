@@ -489,3 +489,38 @@ bed PAST the loop point and equal-power crossfade its tail onto its own head, mi
 voice on top un-crossfaded. Result: quietest 5ms window across the join **-40 dB (a
 notch) -> -26 dB (continuous)**, sample step 0.005, tail swells into the restart.
 Measure the join on the loopx2/x3 file, not just the single-file endpoints.
+
+## 2026-07-24 — the engine learns to LISTEN (prosody audit ported from the founder engine)
+
+**P-49. A defect Leon can hear but no instrument can name will recur forever.**
+"Not continuous flow" was owner feedback on the founder engine's E01 with nothing
+measurable behind it. Praat/parselmouth against the take's word timings named it in
+one pass: 22 sentences averaging 5.5 words, 15 of 21 boundaries hard pitch resets to
+the same ~148 Hz opening — a LIST read. The fix (one connected thought, 6 sentences
+at 21.3 words) scored 0 hard resets of 5 AND got faster. Ported here as
+`tools/prosody_audit.py` and wired into finalqa; recorded as [[PRODUCTION_DOCTRINE]]
+rule 62. *Gate: none — porting a measured instrument is not a creative claim.*
+
+**P-50. PROVISIONAL: boundary pitch resets may track SCRIPT structure more than
+delivery.** All nine REP-1 narration takes trip the >50%-hard-reset warning,
+including take S which Leon approved by ear (4/4 resets, mean +41.9 Hz) — while
+their gap variation (0.146-0.429s) and sentence length (9.8-10.0 words) are healthy.
+Either the measure is confounded by a 5-sentence declarative script, or REP-1's read
+really is more list-like than it sounds and the ear is forgiving at this length.
+This is exactly why it ships as WARN and not as a blocker: a FAIL that the operator
+overrules eight times out of nine is the rule-44 failure mode. **Gate: compare
+REP-1/2/3 published retention against their boundary-reset counts. If retention is
+indifferent to resets at constant gap-variation, the measure is confounded and
+should be narrowed to scripts above N sentences; if reset-heavy reads underperform,
+promote to a hard gate.**
+
+**P-51. Contiguous ASR timings will fake a pause-variation collapse.** whisper.cpp
+with `--max-len 1` emits back-to-back word segments covering the whole timeline, so
+EVERY inter-sentence gap computes to exactly 0.000s. Run naively against the
+doctrine-59 floor that reads as a total pause collapse — a confident, completely
+false FAIL on any master audited without forced alignment. Caught during the port
+because the first whisper-path run "failed" a file whose real gap std is 0.353s.
+**Gaps are evidence ONLY from forced alignment.** Generalisation of the P-35 error
+class: before gating on a derived number, ask what the deriving tool guarantees
+about it. The instrument now detects contiguity and reports the gaps unmeasurable.
+*Gate: none — this is a measured property of the ASR output, promote on next pass.*

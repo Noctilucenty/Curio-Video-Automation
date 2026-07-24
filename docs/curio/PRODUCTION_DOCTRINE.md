@@ -1,6 +1,6 @@
 # Production doctrine (LOCKED) + final-video QA (MANDATORY)
 
-> **LIVING DOCUMENT — LAST UPDATED 2026-07-19.**
+> **LIVING DOCUMENT — LAST UPDATED 2026-07-24.**
 > This doctrine is always learning and REPLACING, but **date does not decide truth.**
 > SUPERSESSION RULE: *New evidence supersedes an older rule ONLY when it is
 > demonstrably stronger, or when Leon explicitly changes a standing product
@@ -11,8 +11,8 @@
 > NOT promotion — a new observation enters as PROVISIONAL and only becomes
 > LOCKED/CONFIRMED under the playbook's promotion standard. Preserve
 > CONFIRMED / PROVISIONAL / REJECTED discipline at all times.
-> Current rules 1-55 (+ addenda 43a/46a). Latest round recorded: Codex
-> BRINE-POOL v3 caption repair + one-line-opening proof (2026-07-18).
+> Current rules 1-62 (+ addenda 43a/46a/53a). Latest round recorded: prosody
+> audit ported from the founder engine and wired into finalqa (2026-07-24).
 
 
 Distilled from REP-2 Dead Water's four review rounds (2026-07-13/14). These are
@@ -879,3 +879,56 @@ opening card (REP-1: complete thought only at 1.17s — rule 51 deviation,
 owner-accepted for REP-1 because the frame-zero image carries the anomaly).
 Phrase defaults need fixing every time: Y 960→1344, start→0.000. Their ASR
 was verbatim-clean on REP-1 (still: always run the 55.1 diff).
+
+## Rule 62 (2026-07-24) — THE ENGINE LISTENS: prosody audit for "one connected thought"
+Ported from the founder engine (curio-automation-feedback, lesson L-20), where
+Leon heard "not continuous flow" and no automated check could say why. A
+Praat/parselmouth audit proved it objectively: 22 sentences averaging 5.5 words
+and 15 of 21 boundaries were hard pitch resets back to the same ~148 Hz opening
+— the acoustic signature of reading a LIST. `tools/prosody_audit.py` gives THIS
+engine the same ear, so the defect is caught before a master is built rather
+than after a human catches it.
+
+**What it measures.** Per sentence: opening F0, closing F0, range, gap to the
+next sentence, and the boundary STEP (next opening minus previous closing).
+Flow carries declination across boundaries (small steps, varied gaps, long
+sentences); a list resets pitch every sentence, uses uniform gaps, and is built
+from short fact-card sentences.
+
+**Gate tiers — deliberately asymmetric.**
+- **HARD FAIL (LOCKED, enforces rule 59):** inter-sentence gap std below
+  0.070s. Measured defects: 0.066s (MICROGRAVITY-FLAME, rule 59) and 0.053s
+  (founder E01 v4). Measured healthy: 0.095-0.429s.
+- **HARD FAIL (LOCKED, rule 59 corollary):** fewer than 8.0 words/sentence —
+  fact-card structure is the list at its source. Verified to fire on
+  MICROGRAVITY take B (4.2 w/sent, 9 sentences) and to stay silent on the
+  shipped micro master (11.8) and REP-1 (9.8).
+- **WARN only (PROVISIONAL):** more than half of measurable boundaries being
+  hard pitch resets (> +12 Hz). It is NOT a blocker, on evidence: all nine
+  REP-1 takes trip it, including take S which Leon approved by ear. On a
+  5-sentence declarative script this measure largely tracks SCRIPT structure,
+  not delivery, so gating on it would produce an overrulable FAIL — exactly
+  the failure mode rule 44 warns about. *Gate for promotion: REP-1/2/3
+  published retention compared against boundary-reset counts.*
+
+**Measurement discipline (P-35 applied structurally).** An unmeasurable
+boundary is never scored as a pass. Sentence edges landing on unvoiced
+consonants return "unmeasurable", and when coverage falls below 60% the
+pitch verdict is UNMEASURABLE rather than a pass. Inter-sentence gaps are
+trusted ONLY from forced alignment: ASR segment timings (whisper `--max-len 1`)
+are contiguous by construction, so every gap reads 0.000s and would fire a
+false rule-59 failure — the tool detects this and reports the gaps
+unmeasurable instead. A words.json whose timings exceed the audio duration is
+REFUSED, not measured against the wrong cut.
+
+**Where it runs.**
+1. **Take selection, before anything is locked** — `--compare take*.wav` ranks
+   takes by connectedness (playbook: pick the take with the fewest boundary
+   pauses). This is where the measurement can still change the outcome.
+2. **`node tools/finalqa.mjs <mp4>`** runs it on every master automatically.
+   Supply `--words <take-words.json>` to GATE on it; without alignment data
+   the audit falls back to local whisper.cpp and reports ADVISORY only, since
+   ASR punctuation is inferred and must never block a master.
+Eleven_v3 bracketed emotion tags are stripped before any word math (L-19):
+they arrive as real tokens with their own timings and would otherwise invent a
+sentence boundary and corrupt the word count.

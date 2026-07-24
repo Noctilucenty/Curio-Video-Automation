@@ -6,8 +6,9 @@
 // artifacts (contact sheet + endpoint pair) next to the input file.
 
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, join, basename } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const args = process.argv.slice(2);
 const file = args.find((a) => !a.startsWith("--"));
@@ -19,7 +20,14 @@ const opt = (name, dflt) => {
   const i = args.indexOf(`--${name}`);
   return i >= 0 ? Number(args[i + 1]) : dflt;
 };
+const strOpt = (name) => {
+  const i = args.indexOf(`--${name}`);
+  return i >= 0 ? args[i + 1] : null;
+};
 const MIN_DUR = opt("min-dur", 12), MAX_DUR = opt("max-dur", 25);
+// Forced-alignment word timings for the narration in this master. Supplying
+// them turns the prosody audit from ADVISORY into a GATE (see below).
+const WORDS = strOpt("words");
 
 const outDir = join(dirname(file), "qa");
 mkdirSync(outDir, { recursive: true });
@@ -72,6 +80,46 @@ const silences = [...sil.matchAll(/silence_start:\s*([\d.]+)[\s\S]*?silence_dura
 const beat = silences.find((s) => s.start >= dur * 0.5 && s.start <= dur * 0.95);
 check("pre-reveal silence beat", !!beat,
   beat ? `${beat.start.toFixed(2)}s for ${beat.durS.toFixed(2)}s (<-35dB)` : "none found in 50-95% region");
+
+// --- prosody: "one connected thought" vs a LIST read (doctrine 59, P-45) ---
+// Gating policy is deliberately asymmetric. With forced-alignment timings
+// (--words) the gaps and sentence bounds are MEASURED, so a failure blocks.
+// Without them the audit falls back to local ASR, whose segment timings are
+// contiguous by construction and whose punctuation is inferred — good enough
+// to advise, never good enough to block (P-44: an overrulable FAIL trains the
+// operator to ignore failures).
+const here = dirname(fileURLToPath(import.meta.url));
+const auditPy = join(here, "prosody_audit.py");
+const venvPy = join(here, "..", ".venv", "bin", "python");
+const prosodyJson = join(outDir, `${tag}-prosody.json`);
+if (existsSync(auditPy)) {
+  const py = existsSync(venvPy) ? venvPy : "python3";
+  const pr = spawnSync(py, [auditPy, file, ...(WORDS ? [WORDS] : []),
+    "--quiet", "--json", prosodyJson], { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
+  if (!existsSync(prosodyJson)) {
+    console.log(`INFO  prosody          SKIPPED (${(pr.stderr || "audit did not run").trim().split("\n").pop()})`);
+  } else {
+    const pj = JSON.parse(readFileSync(prosodyJson, "utf8"));
+    const m = pj.metrics, g = pj.gate;
+    const aligned = !/whisper/i.test(pj.input.words_source);
+    const detail = `${m.sentence_count} sentences, ${m.words_per_sentence} words/sentence, `
+      + `${m.hard_resets}/${m.measurable_boundaries} hard pitch resets`
+      + (m.gaps_reliable ? `, gap std ${m.gap_std_s}s` : ", gaps unmeasurable (ASR timings)");
+    if (g.verdict === "fail" && aligned) {
+      check("prosody (connected thought)", false, `${detail} — ${g.failures.join("; ")}`);
+    } else {
+      if (g.verdict === "fail") {
+        console.log(`WARN  prosody          ADVISORY FAIL (ASR timings, not gating): ${g.failures.join("; ")}`);
+      }
+      for (const w of g.warnings) console.log(`WARN  prosody          ${w}`);
+      check("prosody (connected thought)", true,
+        g.verdict === "pass" ? detail : `${detail} [advisory — see WARN above]`);
+    }
+    console.log(`INFO  prosody report   ${prosodyJson}`);
+  }
+} else {
+  console.log("INFO  prosody          SKIPPED (tools/prosody_audit.py not found)");
+}
 
 // --- black frames ---
 const black = ffTxt(["-i", file, "-vf", "blackdetect=d=0.4:pix_th=0.10", "-an"]);
