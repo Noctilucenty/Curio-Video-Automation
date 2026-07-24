@@ -854,3 +854,13 @@ and prefer caption-safe wording.** If a word mis-transcribes under the bed: keep
 bed content out of the ~1-3 kHz formant band, duck pitched layers harder than the floor
 under speech, or choose a plainer word — the simpler rewrite removed the offending word
 entirely.
+
+## Rule 61 (LOCKED, Leon 2026-07-23) — SOURCE-RESOLUTION FLOOR: FHD OR BETTER
+Every image or footage source entering a timeline is **native FHD-class or
+better** (≥1080 px on the delivery-critical axis; UHD preferred when the tool
+supports it). Never source sub-FHD stock/footage. For generated plates, always
+request the generator's maximum native resolution; if its ceiling is below the
+delivery frame (e.g. 1024x1536 portrait), a SINGLE lanczos upscale to the
+1080x1920 canvas is permitted and RECORDED in the license log — chained or
+>1.5x upscales are not. Extends rule 41 (never upload/upscale a low-res
+preview master) from delivery to SOURCING.
