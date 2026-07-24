@@ -2,7 +2,7 @@
   "profile": "locked_master_retention_captions",
   "version": 1,
   "created": "2026-07-14",
-  "purpose": "Reusable caption pass for a FINISHED master whose timeline is sacred (engineered silences, synced payoffs). Captions only; nothing about the video's audio or pacing may change. This is a production capability, not a REP-3 workaround \u2014 retrieve it (plus validated caption doctrine) before any future caption job instead of re-reading production history.",
+  "purpose": "Reusable caption pass for a FINISHED master whose timeline is sacred (engineered silences, synced payoffs). Captions only; nothing about the video's audio or pacing may change. This is a production capability, not a REP-3 workaround — retrieve it (plus validated caption doctrine) before any future caption job instead of re-reading production history.",
   "timeline_policy": "locked_master",
   "operations": {
     "captions": true,
@@ -25,7 +25,7 @@
     "auth": "x-api-key header",
     "max_upload": "50MB, formats MP4/MOV, 9:16",
     "legacy": "api.captions.ai /edit/submit + /poll accepted a custom SRT + trim flags but returned HTTP 502 on 2026-07-14 (degraded/deprecated).",
-    "capability_gate": "Mirage public contract is AUTO-TRANSCRIPTION ONLY (no custom SRT, no reveal timing, no trim flags). For a locked_master with a curated caption track, an auto-caption-only provider is REFUSED (CAPABILITY_BLOCKER) \u2014 never silently fall back to auto captions. Set MIRAGE_CUSTOM_CAPTION_TIMING=1 only if the account is provisioned for custom caption timing."
+    "capability_gate": "Mirage public contract is AUTO-TRANSCRIPTION ONLY (no custom SRT, no reveal timing, no trim flags). For a locked_master with a curated caption track, an auto-caption-only provider is REFUSED (CAPABILITY_BLOCKER) — never silently fall back to auto captions. Set MIRAGE_CUSTOM_CAPTION_TIMING=1 only if the account is provisioned for custom caption timing."
   },
   "captions_ai_app_automation": {
     "added": "2026-07-16",
@@ -40,9 +40,9 @@
     "style": {
       "chosen": "Flair (elegant serif, DISCRETE word-pop; dignified). Search it in the style picker.",
       "discrete_vs_rolling": "Prism/Cove/Quintessence are ROLLING single-phrase (words accumulate/collide, no silence gap, title contamination) -> BANNED for low-cognitive/silence-protected edits. Verify discreteness by SCRUBBING (old group gone before next pops), NOT by the phrase object (all styles store the whole transcript as one phrase).",
-      "grouping": "Uniform Words-per-line/Character-count auto-segmentation ORPHANS sentence tails (single words). Fix requires VARIABLE 2-4 word grouping. VERIFIED 2026-07-16: Captions.ai CANNOT do this \u2014 manual transcript line breaks are STRIPPED; fast-list commas are below any pause threshold so word-caps cross clauses; char-caps orphan 3-4 word clauses; long comma-free sentences and lists have conflicting needs. For low-cognitive/silence-protected edits needing EXACT variable groups, use the CUSTOM Pillow engine (data/productions/*/tools/tl_captions_final.py: word-timed groups, one warm-cream active word, Baskerville serif, silence-protected, composited on the clean master) instead of Captions.ai.",
-      "font_MODERNIZED_2026-07-17": "Leon: the thin Baskerville SERIF 'looks old' and hurts mobile legibility. The custom Pillow engine now uses a BOLD CLEAN SANS (Avenir Next Bold, /System/Library/Fonts/Avenir Next.ttc index 0) for retention \u2014 reads faster at feed size = lower cognitive load = longer hold, and matches the Captions.ai modern look. Colour mechanism UNCHANGED (amber-cream active word 255,206,132 + near-white inactive 232,234,231). Size ~0.086*W, outline sw~0.052*fs. This supersedes the Baskerville-serif appearance for NEW videos; posted videos are frozen. (Ref impl: data/productions/CPR-CONSCIOUSNESS/tools/cpr_captions.py.)",
-      "font_size": "Third Man mobile benchmark ~90-96 at 1080x1920 reference; verify legibility at 270x480 (thin serif read too small \u2014 another reason for the bold-sans switch).",
+      "grouping": "Uniform Words-per-line/Character-count auto-segmentation ORPHANS sentence tails (single words). Fix requires VARIABLE 2-4 word grouping. VERIFIED 2026-07-16: Captions.ai CANNOT do this — manual transcript line breaks are STRIPPED; fast-list commas are below any pause threshold so word-caps cross clauses; char-caps orphan 3-4 word clauses; long comma-free sentences and lists have conflicting needs. For low-cognitive/silence-protected edits needing EXACT variable groups, use the CUSTOM Pillow engine (data/productions/*/tools/tl_captions_final.py: word-timed groups, one warm-cream active word, Baskerville serif, silence-protected, composited on the clean master) instead of Captions.ai.",
+      "font_MODERNIZED_2026-07-17": "Leon: the thin Baskerville SERIF 'looks old' and hurts mobile legibility. The custom Pillow engine now uses a BOLD CLEAN SANS (Avenir Next Bold, /System/Library/Fonts/Avenir Next.ttc index 0) for retention — reads faster at feed size = lower cognitive load = longer hold, and matches the Captions.ai modern look. Colour mechanism UNCHANGED (amber-cream active word 255,206,132 + near-white inactive 232,234,231). Size ~0.086*W, outline sw~0.052*fs. This supersedes the Baskerville-serif appearance for NEW videos; posted videos are frozen. (Ref impl: data/productions/CPR-CONSCIOUSNESS/tools/cpr_captions.py.)",
+      "font_size": "Third Man mobile benchmark ~90-96 at 1080x1920 reference; verify legibility at 270x480 (thin serif read too small — another reason for the bold-sans switch).",
       "position": "lower-center, clear of faces/hands; max 2 lines.",
       "emphasis": "one active warm/cream word."
     },
@@ -56,11 +56,30 @@
       "post_export": "Always re-mux the locked audio (Captions.ai renormalises to ~-13.3 LUFS) then re-verify duration/frames/audio-corr/silence."
     },
     "caption_requirements": "each phrase independent 2-4 words (never 1 unless the reveal token); old words gone before next; no captions during engineered silence; reveal caption clears before the loop-tail caption; loop-tail clears before the endpoint hold.",
-    "RECONFIRMED_2026_07_23": "LIVE EVIDENCE on MICROGRAVITY-FLAME: a completed Captions-mode pass exported at 30fps/SmartHDR-off came back 16.400s/492f vs the 16.770s/503f master (-0.407s) and -14.3 LUFS vs -17.1. The cut was MID-STREAM (leading audio aligned at 0ms offset, tail breath intact), i.e. auto-trim removed ~0.4s of the ENGINEERED COLLAPSE SILENCE. A mid-stream cut cannot be repaired by re-mux and destroys a pixel-exact loop. Captions themselves were word-perfect (whisper ASR matched the locked script). CONCLUSION: for timeline-locked / silence-protected edits, Captions.ai remains UNUSABLE regardless of how good its caption grouping is; ship the custom Pillow engine. Reference impl now: data/productions/MICROGRAVITY-FLAME/tools/micro_captions.py (adaptive pre-roll sized to the real inter-card gap; reveal card cut so the answer word never precedes its spoken payoff; collapse emptiness asserted in code; audio stream COPIED, correlation 1.000000)."
+    "RECONFIRMED_2026_07_23": "LIVE EVIDENCE on MICROGRAVITY-FLAME: a completed Captions-mode pass exported at 30fps/SmartHDR-off came back 16.400s/492f vs the 16.770s/503f master (-0.407s) and -14.3 LUFS vs -17.1. The cut was MID-STREAM (leading audio aligned at 0ms offset, tail breath intact), i.e. auto-trim removed ~0.4s of the ENGINEERED COLLAPSE SILENCE. A mid-stream cut cannot be repaired by re-mux and destroys a pixel-exact loop. Captions themselves were word-perfect (whisper ASR matched the locked script). CONCLUSION: for timeline-locked / silence-protected edits, Captions.ai remains UNUSABLE regardless of how good its caption grouping is; ship the custom Pillow engine. Reference impl now: data/productions/MICROGRAVITY-FLAME/tools/micro_captions.py (adaptive pre-roll sized to the real inter-card gap; reveal card cut so the answer word never precedes its spoken payoff; collapse emptiness asserted in code; audio stream COPIED, correlation 1.000000).",
+    "REP1_NEW_UI_RECIPE_2026_07_23": {
+      "verdict": "WORKING recipe for the NEW captions.ai UI — a Captions-mode pass preserved a timeline-locked master end-to-end (544f/18.133s, engineered silence bit-position intact). Supersedes the same-day MICROGRAVITY 'unusable' finding FOR THIS UI, under these exact conditions.",
+      "steps": [
+        "Home -> Edit dropdown -> 'Captions' (mode=captions in URL). Style picker: 'Captions only' tab -> Nova (click the card; verify STYLE field).",
+        "Plan screen: verify AUTO TRIM toggle OFF, then Create project.",
+        "CRITICAL: the editor auto-applies an 'AI Edit - Talking Head' VIDEO layer even in Captions mode — click its track, Delete style, IMMEDIATELY.",
+        "Phrase panel: fix defaults every time — Y position 960 -> 1344 (X stays 540), Start time -> 0.000. Verify Style name.",
+        "Rule 55.1 transcript diff vs the locked script (REP-1: verbatim clean, but never skip).",
+        "Word panel: Page Break on each sentence-initial word + on the reveal word(s) so the answer pops exactly as spoken; fix punctuation in word text fields (e.g. 'first' -> 'first.').",
+        "Export: 30 FPS, Smart HDR OFF -> Download video.",
+        "ALWAYS re-mux the locked audio (export measured -14.2 LUFS) and re-verify: frames/duration, silencedetect, finalqa, collapse + endpoint ink = 0."
+      ],
+      "known_limits": [
+        "Nothing renders at t=0.00-0.10s; first caption ink ~0.13s (within the 0.25s doctrine window, but frame zero itself is caption-less).",
+        "Nova late-renders line 2 of a 2-line opening card (REP-1: complete thought only at 1.17s) — rule 51 deviation; owner-accepted for REP-1 because the frame-zero IMAGE carries the anomaly. For an opener whose image does NOT carry it, use the custom Pillow engine instead.",
+        "Editor timeline UI: zoom slider bottom-right; ruler clicks seek; word labels compress at low zoom — set page breaks at high zoom.",
+        "file_upload tooling caps at 10MB — a full-quality master needs a human drag-drop."
+      ]
+    }
   },
   "code": {
     "module": "src/postprocess.ts",
-    "policy_fn": "resolveOperations(policy, requested) \u2014 the one place trimming can be enabled; throws on a locked_master cut request",
+    "policy_fn": "resolveOperations(policy, requested) — the one place trimming can be enabled; throws on a locked_master cut request",
     "guard_fn": "revealProtectionBlocker(req, ops, supportsCustomCaptionTiming)",
     "provider_class": "MiragePostProcessor (current) / CaptionsAiPostProcessor (legacy)",
     "config_env": [
@@ -93,7 +112,7 @@
     "reveal": "never show the answer in text before the visual/audio payoff"
   },
   "verify_thresholds": {
-    "duration_frames": "exact (e.g. 18.00s / 540f) \u2014 any change means a cut ran",
+    "duration_frames": "exact (e.g. 18.00s / 540f) — any change means a cut ran",
     "audio_lag_ms": 0,
     "audio_correlation_min": 0.98,
     "designed_silence": "must survive",
@@ -119,8 +138,8 @@
       "comments",
       "likes"
     ],
-    "promotion_rule": "Promote a creative caption strategy only when REPEATED Curio analytics support it \u2014 one video cannot rewrite the strategy.",
-    "failure_rule": "On underperformance, record WHICH component failed (hook split, blank beat, emphasis, turnover rate) \u2014 do not reject the whole format. Next production starts from the strongest validated profile and changes ONE controlled variable."
+    "promotion_rule": "Promote a creative caption strategy only when REPEATED Curio analytics support it — one video cannot rewrite the strategy.",
+    "failure_rule": "On underperformance, record WHICH component failed (hook split, blank beat, emphasis, turnover rate) — do not reject the whole format. Next production starts from the strongest validated profile and changes ONE controlled variable."
   },
   "captionsai_ui_model_2026_07_19": {
     "scopes": {
