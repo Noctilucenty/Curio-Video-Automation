@@ -719,9 +719,11 @@ export function buildRoutes(deps: RouteDeps): Router {
       reach: b.reach != null && Number.isFinite(Number(b.reach)) ? num(b.reach) : undefined,
       provenance: "real",
       views: num(b.views),
-      avgWatchTime: num(b.avg_watch_time),
-      completionRate: Math.max(0, Math.min(1, num(b.completion_rate))),
+      // Unknown watch data stays null — a stored 0 reads as "measured awful".
+      avgWatchTime: b.avg_watch_time != null ? num(b.avg_watch_time) : null,
+      completionRate: b.completion_rate != null ? Math.max(0, Math.min(1, num(b.completion_rate))) : null,
       skipRate: b.skip_rate != null ? Math.max(0, Math.min(1, num(b.skip_rate))) : undefined,
+      threeSecondViews: b.three_second_views != null ? num(b.three_second_views) : null,
       likes: num(b.likes),
       comments: num(b.comments),
       shares: num(b.shares),
@@ -759,20 +761,41 @@ export function buildRoutes(deps: RouteDeps): Router {
     const rows = videos
       .filter((v) => latest.has(v.id))
       .flatMap((v) =>
-        latest.get(v.id)!.map((m) => ({
-          video_id: v.id,
-          hook: v.pkg?.selectedHook ?? null,
-          platform: m.platform,
-          views: m.views,
-          completion_rate: m.completionRate,
-          skip_rate: m.skipRate ?? null,
-          avg_watch_time: m.avgWatchTime,
-          likes: m.likes,
-          shares: m.shares,
-          saves: m.saves,
-          engagement_score: Math.round(engagementScore(m) * 10) / 10,
-          ingested_at: m.ingestedAt,
-        })),
+        latest.get(v.id)!.map((m) => {
+          const views = Math.max(m.views, 1);
+          const duration = v.pkg?.estimatedLengthSeconds ?? 0;
+          const ageHours = m.postedAt ? (Date.now() - m.postedAt) / 3_600_000 : null;
+          return {
+            video_id: v.id,
+            hook: v.pkg?.selectedHook ?? null,
+            platform: m.platform,
+            surface: m.surface ?? null,
+            views: m.views,
+            completion_rate: m.completionRate,
+            skip_rate: m.skipRate ?? null,
+            avg_watch_time: m.avgWatchTime,
+            // The four judged gates (2026-07-23 adoption): scroll-stop /
+            // retention (watch_ratio) / advocacy / conversion — all per-surface.
+            scroll_stop_rate: m.threeSecondViews != null
+              ? Math.round((m.threeSecondViews / views) * 1000) / 1000
+              : m.skipRate != null ? Math.round((1 - m.skipRate) * 1000) / 1000 : null,
+            watch_ratio: m.avgWatchTime != null && duration > 0
+              ? Math.round((m.avgWatchTime / duration) * 100) / 100
+              : null,
+            advocacy_per_1k: Math.round(((m.shares + m.saves) / views) * 1000 * 10) / 10,
+            conversion_per_1k: Math.round(((m.follows + m.profileClicks) / views) * 1000 * 10) / 10,
+            likes: m.likes,
+            shares: m.shares,
+            saves: m.saves,
+            follows: m.follows,
+            engagement_score: Math.round(engagementScore(m) * 10) / 10,
+            // FB recommendation surges start 27-44h post-publish — no verdict
+            // language on rows younger than 72h.
+            age_hours: ageHours != null ? Math.round(ageHours * 10) / 10 : null,
+            verdict_eligible: ageHours != null ? ageHours >= 72 : false,
+            ingested_at: m.ingestedAt,
+          };
+        }),
       )
       .sort((a, b) => b.engagement_score - a.engagement_score);
     res.json({ videos: rows });

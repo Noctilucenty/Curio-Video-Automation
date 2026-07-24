@@ -147,8 +147,8 @@ function mockIngest(user: string): unknown {
   const entries: any[] = [];
 
   const NUMERIC = new Set([
-    "views", "reach", "avg_watch_time", "completion_rate", "skip_rate", "likes", "comments",
-    "shares", "saves", "follows", "profile_clicks", "app_downloads", "posted_at",
+    "views", "reach", "avg_watch_time", "completion_rate", "skip_rate", "three_second_views",
+    "likes", "comments", "shares", "saves", "follows", "profile_clicks", "app_downloads", "posted_at",
   ]);
   const finish = (fields: Record<string, string>) => {
     if (Object.keys(fields).length === 0) return;

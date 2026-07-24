@@ -59,11 +59,13 @@ export const LEARNING_SCHEMA = {
   },
 } as const;
 
-/** Composite engagement: completion carries the most signal, saves > shares > likes. */
+/** Composite engagement: completion carries the most signal, saves > shares > likes.
+ * Unknown completion (null) contributes 0 to the RANKING — conservative floor —
+ * but stays null in the learning payload so the model sees "unknown", not "failed". */
 export function engagementScore(m: PerformanceMetrics): number {
   const views = Math.max(m.views, 1);
   const interaction = ((m.likes + 2 * m.shares + 3 * m.saves) / views) * 100;
-  return m.completionRate * 100 + interaction;
+  return (m.completionRate ?? 0) * 100 + interaction;
 }
 
 /**
@@ -326,11 +328,25 @@ function describeVideo(s: ScoredVideo, pkgVersionByVideo: Map<string, string>) {
     completion_rate: s.metrics.completionRate,
     skip_rate: s.metrics.skipRate,
     avg_watch_time: s.metrics.avgWatchTime,
+    // FB scroll-stop proxy (3-second views / views); null when not reported.
+    scroll_stop_rate: s.metrics.threeSecondViews != null && s.metrics.views > 0
+      ? round3(s.metrics.threeSecondViews / s.metrics.views)
+      : null,
     saves: s.metrics.saves,
     shares: s.metrics.shares,
     likes: s.metrics.likes,
+    follows: s.metrics.follows,
+    profile_clicks: s.metrics.profileClicks,
+    // The four judged gates (2026-07-23): scroll-stop / retention / advocacy /
+    // conversion. Advocacy and conversion are per-1k so scale doesn't hide them.
+    advocacy_per_1k: round1(((s.metrics.shares + s.metrics.saves) / Math.max(s.metrics.views, 1)) * 1000),
+    conversion_per_1k: round1(((s.metrics.follows + s.metrics.profileClicks) / Math.max(s.metrics.views, 1)) * 1000),
     engagement_score: round1(s.score),
   };
+}
+
+function round3(n: number): number {
+  return Math.round(n * 1000) / 1000;
 }
 
 /**
@@ -342,12 +358,19 @@ function describeVideo(s: ScoredVideo, pkgVersionByVideo: Map<string, string>) {
 function cohortAggregates(scored: ScoredVideo[], pkgVersionByVideo: Map<string, string>) {
   const describe = (list: ScoredVideo[]) => {
     const withSkip = list.filter((s) => s.metrics.skipRate != null);
+    // Aggregate completion over KNOWN rows only — averaging null-as-0 rows in
+    // dragged the 2026-07-23 cohort numbers and forced the model to reverse-
+    // engineer which zeros were real.
+    const withCompletion = list.filter((s) => s.metrics.completionRate != null);
     const totalViews = list.reduce((acc, s) => acc + s.metrics.views, 0);
     return {
       n_rows: list.length,
       distinct_videos: new Set(list.map((s) => s.video.id)).size,
       avg_engagement: round1(avg(list.map((s) => s.score))),
-      avg_completion: Math.round(avg(list.map((s) => s.metrics.completionRate)) * 100) / 100,
+      avg_completion: withCompletion.length
+        ? Math.round(avg(withCompletion.map((s) => s.metrics.completionRate!)) * 100) / 100
+        : null,
+      completion_known_rows: withCompletion.length,
       avg_skip_rate: withSkip.length
         ? Math.round(avg(withSkip.map((s) => s.metrics.skipRate!)) * 100) / 100
         : null,
@@ -356,6 +379,9 @@ function cohortAggregates(scored: ScoredVideo[], pkgVersionByVideo: Map<string, 
         : 0,
       saves_per_1k_views: totalViews
         ? round1((list.reduce((acc, s) => acc + s.metrics.saves, 0) / totalViews) * 1000)
+        : 0,
+      follows_per_1k_views: totalViews
+        ? round1((list.reduce((acc, s) => acc + s.metrics.follows, 0) / totalViews) * 1000)
         : 0,
     };
   };
@@ -389,7 +415,12 @@ function platformAggregates(scored: ScoredVideo[]) {
       {
         n: list.length,
         avg_engagement: round1(avg(list.map((s) => s.score))),
-        avg_completion: round1(avg(list.map((s) => s.metrics.completionRate)) * 100) / 100,
+        avg_completion: (() => {
+          const known = list.filter((s) => s.metrics.completionRate != null);
+          return known.length
+            ? round1(avg(known.map((s) => s.metrics.completionRate!)) * 100) / 100
+            : null;
+        })(),
         avg_length: Math.round(avg(list.map((s) => s.video.pkg.estimatedLengthSeconds))),
       },
     ]),

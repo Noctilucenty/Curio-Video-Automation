@@ -313,6 +313,20 @@ describe("ingestRawAnalytics (mock parser)", () => {
     expect(canonicalSurface(null)).toBeUndefined();
   });
 
+  it("keeps unknown watch metrics null and maps three_second_views (never stores 0 for 'not reported')", async () => {
+    const repo = new InMemoryRepo();
+    const video = await publishedVideo(repo, "Null integrity");
+    // A Facebook drop with NO avg watch / completion in the paste, but with
+    // the 3-second-views scroll-stop proxy (the 2026-07-23 capture shape).
+    const raw = `video_id=${video.id} platform=facebook surface=facebook views=74737 three_second_views=33829 likes=110 comments=6 shares=4 saves=15 follows=0`;
+    const report = await ingestRawAnalytics(repo, new MockLlmClient(), raw);
+    expect(report.matched).toHaveLength(1);
+    const [m] = await repo.listMetrics(video.id);
+    expect(m.avgWatchTime).toBeNull();       // unknown ≠ 0 — a 0 reads as "measured awful"
+    expect(m.completionRate).toBeNull();
+    expect(m.threeSecondViews).toBe(33829);
+  });
+
   it("normalizes epoch-seconds posted_at to milliseconds", async () => {
     const repo = new InMemoryRepo();
     const video = await publishedVideo(repo, "Posted at units");

@@ -26,8 +26,8 @@ export const INGEST_SCHEMA = {
         additionalProperties: false,
         required: [
           "match_hint", "platform", "surface", "views", "reach", "avg_watch_time",
-          "completion_rate", "skip_rate", "likes", "comments", "shares", "saves",
-          "follows", "profile_clicks", "app_downloads", "posted_at",
+          "completion_rate", "skip_rate", "three_second_views", "likes", "comments",
+          "shares", "saves", "follows", "profile_clicks", "app_downloads", "posted_at",
         ],
         properties: {
           match_hint: {
@@ -47,6 +47,7 @@ export const INGEST_SCHEMA = {
           avg_watch_time: { type: ["number", "null"] },
           completion_rate: { type: ["number", "null"] },
           skip_rate: { type: ["number", "null"] },
+          three_second_views: { type: ["number", "null"] },
           likes: { type: "number" },
           comments: { type: "number" },
           shares: { type: "number" },
@@ -73,6 +74,7 @@ export interface ParsedEntry {
   avg_watch_time?: number | null;
   completion_rate?: number | null;
   skip_rate?: number | null;
+  three_second_views?: number | null;
   likes?: number | null;
   comments?: number | null;
   shares?: number | null;
@@ -276,9 +278,12 @@ function toMetrics(entry: ParsedEntry, video: Video): PerformanceMetrics {
     reach: entry.reach != null ? num(entry.reach) : undefined,
     provenance: "real", // pasted platform analytics — the loop's only training signal
     views: num(entry.views),
-    avgWatchTime: num(entry.avg_watch_time),
-    completionRate: rate(entry.completion_rate),
+    // Unknown stays null — storing 0 for "not reported" corrupted the
+    // 2026-07-23 learning stream (zero completion beside 12s avg watch).
+    avgWatchTime: entry.avg_watch_time != null ? num(entry.avg_watch_time) : null,
+    completionRate: entry.completion_rate != null ? rate(entry.completion_rate) : null,
     skipRate: entry.skip_rate != null ? rate(entry.skip_rate) : undefined,
+    threeSecondViews: entry.three_second_views != null ? num(entry.three_second_views) : null,
     likes: num(entry.likes),
     comments: num(entry.comments),
     shares: num(entry.shares),

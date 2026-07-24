@@ -333,6 +333,12 @@ units. Extract one entry per video. Rules:
   REFUSES such entries (combined IG+FB totals never enter learning), and the
   refusal report tells the operator to pull the per-surface split.
 - reach: accounts reached on that surface when shown, else null.
+- three_second_views: Facebook's "3-second views" count when shown, else null
+  (it is the FB scroll-stop proxy; never derive it from other numbers).
+- completion_rate must be the UNCONDITIONED audience retention. If the paste
+  only shows a conditioned view ("views over 15 seconds", "relative
+  retention") or says completion is unknown, output null — NEVER 0. The same
+  for avg_watch_time: absent means null, not 0 (a stored 0 corrupts learning).
 - posted_at: epoch milliseconds if a date is present, else omit.`;
 }
 

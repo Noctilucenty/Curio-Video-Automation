@@ -56,8 +56,11 @@ function metricsFor(exp: any, videoId: string): PerformanceMetrics | null {
     provenance: "real" as const,
     reach: a.reachInstagram ?? undefined,
     views: igViews,
-    avgWatchTime: a.avgWatchTimeSeconds ?? 0,
-    completionRate: a.retentionAtEnd ?? 0,
+    // null = the dataset doesn't know — never coerce unknown watch data to 0
+    // (the 2026-07-23 rows imported as 0 and had to be quarantined by the
+    // learning run's own reasoning).
+    avgWatchTime: a.avgWatchTimeSeconds ?? null,
+    completionRate: a.retentionAtEnd ?? null,
     skipRate: a.skipRate ?? undefined,
     likes: count(a.likes, a.likeRate),
     comments: count(a.comments, a.commentRate),

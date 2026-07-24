@@ -190,8 +190,18 @@ export interface PerformanceMetrics {
    * shape permanent rules. All live ingestion paths tag "real". */
   provenance?: "real" | "synthetic";
   views: number;
-  avgWatchTime: number;
-  completionRate: number;
+  /** Seconds, or null when the platform did not report it. NEVER store an
+   * unknown as 0 — the 2026-07-23 batch wrote null→0 rows and the learning
+   * run had to detect the contradiction by reasoning ("zero completion with
+   * 12s avg watch"); unknown must be structural, not inferred. */
+  avgWatchTime: number | null;
+  /** 0-1 UNCONDITIONED completion, or null when unknown. Business Suite's
+   * "views over 15 seconds" toggle is a conditioned curve and is NOT this
+   * number (2026-07-23 correction). */
+  completionRate: number | null;
+  /** FB "3-second views" when reported — the scroll-stop proxy on Facebook
+   * (threeSecondViews / views ≈ 1 − skip rate). */
+  threeSecondViews?: number | null;
   likes: number;
   comments: number;
   shares: number;

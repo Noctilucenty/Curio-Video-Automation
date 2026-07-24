@@ -52,6 +52,14 @@ describe("engagement scoring", () => {
     expect(saves).toBeGreaterThan(shares);
     expect(shares).toBeGreaterThan(likes);
   });
+
+  it("treats unknown completion as a conservative ranking floor, not a measured zero", () => {
+    const unknown = engagementScore(metrics("v", { completionRate: null }));
+    const measuredZero = engagementScore(metrics("v", { completionRate: 0 }));
+    expect(unknown).toBe(measuredZero); // same RANK floor…
+    // …but the stored value stays null so the learning payload reads "unknown"
+    expect(metrics("v", { completionRate: null }).completionRate).toBeNull();
+  });
 });
 
 describe("metrics provenance", () => {
