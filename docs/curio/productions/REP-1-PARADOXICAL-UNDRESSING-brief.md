@@ -1,12 +1,19 @@
 # REP-1 — Paradoxical undressing
 
-Status: **AUDIO-STORY REVIEW GATE (2026-07-23).** Script approved; narration
-take A locked autonomously (rubric ~89/100, +224.1 Hz rising close, ASR
-word-perfect; lineage in `data/productions/REP-1-UNDRESSING/AUDIO-LINEAGE.md`).
-Complete audio story built and measured: 17.972 s, −17.1 LUFS, TP −2.3 dBTP,
-collapse 0.447 s @83%, seamless-loop wrap verified on loopx2, final-mux ASR
-word-perfect. **Awaiting Leon's ear on the audio story — the single pre-visual
-stop. No paid visuals authorized until it passes.**
+Status: **AUDIO-STORY REVIEW GATE, SCRIPT v3 (2026-07-23 evening).** Leon
+flagged v1 comprehension ("not human easy understandable") — audit confirmed:
+"vessels" ship-misparse + garden path, "garments" ear-register, "them"→doctors
+antecedent trap on the share line. **Script v3 locked (49 words):** "Some
+people… clothes… blood rushes back to the skin… **It's called** paradoxical
+undressing. Nearly all of them crawl somewhere to hide first." The v2/v3
+closing fell 0-for-6 in fresh takes while v1's identical closing rose 2-for-2,
+so the narration master is take **S — a doctrine-30 splice** (v3 body from
+take H + take A's +224.1 Hz rising closing line, joined in true silence;
+full history in `data/productions/REP-1-UNDRESSING/AUDIO-LINEAGE.md`).
+Audio story rebuilt on S and measured: 18.123 s, −17.1 LUFS, TP −3.1 dBTP,
+collapse 0.361 s @84%, reveal 83.3%, loop join continuous (+3.6 dB @100 ms),
+mux ASR word-perfect. **Awaiting Leon's ear — the single pre-visual stop.
+No paid visuals authorized until it passes.**
 
 Date: 2026-07-23 (Thursday)
 Growth OS slot: psychology / named human phenomenon — **fits**
@@ -32,7 +39,20 @@ The five replicated mechanism elements (EXP-202606-30-01):
 4. Named explanation at ~70-80% — "paradoxical undressing"
 5. Residual mystery — the name does not close the question
 
-## Locked narration draft (49 words, ~18.7s)
+## LOCKED narration — script v3 (49 words; supersedes the v1 draft below)
+
+> Some people freeze to death undressed. Rescuers find clothes scattered in
+> the snow, a trail leading away. In the last stage of freezing, blood rushes
+> back to the skin, and the body floods with false heat. It's called
+> paradoxical undressing. Nearly all of them crawl somewhere to hide first.
+
+Claim-map deltas vs v1 (all other rows unchanged): "clothes" = "garments"
+(same claim, ear register); "blood rushes **back** to the skin" = the source's
+peripheral vasodilatation in plain language, with "back" carrying the earlier
+vasoconstriction; "It's called" = the same named phenomenon without the
+"Doctors" plural that made the closing line's "them" garden-path.
+
+### v1 draft (superseded 2026-07-23 — comprehension audit)
 
 > Some freeze to death undressed. Rescuers find garments scattered in the snow,
 > a trail leading away. In the last stage of freezing, vessels that clamped shut
