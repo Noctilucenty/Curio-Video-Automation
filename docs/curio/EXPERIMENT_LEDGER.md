@@ -424,3 +424,20 @@ natives) and stated as such. Machine copies: `data/posted-experiments.json`
    ineffective (A/B: 4 with bait vs 5 without).
 5. MICROGRAVITY-FLAME was never posted (absent from IG grid + Business Suite).
 7d checkpoints due: Harrison 2026-07-24 · BRINE 2026-07-26 · Ant Mill 2026-07-27.
+
+### 2026-07-23 addendum — D3 resolved + D1 adopted + capture automation
+- **BRINE posted-export identity RESOLVED:** posted reel = v7 lineage,
+  15.375s — local `preview-brine-v7-captionsai-1080p{30,60}.mp4` match the
+  platform's 0:15 exactly. The "17.333s v5" conflict was stale doctrine notes.
+- **D1 ADOPTED (Leon "do all"):** every future FB post caption ends with the
+  tappable link line "Full story + more like this: trycurio.app" — rule +
+  measurement plan in CONVERSION_SYSTEM.md; package prompt updated so
+  generated captions carry it. Frozen posts untouched.
+- **Capture automation built:** `tools/capture_meta_insights.ts` (Graph API,
+  platform-separated, appends checkpoints, absent-metric = null). BLOCKED on
+  token: META_ACCESS_TOKEN expired 2026-07-14 — renew via Graph Explorer
+  (pages_read_engagement, read_insights, instagram_basic,
+  instagram_manage_insights; extend long-lived), then
+  `npx tsx tools/capture_meta_insights.ts --check`.
+- 7d checkpoint reminders created on Leon's Google Calendar (Jul 24 / 26 / 27,
+  timed to each post's +168h).

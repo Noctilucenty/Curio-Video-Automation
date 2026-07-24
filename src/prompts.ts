@@ -176,7 +176,12 @@ and the one-outcome fields (primary_outcome, secondary_outcome, outcome_moment).
 The script is what the avatar SPEAKS — write for the ear. Captions are what the
 viewer READS — shorter beats derived from the script, not a transcript dump.
 The post caption should run emotional-first (make them recognize themselves),
-product-second, and end with the soft signature — never ad copy.`;
+product-second, and end with the soft signature — never ad copy. The FINAL
+line of the post caption is always the tappable link line
+"Full story + more like this: trycurio.app" (adopted 2026-07-23: Facebook
+renders caption links tappable and 152K breakout views had nothing to click;
+on Instagram the same line reads as a plain mention — never write
+"link in bio" bait).`;
 }
 
 export function packageUserPrompt(topic: Topic, feedback?: JudgeScores, revisionBase?: VideoPackage): string {

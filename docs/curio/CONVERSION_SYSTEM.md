@@ -163,3 +163,26 @@ qualified Curio installs is the better advertisement.
 2. Add it **only after the payoff** and **only when loop-safe**.
 3. **NEVER retrofit this system into an already-approved master without a new explicit
    review.** (BRINE-POOL v7 is locked; it gets caption-layer conversion only.)
+
+## FB caption link — ADOPTED 2026-07-23 (Leon "do all")
+
+**Every future Facebook post carries one tappable link line at the END of the
+post caption:** `Full story + more like this: trycurio.app`
+
+Rationale (EXPERIMENT_LEDGER 2026-07-23): 152K breakout views produced 0 link
+clicks — partly STRUCTURAL, because the FB captions contained no link at all.
+FB captions render real tappable links; IG captions do not (IG keeps the bio
+link + soft signature path).
+
+Constraints:
+1. Caption layer ONLY — never inside an approved master (standing rule above).
+2. Placement: last line, after all content text, below the fold. The hook and
+   payoff text never change to accommodate it.
+3. IG caption may carry the plain-text `trycurio.app` mention but the primary
+   IG funnel remains bio link; do not add "link in bio" bait (one-outcome).
+4. FROZEN posts (Harrison, Ant Mill, BRINE v7 et al.) are NOT edited — the
+   rule applies from the next post forward.
+5. Measurement: the conversion gate (follows + link clicks per 1K, per
+   surface) is live in `/api/performance/summary` and the trends diagnosis —
+   judge this rule there, revert if FB link clicks stay ~0 after 3 linked
+   posts with real distribution.
