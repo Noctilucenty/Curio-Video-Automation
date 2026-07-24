@@ -864,3 +864,18 @@ delivery frame (e.g. 1024x1536 portrait), a SINGLE lanczos upscale to the
 1080x1920 canvas is permitted and RECORDED in the license log — chained or
 >1.5x upscales are not. Extends rule 41 (never upload/upscale a low-res
 preview master) from delivery to SOURCING.
+
+### Rule 53 addendum — Captions.ai web app, REP-1 run (2026-07-23 night)
+New evidence SUPERSEDING the same-day "unusable" reconfirmation for the NEW
+app UI, with conditions: a Captions-mode pass **preserved a timeline-locked
+master end-to-end** (544f/18.133s, engineered silence bit-position intact)
+when the procedure was followed EXACTLY: (1) the auto-applied "AI Edit ·
+Talking Head" layer must be DELETED immediately (it is added even in Captions
+mode and is a video treatment); (2) AUTO-TRIM verified OFF at the plan screen;
+(3) export 30 fps / Smart HDR off; (4) always re-mux the locked audio
+(export measured −14.2 LUFS). Known persisting limits: nothing renders at
+t=0.00–0.10s (first ink ~0.13s), and Nova still late-renders line 2 of the
+opening card (REP-1: complete thought only at 1.17s — rule 51 deviation,
+owner-accepted for REP-1 because the frame-zero image carries the anomaly).
+Phrase defaults need fixing every time: Y 960→1344, start→0.000. Their ASR
+was verbatim-clean on REP-1 (still: always run the 55.1 diff).

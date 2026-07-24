@@ -18,7 +18,7 @@ zero human-action clips) → assembly frame-locked to take-S beats (false-heat
 amber crests at "heat.", spindrift under the collapse, frozen-frame-0 loop
 return) → finalqa ALL PASS → custom Pillow captions (15 clause-aligned cards,
 width-measured layout, collapse + endpoint zero-ink, audio byte-identical).
-**Deliverable: `data/productions/REP-1-UNDRESSING/rep1-CAPTIONED-v1.mp4`**
+**POSTING DELIVERABLE (Leon's pick 2026-07-23 night): `data/productions/REP-1-UNDRESSING/rep1-FINAL-captionsai.mp4`** — Captions.ai/Nova caption pass, locked audio re-muxed (checksum-identical), finalqa ALL PASS, silence intact; rule-51 deviation (opening line 2 completes at 1.17s) owner-accepted, full caption lineage in AUDIO-LINEAGE.md. Pillow build kept as alternate:
 (1080x1920@30, 18.12s, −17.1 LUFS, faststart). Doctrine 61 (FHD source floor)
 adopted from Leon's note; plates were 1024x1536 native → single 1.25x lanczos,
 recorded in LICENSE-LOG.md. Nothing posts automatically — Leon posts.**
